@@ -1,3 +1,5 @@
+#include "repch.h"
+
 #include "Application.h"
 
 namespace RealEngine {
@@ -7,6 +9,7 @@ namespace RealEngine {
 	Application::Application()
 	{
 		m_Running = true;
+		m_Window = new Window();
 	}
 
 	Application::~Application()
@@ -17,24 +20,34 @@ namespace RealEngine {
 	{
 		while (m_Running)
 		{
-			OnEvemt();
-			OnUpdate();
 			OnRender();
+			OnUpdate();
+			OnEvent();
 		}
 	}
 
-	void Application::OnEvemt()
+	void Application::OnEvent()
 	{
-	
+		glfwPollEvents();
 	}
 
 	void Application::OnUpdate()
 	{
-		std::cout << "Welcome to Engine" << std::endl;
+		if (glfwWindowShouldClose(m_Window->GetNativeWindow()))
+			m_Running = false;
+
+		m_Window->OnUpdate();
+
+		if (Input::IsKeyPressed(KeyCodes::LEFT))
+		{
+			ENGINE_INFO("A is pressed!");
+		}
+		
 	}
 
 	void Application::OnRender()
 	{
+		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
 	void Application::Exit()

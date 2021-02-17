@@ -1,12 +1,12 @@
-#include <iostream>
+#include "repch.h"
 
 #include "Application.h"
 
 int main()
 {
+	RealEngine::Log::InitLog();
 
 	RealEngine::Application::Get()->Run();
-
-	//std::cin.get();
+  
 	return 0;
 }
