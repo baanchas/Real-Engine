@@ -4,7 +4,7 @@
 
 int main()
 {
-	RealEngine::Log::InitLog();
+
 
 	RealEngine::Application::Get()->Run();
   

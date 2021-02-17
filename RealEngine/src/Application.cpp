@@ -9,8 +9,14 @@ namespace RealEngine {
 
 	Application::Application()
 	{
+		RealEngine::Log::InitLog();
+
 		m_Running = true;
 		m_Window = new Window();
+
+		PushLayer(new EditorLayer());
+		PushLayer(new ExampleLayer());
+
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -48,6 +54,11 @@ namespace RealEngine {
 	void Application::OnEvent()
 	{
 		glfwPollEvents();
+
+		for (Layer* layer : m_LayerStack)
+		{
+			layer->OnEvent();
+		}
 	}
 
 	void Application::OnUpdate()
@@ -55,18 +66,27 @@ namespace RealEngine {
 		if (glfwWindowShouldClose(m_Window->GetNativeWindow()))
 			m_Running = false;
 
-		m_Window->OnUpdate();
-
+		for (Layer* layer : m_LayerStack)
+		{
+			layer->OnUpdate();
+		}
+		
 		if (Input::IsKeyPressed(KeyCodes::LEFT))
 		{
 			ENGINE_INFO("A is pressed!");
 		}
 		
+		m_Window->OnUpdate();
 	}
 
 	void Application::OnRender()
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		for (Layer* layer : m_LayerStack)
+		{
+			layer->OnRender();
+		}
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
