@@ -11,12 +11,12 @@ namespace RealEngine {
 	bool Input::IsKeyPressed(int keycode)
 	{
 		//auto window = Application::Get()->GetWindow()->GetNativeWindow();
-		return glfwGetKey(Application::Get()->GetWindow()->GetNativeWindow(), keycode);
+		return glfwGetKey(Application::Get().GetWindow().GetNativeWindow(), keycode);
 	}
 
 	bool Input::IsMouseButtonPressed(int button)
 	{
-		auto window = static_cast<GLFWwindow*>(Application::Get()->GetWindow()->GetNativeWindow());
+		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		auto state = glfwGetKey(window, button);
 		return state == GLFW_PRESS;
 	}
@@ -24,7 +24,7 @@ namespace RealEngine {
 
 	std::pair<float, float> Input::GetMousePosition()
 	{
-		auto window = Application::Get()->GetWindow()->GetNativeWindow();
+		auto window = Application::Get().GetWindow().GetNativeWindow();
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
 

@@ -14,7 +14,7 @@ namespace RealEngine {
 
 	void EditorLayer::OnUpdate()
 	{
-		ENGINE_INFO("Editor Layer Updatefunc");
+		ENGINE_INFO("{0}", a);
 	}
 
 	void EditorLayer::OnEvent()
@@ -23,5 +23,11 @@ namespace RealEngine {
 
 	void EditorLayer::OnRender()
 	{
+		ImGui::ShowDemoWindow();
+
+		ImGui::Begin("Test");
+		ImGui::DragFloat("dragfloat", &a, 1.0f);
+		ImGui::End();
+
 	}
 }

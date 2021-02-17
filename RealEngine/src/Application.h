@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Engine/Graphics/Window.h"
-#include "Engine/LayersStack.h"
-#include "Engine/Layer.h"
-#include "Engine/EditorLayer.h"
-#include "Engine/ExampleLayer.h"
+#include "Engine/Layers/LayersStack.h"
+#include "Engine/Layers/Layer.h"
+#include "Engine/Layers/EditorLayer.h"
+#include "Engine/Layers/ExampleLayer.h"
+#include "Engine/Layers/ImGuiLayer.h"
 
 
 namespace RealEngine {
@@ -27,16 +28,18 @@ namespace RealEngine {
 		
 		void Exit();
 
-		inline Window* GetWindow() { return m_Window; }
+		inline Window& GetWindow() { return *m_Window; }
 
-		static Application* Get() { return s_Instance; }
+		static Application& Get() { return *s_Instance; }
 	private:
 		Application();
 	private:
 		static Application* s_Instance;
 
 		Window* m_Window;
+
 		LayersStack m_LayerStack;
+		ImGuiLayer* m_ImGuiLayer;
 
 		bool m_Running;
 		

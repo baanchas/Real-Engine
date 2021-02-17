@@ -4,11 +4,14 @@
 
 namespace RealEngine {
 
-	class EditorLayer : public Layer
+	class ImGuiLayer : public Layer
 	{
 	public:
-		EditorLayer();
-		~EditorLayer();
+		ImGuiLayer();
+		~ImGuiLayer();
+
+		void Begin();
+		void End();
 
 		void OnUpdate() override;
 		void OnEvent() override;
@@ -17,4 +20,3 @@ namespace RealEngine {
 	};
 
 }
-

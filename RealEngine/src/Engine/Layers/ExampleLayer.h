@@ -1,16 +1,16 @@
 #pragma once
 
-#include "Engine/Layer.h"
+#include "Layer.h"
 
 namespace RealEngine {
 
 	class ExampleLayer : public Layer
 	{
 	public:
-		ExampleLayer() { ENGINE_INFO("ExampleLayer is pushed"); };
+		ExampleLayer() {};
 		~ExampleLayer() {};
 
-		void OnUpdate() override { ENGINE_INFO("updating examplelayer"); };
+		void OnUpdate() override {};
 		void OnEvent() override {};
 		void OnRender() override {};
 	private:

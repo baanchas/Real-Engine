@@ -6,7 +6,7 @@ int main()
 {
 
 
-	RealEngine::Application::Get()->Run();
+	RealEngine::Application::Get().Run();
   
 	return 0;
 }

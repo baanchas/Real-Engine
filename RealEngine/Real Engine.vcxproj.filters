@@ -51,16 +51,19 @@
     <ClCompile Include="libs\imgui\imgui_widgets.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\Layer.cpp">
+    <ClCompile Include="src\Engine\Layers\EditorLayer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\LayersStack.cpp">
+    <ClCompile Include="src\Engine\Layers\ExampleLayer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\EditorLayer.cpp">
+    <ClCompile Include="src\Engine\Layers\Layer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\ExampleLayer.cpp">
+    <ClCompile Include="src\Engine\Layers\LayersStack.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\Layers\ImGuiLayer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -83,16 +86,19 @@
     <ClInclude Include="src\Engine\Input\KeyCodes.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine\Layer.h">
+    <ClInclude Include="src\Engine\Layers\EditorLayer.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine\LayersStack.h">
+    <ClInclude Include="src\Engine\Layers\ExampleLayer.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine\EditorLayer.h">
+    <ClInclude Include="src\Engine\Layers\Layer.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine\ExampleLayer.h">
+    <ClInclude Include="src\Engine\Layers\LayersStack.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Engine\Layers\ImGuiLayer.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
