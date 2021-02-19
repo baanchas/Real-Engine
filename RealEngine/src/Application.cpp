@@ -11,17 +11,18 @@ namespace RealEngine {
 	{
 		s_Instance = this;
 
+
 		RealEngine::Log::InitLog();
 
 		m_Running = true;
 		m_Window = new Window();
 
-		PushLayer(new EditorLayer());
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+		PushLayer(new EditorLayer());
 		m_ImGuiLayer = new ImGuiLayer();
 		PushLayer(m_ImGuiLayer);
-
-		
 	}
 
 	Application::~Application()
@@ -33,9 +34,10 @@ namespace RealEngine {
 	{
 		while (m_Running)
 		{
-			OnRender();
-			OnUpdate();
 			OnEvent();
+			OnUpdate();
+			OnRender();
+			glfwSwapBuffers(m_Window->GetNativeWindow());
 		}
 	}
 
@@ -64,12 +66,13 @@ namespace RealEngine {
 			ENGINE_INFO("A is pressed!");
 		}
 		
-		m_Window->OnUpdate();
+		//m_Window->OnUpdate();
 	}
 
 	void Application::OnRender()
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		Renderer::Clear();
+		//glClear(GL_COLOR_BUFFER_BIT);
 
 		m_ImGuiLayer->Begin();
 

@@ -57,7 +57,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GLEW_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\spdlog\include\;$(SolutionDIr)RealEngine\libs\glew\include;$(SolutionDir)RealEngine\libs\GLFW\include\;$(SolutionDir)RealEngine\src\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\spdlog\include\;$(SolutionDIr)RealEngine\libs\glew\include;$(SolutionDir)RealEngine\libs\GLFW\include\;$(SolutionDir)RealEngine\src\</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>repch.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -76,7 +76,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)RealEngine\libs\spdlog\include\;$(SolutionDIr)RealEngine\libs\glew\include;$(SolutionDir)RealEngine\libs\GLFW\include\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\spdlog\include\;$(SolutionDIr)RealEngine\libs\glew\include;$(SolutionDir)RealEngine\libs\GLFW\include\;</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>repch.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -90,6 +90,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Platform\OpenGL\Renderer.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\Shader.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\IndexBuffer.cpp" />
     <ClCompile Include="src\Engine\Layers\ImGuiLayer.cpp" />
     <ClCompile Include="src\Engine\Layers\ExampleLayer.cpp" />
     <ClCompile Include="src\Engine\Layers\EditorLayer.cpp" />
@@ -110,8 +113,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\VertexArray.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Platform\OpenGL\Renderer.h" />
+    <ClInclude Include="src\Platform\OpenGL\Shader.h" />
+    <ClInclude Include="src\Platform\OpenGL\IndexBuffer.h" />
     <ClInclude Include="src\Engine\Layers\ImGuiLayer.h" />
     <ClInclude Include="src\Engine\Layers\EditorLayer.h" />
     <ClInclude Include="src\Engine\Layers\Layer.h" />
@@ -122,7 +130,10 @@
     <ClInclude Include="src\Engine\Layers\LayersStack.h" />
     <ClInclude Include="src\Engine\Log.h" />
     <ClInclude Include="src\Engine\Layers\ExampleLayer.h" />
+    <ClInclude Include="src\Platform\OpenGL\VertexBufferLayout.h" />
     <ClInclude Include="src\repch.h" />
+    <ClInclude Include="src\Platform\OpenGL\VertexArray.h" />
+    <ClInclude Include="src\Platform\OpenGL\VertexBuffer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

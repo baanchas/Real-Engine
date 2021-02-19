@@ -4,8 +4,6 @@
 
 int main()
 {
-
-
 	RealEngine::Application::Get().Run();
   
 	return 0;
