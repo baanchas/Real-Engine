@@ -17,9 +17,6 @@ namespace RealEngine {
 		m_Running = true;
 		m_Window = new Window();
 
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 		PushLayer(new EditorLayer());
 		m_ImGuiLayer = new ImGuiLayer();
 		PushLayer(m_ImGuiLayer);
@@ -63,10 +60,10 @@ namespace RealEngine {
 		
 		if (Input::IsKeyPressed(KeyCodes::LEFT))
 		{
-			ENGINE_INFO("A is pressed!");
+			//ENGINE_INFO("A is pressed!");
 		}
 		
-		//m_Window->OnUpdate();
+		m_Window->OnUpdate();
 	}
 
 	void Application::OnRender()

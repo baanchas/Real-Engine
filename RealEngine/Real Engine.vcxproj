@@ -90,7 +90,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Platform\OpenGL\Renderer.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\Renderer\CameraController.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\Renderer\OrthographicCamera.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\Shader.cpp" />
     <ClCompile Include="src\Platform\OpenGL\IndexBuffer.cpp" />
     <ClCompile Include="src\Engine\Layers\ImGuiLayer.cpp" />
@@ -117,7 +119,9 @@
     <ClCompile Include="src\Platform\OpenGL\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Platform\OpenGL\Renderer.h" />
+    <ClInclude Include="src\Platform\OpenGL\Renderer\CameraController.h" />
+    <ClInclude Include="src\Platform\OpenGL\Renderer\OrthographicCamera.h" />
+    <ClInclude Include="src\Platform\OpenGL\Renderer\Renderer.h" />
     <ClInclude Include="src\Platform\OpenGL\Shader.h" />
     <ClInclude Include="src\Platform\OpenGL\IndexBuffer.h" />
     <ClInclude Include="src\Engine\Layers\ImGuiLayer.h" />

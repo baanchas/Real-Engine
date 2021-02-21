@@ -20,6 +20,8 @@ namespace RealEngine {
 		}
 	};
 
+	struct WindowProperties;
+
 	class Window
 	{
 	public:
@@ -35,6 +37,10 @@ namespace RealEngine {
 		inline unsigned int GetWidth() const { return m_Properties.Width; }
 		inline unsigned int GetHeight() const { return m_Properties.Height; }
 
+		//inline WindowProperties GetProps() { return m_Properties; }
+
+		inline int GetYOffset() { return m_Properties.yOffset; }
+
 		inline GLFWwindow* GetNativeWindow() const { return m_Window; }
 				
 	private:
@@ -46,12 +52,14 @@ namespace RealEngine {
 			std::string Title;
 			unsigned int Width;
 			unsigned int Height;
+
+
+			float xOffset = 0;
+			float yOffset = 0;
 			bool VSync;
 		};
 
 		WindowProperties m_Properties;
-
-
 
 		bool VSync;
 

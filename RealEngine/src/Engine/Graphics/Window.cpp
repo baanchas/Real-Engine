@@ -15,7 +15,10 @@ namespace RealEngine {
 
 	void Window::OnUpdate()
 	{
-		glfwSwapBuffers(m_Window);
+		//glfwSwapBuffers(m_Window);
+
+		//ENGINE_INFO("{0}, {1}", m_Properties.xOffset, m_Properties.yOffset);
+		m_Properties.yOffset = 0;
 	}
 
 	void Window::Init(const WindowProps& props)
@@ -41,6 +44,10 @@ namespace RealEngine {
 			std::cout << "glew Init Error!" << std::endl;
 		}
 
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		glfwSetWindowUserPointer(m_Window, &m_Properties);
 
 		SetVSync(true);
@@ -52,6 +59,14 @@ namespace RealEngine {
 			data.Width = width;
 			data.Height = height;
 		});
+
+		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)
+		{
+			WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);
+
+			data.yOffset = yOffset;
+		});
+
 		//SetVSync(props.VSync);
 	}
 

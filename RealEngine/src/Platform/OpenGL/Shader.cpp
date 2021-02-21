@@ -122,23 +122,23 @@ namespace RealEngine {
 		glUseProgram(0);
 	}
 
-	void Shader::SetUniform1i(const std::string& uniform, int value)
+	void Shader::SetUniform1i(const std::string& name, int value)
 	{
-		glUniform1i(GetUniformLocation(uniform), value);
+		glUniform1i(GetUniformLocation(name), value);
 	}
 
-	void Shader::SetUniform4f(const std::string& uniform, float v0, float v1, float v2, float v3)
+	void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3)
 	{
-		glUniform4f(GetUniformLocation(uniform), v0, v1, v2, v3);
+		glUniform4f(GetUniformLocation(name), v0, v1, v2, v3);
 	}
 
-	void Shader::SetUniformMat4f(const std::string& uniform, const glm::mat4& matrix)
+	void Shader::SetUniformMat4f(const std::string& name, const glm::mat4& matrix)
 	{
-		glUniformMatrix4fv(GetUniformLocation(uniform), 1, GL_FALSE, &matrix[0][0]);
+		glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]);
 	}
 
-	int Shader::GetUniformLocation(const std::string& uniform)
+	int Shader::GetUniformLocation(const std::string& name)
 	{
-		return glGetUniformLocation(m_RendererID, uniform.c_str());
+		return glGetUniformLocation(m_RendererID, name.c_str());
 	}
 }

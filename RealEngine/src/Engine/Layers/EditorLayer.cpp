@@ -5,9 +5,12 @@
 
 namespace RealEngine {
 
-	EditorLayer::EditorLayer()
+    EditorLayer::EditorLayer()
+        : m_CameraController(1280.0f, 720.0f)
 	{
 		ENGINE_INFO("Editor Layer is pushed");
+
+        glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
 
         a = int(5);
 
@@ -20,11 +23,7 @@ namespace RealEngine {
         translationA = glm::vec3(0, 0, 0);
         translationB = glm::vec3(0, 0, 0);
         translationC = glm::vec3(0, 0, 0);
-        projection = glm::ortho(0.0f, 1280.0f, 0.0f, 720.0f, -1.0f, 1.0f); // projection
-        view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0)); // "Camera" pos
-        model = glm::translate(glm::mat4(1.0f), translationA); // "Models" pos
-        //glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB); // "Models" pos
-        mvp = projection * view * model;
+        model = glm::translate(glm::mat4(1.0f), translationA); 
 
    
         m_VertexBuffer.Bind();
@@ -44,7 +43,9 @@ namespace RealEngine {
 
     void EditorLayer::OnUpdate()
     {
-        ENGINE_INFO("{0}", a);
+        m_CameraController.OnUpdate();
+
+        ENGINE_INFO("{0} {1} {2}", m_CameraController.GetCamera().GetPosition().x, m_CameraController.GetCamera().GetPosition().y, m_CameraController.GetCamera().GetPosition().z)
     }
 
 	void EditorLayer::OnEvent()
@@ -61,20 +62,20 @@ namespace RealEngine {
         ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
 
-        ImGui::PushID("float 4");
-        ImGui::DragFloat("float 4", &m_PosX, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui::PushID("Quad 1 - x");
+        ImGui::DragFloat("Quad 1 - x", &m_PosX, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
         ImGui::PopID();
 
-        ImGui::PushID("float 5");
-        ImGui::DragFloat("float 5", &m_PosY, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui::PushID("Quad 1 - y");
+        ImGui::DragFloat("Quad 1 - y", &m_PosY, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
         ImGui::PopID();
 
-        ImGui::PushID("float");
-        ImGui::DragFloat("float", &m_PosX2, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui::PushID("Quad 2 - x");
+        ImGui::DragFloat("Quad 2 - x", &m_PosX2, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
         ImGui::PopID();
 
-        ImGui::PushID("float 1");
-        ImGui::DragFloat("float 1", &m_PosY2, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui::PushID("Quad 2 - y");
+        ImGui::DragFloat("Quad 2 - y", &m_PosY2, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
         ImGui::PopID();
 
         //ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -112,14 +113,13 @@ namespace RealEngine {
 
         m_Shader.Bind();
         {
-
             model = glm::translate(glm::mat4(1.0f), translationC); // "Models" pos
-            mvp = projection * view * model;
+            //mvp = projection * view * model;
+           
 
-
-            m_Shader.SetUniformMat4f("u_MVP", mvp);
-           // m_Shader.SetUniform4f("u_Color", r, 1.0f, 0.3f, 1.0f);
-
+            m_Shader.SetUniformMat4f("u_MVP", model);
+            m_Shader.SetUniformMat4f("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
+        
             Renderer::Draw(m_VertexArray, m_IndexBuffer, m_Shader);
         }
 

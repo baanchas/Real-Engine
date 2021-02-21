@@ -1,15 +1,23 @@
 #pragma once
 
+#include "Application.h"
+
 #include "Layer.h"
 #include "Platform/OpenGL/Shader.h"
 #include "Platform/OpenGL/VertexArray.h"
 #include "Platform/OpenGL/VertexBuffer.h"
 #include "Platform/OpenGL/IndexBuffer.h"
 #include "Platform/OpenGL/VertexBufferLayout.h"
-#include "Platform/OpenGL/Renderer.h"
+#include "Platform/OpenGL/Renderer/Renderer.h"
+
+#include "Platform/OpenGL/Renderer/CameraController.h"
+
+#include "Platform/OpenGL/Renderer/OrthographicCamera.h"
+
 
 namespace RealEngine {
 
+	class CameraController;
 	class EditorLayer : public Layer
 	{
 	public:
@@ -21,6 +29,11 @@ namespace RealEngine {
 		void OnRender() override;
 
 	private:
+		CameraController m_CameraController;
+		
+		float m_CaneraSpeed = 3.0f;
+		float m_CameraRotationSpeed = 1.0f;
+
 		float a = 0;
 		unsigned int indices[12] = {
 			0, 1, 2, 2, 3, 0,
@@ -59,6 +72,7 @@ namespace RealEngine {
 			layout(location = 0) in vec4 a_Position;
 			layout(location = 1) in vec4 a_Color;
             
+			uniform mat4 u_ViewProjection;
             uniform mat4 u_MVP;
 
             out vec4 v_Color;
@@ -66,7 +80,7 @@ namespace RealEngine {
 			void main()
 			{
                 v_Color = a_Color;
-				gl_Position = u_MVP * a_Position;	
+				gl_Position = u_ViewProjection * u_MVP * a_Position;	
             }
 		)";
 

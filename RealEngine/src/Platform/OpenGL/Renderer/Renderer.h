@@ -1,8 +1,8 @@
 #pragma once
 
-#include "VertexArray.h"
-#include "IndexBuffer.h"
-#include "Shader.h"
+#include "Platform/OpenGL/VertexArray.h"
+#include "Platform/OpenGL/IndexBuffer.h"
+#include "Platform/OpenGL/Shader.h"
 
 
 namespace RealEngine {
