@@ -13,8 +13,8 @@ namespace RealEngine {
 		void Begin();
 		void End();
 
-		void OnUpdate() override;
-		void OnEvent() override;
+		void OnUpdate(float ts) override;
+		void OnEvent(Event& event) override;
 		void OnRender() override;
 	private:
 	};

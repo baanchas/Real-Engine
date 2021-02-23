@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Events/Event.h"
+
 namespace RealEngine {
 
 	struct WindowProps
@@ -38,6 +40,7 @@ namespace RealEngine {
 		inline unsigned int GetHeight() const { return m_Properties.Height; }
 
 		//inline WindowProperties GetProps() { return m_Properties; }
+		inline Event GetEvent() const { return m_Properties.m_Event; }
 
 		inline int GetYOffset() { return m_Properties.yOffset; }
 
@@ -54,8 +57,11 @@ namespace RealEngine {
 			unsigned int Height;
 
 
-			float xOffset = 0;
-			float yOffset = 0;
+			int xOffset = 0;
+			int yOffset = 0;
+
+			Event m_Event;
+
 			bool VSync;
 		};
 

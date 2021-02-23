@@ -24,7 +24,9 @@ namespace RealEngine {
 
 	Application::~Application()
 	{
-		
+		delete m_Window;
+		delete m_ImGuiLayer;
+		delete s_Instance;
 	}
 
 	void Application::Run()
@@ -42,10 +44,13 @@ namespace RealEngine {
 	{
 		glfwPollEvents();
 
+		m_Event = m_Window->GetEvent();
+
 		for (Layer* layer : m_LayerStack)
 		{
-			layer->OnEvent();
+			layer->OnEvent(m_Event);
 		}
+
 	}
 
 	void Application::OnUpdate()
@@ -53,9 +58,14 @@ namespace RealEngine {
 		if (glfwWindowShouldClose(m_Window->GetNativeWindow()))
 			m_Running = false;
 
+		float time = (float)glfwGetTime();
+		m_TimeStep = time - m_LastFrameTime;
+		m_LastFrameTime = time;
+
 		for (Layer* layer : m_LayerStack)
 		{
-			layer->OnUpdate();
+			//ENGINE_INFO("DeltaTime is {0}", m_TimeStep);
+			layer->OnUpdate(m_TimeStep);
 		}
 		
 		if (Input::IsKeyPressed(KeyCodes::LEFT))

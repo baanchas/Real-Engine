@@ -56,12 +56,12 @@ namespace RealEngine {
 		}
 	}
 
-	void ImGuiLayer::OnUpdate()
+	void ImGuiLayer::OnUpdate(float ts)
 	{
 
 	}
 
-	void ImGuiLayer::OnEvent()
+	void ImGuiLayer::OnEvent(Event& event)
 	{
 	}
 

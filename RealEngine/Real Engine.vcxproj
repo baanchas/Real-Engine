@@ -60,6 +60,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\spdlog\include\;$(SolutionDIr)RealEngine\libs\glew\include;$(SolutionDir)RealEngine\libs\GLFW\include\;$(SolutionDir)RealEngine\src\</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>repch.h</PrecompiledHeaderFile>
+      <DisableSpecificWarnings>26495;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -79,6 +80,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\spdlog\include\;$(SolutionDIr)RealEngine\libs\glew\include;$(SolutionDir)RealEngine\libs\GLFW\include\;</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>repch.h</PrecompiledHeaderFile>
+      <DisableSpecificWarnings>26495;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -90,6 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Engine\Events\Event.cpp" />
     <ClCompile Include="src\Platform\OpenGL\Renderer\CameraController.cpp" />
     <ClCompile Include="src\Platform\OpenGL\Renderer\OrthographicCamera.cpp" />
     <ClCompile Include="src\Platform\OpenGL\Renderer\Renderer.cpp" />
@@ -119,6 +122,8 @@
     <ClCompile Include="src\Platform\OpenGL\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Engine\Events\Event.h" />
+    <ClInclude Include="src\Engine\Timestep.h" />
     <ClInclude Include="src\Platform\OpenGL\Renderer\CameraController.h" />
     <ClInclude Include="src\Platform\OpenGL\Renderer\OrthographicCamera.h" />
     <ClInclude Include="src\Platform\OpenGL\Renderer\Renderer.h" />

@@ -41,16 +41,26 @@ namespace RealEngine {
 	{
 	}
 
-    void EditorLayer::OnUpdate()
+    void EditorLayer::OnUpdate(float ts)
     {
-        m_CameraController.OnUpdate();
-
-        ENGINE_INFO("{0} {1} {2}", m_CameraController.GetCamera().GetPosition().x, m_CameraController.GetCamera().GetPosition().y, m_CameraController.GetCamera().GetPosition().z)
+        m_CameraController.OnUpdate(ts);
     }
 
-	void EditorLayer::OnEvent()
+	void EditorLayer::OnEvent(Event& event)
 	{
-	}
+        m_CameraController.OnEvent(event);
+        if (event.Type == EventType::WindowResized)
+        {
+            ENGINE_INFO("Window Resized");
+            ENGINE_INFO("{0} {1}", event.WindowResized.Width, event.WindowResized.Height);
+        }
+
+        if (event.Type == EventType::MouseScrolled)
+        {
+            ENGINE_INFO("Mouse Scrolled");
+            ENGINE_INFO("{0}", event.MouseScrolled.yOffset);
+        }
+   	}
 
 	void EditorLayer::OnRender()
 	{
@@ -96,20 +106,20 @@ namespace RealEngine {
         positionsRect[1] = m_PosY;
         positionsRect[6] = m_PosX + 200.0f;
         positionsRect[7] = m_PosY;
-        positionsRect[12] = m_PosX + 200.0;
-        positionsRect[13] = m_PosY + 200.0;
+        positionsRect[12] = m_PosX + 200.0f;
+        positionsRect[13] = m_PosY + 200.0f;
         positionsRect[18] = m_PosX;
-        positionsRect[19] = m_PosY + 200.0;
+        positionsRect[19] = m_PosY + 200.0f;
 
 
         positionsRect[24] = m_PosX2;
         positionsRect[25] = m_PosY2;
         positionsRect[30] = m_PosX2 + 200.0f;
         positionsRect[31] = m_PosY2;
-        positionsRect[36] = m_PosX2 + 200.0;
-        positionsRect[37] = m_PosY2 + 200.0;
+        positionsRect[36] = m_PosX2 + 200.0f;
+        positionsRect[37] = m_PosY2 + 200.0f;
         positionsRect[42] = m_PosX2;
-        positionsRect[43] = m_PosY2 + 200.0;
+        positionsRect[43] = m_PosY2 + 200.0f;
 
         m_Shader.Bind();
         {

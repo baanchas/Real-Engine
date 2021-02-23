@@ -10,15 +10,14 @@ namespace RealEngine {
 
 	Window::~Window()
 	{
+		delete m_Window;
 		glfwTerminate();
 	}
 
 	void Window::OnUpdate()
 	{
 		//glfwSwapBuffers(m_Window);
-
-		//ENGINE_INFO("{0}, {1}", m_Properties.xOffset, m_Properties.yOffset);
-		m_Properties.yOffset = 0;
+		m_Properties.m_Event = Event();
 	}
 
 	void Window::Init(const WindowProps& props)
@@ -58,13 +57,28 @@ namespace RealEngine {
 
 			data.Width = width;
 			data.Height = height;
+
+			Event event;
+			event.Type = EventType::WindowResized;
+			event.WindowResized.Width = width;
+			event.WindowResized.Height = height;
+
+			data.m_Event = event;
+
 		});
 
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)
 		{
 			WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);
 
-			data.yOffset = yOffset;
+			Event event;
+			event.Type = EventType::MouseScrolled;
+
+			event.MouseScrolled.yOffset = yOffset;
+			event.MouseScrolled.xOffset = xOffset;
+
+			data.m_Event = event;
+
 		});
 
 		//SetVSync(props.VSync);

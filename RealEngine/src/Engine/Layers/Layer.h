@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Events/Event.h"
+
 namespace RealEngine {
 
 	class Layer
@@ -8,9 +10,9 @@ namespace RealEngine {
 		Layer() {};
 		virtual ~Layer() {};
 
-		virtual void OnUpdate() {};
+		virtual void OnUpdate(float ts) {};
 		virtual void OnRender() {};
-		virtual void OnEvent() {};
+		virtual void OnEvent(Event& event) {};
 	private:
 		
 	};

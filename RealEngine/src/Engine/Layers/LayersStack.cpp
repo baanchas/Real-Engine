@@ -10,6 +10,10 @@ namespace RealEngine {
 
 	LayersStack::~LayersStack()
 	{
+		for (auto layer : m_Layers)
+		{
+			delete layer;
+		}
 	}
 
 	void LayersStack::PushLayer(Layer* layer)

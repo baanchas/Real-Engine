@@ -24,8 +24,8 @@ namespace RealEngine {
 		EditorLayer();
 		~EditorLayer();
 
-		void OnUpdate() override;
-		void OnEvent() override;
+		void OnUpdate(float ts) override;
+		void OnEvent(Event& event) override;
 		void OnRender() override;
 
 	private:
