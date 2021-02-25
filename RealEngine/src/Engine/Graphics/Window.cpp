@@ -67,6 +67,22 @@ namespace RealEngine {
 
 		});
 
+		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+		{
+			WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);
+			
+			Event event;
+			event.Type = EventType::KeyPressed;
+				
+			event.KeyPressed.Key = key;
+			event.KeyPressed.ScanCode = scancode;
+			event.KeyPressed.Action = action;
+			event.KeyPressed.Mods = mods;
+
+			data.m_Event = event;
+
+		});
+
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)
 		{
 			WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);

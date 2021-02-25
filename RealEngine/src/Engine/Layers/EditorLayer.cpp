@@ -49,6 +49,25 @@ namespace RealEngine {
 	void EditorLayer::OnEvent(Event& event)
 	{
         m_CameraController.OnEvent(event);
+
+        if (event.Type == EventType::KeyPressed)
+        {
+            if (event.KeyPressed.Key == KeyCodes::Keyboard::A && event.KeyPressed.Action == GLFW_PRESS)
+            {
+                ENGINE_INFO("LEFT MOUSE IS PRESSED!");
+            }
+
+            if (event.KeyPressed.Key == KeyCodes::Keyboard::A && event.KeyPressed.Action == GLFW_RELEASE)
+            {
+                ENGINE_INFO("LEFT MOUSE IS RELEASED!");
+            }
+
+            if (event.KeyPressed.Key == KeyCodes::Keyboard::A && event.KeyPressed.Action == GLFW_REPEAT)
+            {
+                ENGINE_INFO("LEFT MOUSE IS REPEATED!");
+            }
+        }
+
         if (event.Type == EventType::WindowResized)
         {
             ENGINE_INFO("Window Resized");

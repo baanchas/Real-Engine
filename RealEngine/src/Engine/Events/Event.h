@@ -23,6 +23,18 @@ namespace RealEngine {
 		unsigned int Height = 0;
 	};
 
+	class KeyPressed
+	{
+	public:
+		KeyPressed() {};
+		~KeyPressed() {};
+
+		int Key;
+		int ScanCode;
+		int Action;
+		int Mods;
+	};
+
 	class MouseScrolled
 	{
 	public:
@@ -45,6 +57,7 @@ namespace RealEngine {
 		union 
 		{
 			WindowResized WindowResized;
+			KeyPressed KeyPressed;
 			MouseScrolled MouseScrolled;
 		};
 	private:
