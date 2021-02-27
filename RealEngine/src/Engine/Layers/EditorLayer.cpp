@@ -10,86 +10,85 @@ namespace RealEngine {
 	{
 		ENGINE_INFO("Editor Layer is pushed");
 
-        glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
-
         a = int(5);
 
         m_PosX = 100;
         m_PosY = 100;
-        m_PosX2 = 100;
-        m_PosY2 = 100;
+        m_PosX2 = -200;
+        m_PosY2 = -200;
 
 
-        translationA = glm::vec3(0, 0, 0);
-        translationB = glm::vec3(0, 0, 0);
+        auto q0 = VertexBuffer::CreateQuad(100.0f, 100.0f, 200.0f);
+        auto q1 = VertexBuffer::CreateQuad(-200.0f, -200.0f, 200.0f);
+
+        memcpy(m_Vertices, q0.data(), q0.size() * sizeof(Vertex));
+        memcpy(m_Vertices + q0.size(), q1.data(), q1.size() * sizeof(Vertex));
+
+
         translationC = glm::vec3(0, 0, 0);
         model = glm::translate(glm::mat4(1.0f), translationA); 
 
-   
-        m_VertexBuffer.Bind();
-        m_Shader.Bind();
-        m_IndexBuffer.Bind();
 
-		m_Layout.Push<float>(2);
-		m_Layout.Push<float>(4);
-		m_VertexArray.Addbuffer(m_VertexBuffer, m_Layout);
+        std::string vertexSrc = R"(
+			#version 330 core
+			
+			layout(location = 0) in vec4 a_Position;
+			layout(location = 1) in vec4 a_Color;
+            
+			uniform mat4 u_ViewProjection;
+            uniform mat4 u_Transform;
+
+            out vec4 v_Color;
+
+			void main()
+			{
+                v_Color = a_Color;
+				gl_Position = u_ViewProjection * u_Transform * a_Position;	
+            }
+		)";
+
+        std::string fragmentSrc = R"(
+			#version 330 core
+			
+			layout(location = 0) out vec4 color;
+            
+            in vec4 v_Color;
+                        
+			void main()
+			{
+            	color = v_Color;
+			}
+		)";
+
+        m_Shader = new Shader(vertexSrc, fragmentSrc);
+        m_VertexBuffer = new VertexBuffer(m_Vertices, sizeof(m_Vertices));
+        m_IndexBuffer = new IndexBuffer(indices, 12);
+
+
+        m_VertexBuffer->Bind();
+        m_Shader->Bind();
+        m_IndexBuffer->Bind();
+
+		//m_Layout.Push<float>(2);
+		//m_Layout.Push<float>(4);
+		//m_VertexArray.Addbuffer(*m_VertexBuffer, m_Layout);
+		m_VertexArray.AddVertexBuffer(*m_VertexBuffer);
 
 
 	}
 
 	EditorLayer::~EditorLayer()
 	{
+        delete m_Shader;
+        delete m_VertexBuffer;
+        delete m_IndexBuffer;
 	}
 
     void EditorLayer::OnUpdate(float ts)
     {
         m_CameraController.OnUpdate(ts);
-    }
-
-	void EditorLayer::OnEvent(Event& event)
-	{
-        m_CameraController.OnEvent(event);
-
-        if (event.Type == EventType::KeyPressed)
-        {
-            if (event.KeyPressed.Key == KeyCodes::Keyboard::A && event.KeyPressed.Action == GLFW_PRESS)
-            {
-                ENGINE_INFO("LEFT MOUSE IS PRESSED!");
-            }
-
-            if (event.KeyPressed.Key == KeyCodes::Keyboard::A && event.KeyPressed.Action == GLFW_RELEASE)
-            {
-                ENGINE_INFO("LEFT MOUSE IS RELEASED!");
-            }
-
-            if (event.KeyPressed.Key == KeyCodes::Keyboard::A && event.KeyPressed.Action == GLFW_REPEAT)
-            {
-                ENGINE_INFO("LEFT MOUSE IS REPEATED!");
-            }
-        }
-
-        if (event.Type == EventType::WindowResized)
-        {
-            ENGINE_INFO("Window Resized");
-            ENGINE_INFO("{0} {1}", event.WindowResized.Width, event.WindowResized.Height);
-        }
-
-        if (event.Type == EventType::MouseScrolled)
-        {
-            ENGINE_INFO("Mouse Scrolled");
-            ENGINE_INFO("{0}", event.MouseScrolled.yOffset);
-        }
-   	}
-
-	void EditorLayer::OnRender()
-	{
-		//ImGui::ShowDemoWindow();
-        m_VertexBuffer.Bind();
-
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(positionsRect), positionsRect);
 
         ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
 
         ImGui::PushID("Quad 1 - x");
         ImGui::DragFloat("Quad 1 - x", &m_PosX, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
@@ -107,50 +106,42 @@ namespace RealEngine {
         ImGui::DragFloat("Quad 2 - y", &m_PosY2, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
         ImGui::PopID();
 
-        //ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();
+    }
+
+	void EditorLayer::OnEvent(Event& event)
+	{
+        m_CameraController.OnEvent(event);
+   	}
+
+	void EditorLayer::OnRender()
+	{
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(m_Vertices), m_Vertices);
+
+        auto q0 = VertexBuffer::CreateQuad(m_PosX, m_PosY, 200.0f);
+        auto q1 = VertexBuffer::CreateQuad(m_PosX2, m_PosY2, 200.0f);
+
+        memcpy(m_Vertices, q0.data(), q0.size() * sizeof(Vertex));
+        memcpy(m_Vertices + q0.size(), q1.data(), q1.size() * sizeof(Vertex));
+       
+        m_Vertices[0].Color[0] = w;
+        m_Vertices[1].Color[0] = w;
+        m_Vertices[2].Color[0] = w;
+        m_Vertices[3].Color[0] = w;
 
 
-        positionsRect[2] = w;
-        positionsRect[8] = w;
-        positionsRect[14] = w;
-        positionsRect[20] = w;
+        m_Vertices[4].Color[2] = w;
+        m_Vertices[5].Color[2] = w;
+        m_Vertices[6].Color[2] = w;
+        m_Vertices[7].Color[2] = w;
 
-        positionsRect[27] = w;
-        positionsRect[33] = w;
-        positionsRect[39] = w;
-        positionsRect[45] = w;
-
-        positionsRect[0] = m_PosX;
-        positionsRect[1] = m_PosY;
-        positionsRect[6] = m_PosX + 200.0f;
-        positionsRect[7] = m_PosY;
-        positionsRect[12] = m_PosX + 200.0f;
-        positionsRect[13] = m_PosY + 200.0f;
-        positionsRect[18] = m_PosX;
-        positionsRect[19] = m_PosY + 200.0f;
-
-
-        positionsRect[24] = m_PosX2;
-        positionsRect[25] = m_PosY2;
-        positionsRect[30] = m_PosX2 + 200.0f;
-        positionsRect[31] = m_PosY2;
-        positionsRect[36] = m_PosX2 + 200.0f;
-        positionsRect[37] = m_PosY2 + 200.0f;
-        positionsRect[42] = m_PosX2;
-        positionsRect[43] = m_PosY2 + 200.0f;
-
-        m_Shader.Bind();
-        {
-            model = glm::translate(glm::mat4(1.0f), translationC); // "Models" pos
-            //mvp = projection * view * model;
+        model = glm::translate(glm::mat4(1.0f), translationC); // "Models" pos
            
 
-            m_Shader.SetUniformMat4f("u_MVP", model);
-            m_Shader.SetUniformMat4f("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
+        Renderer::BeginScene(m_CameraController.GetCamera());
+
+        Renderer::Draw(m_VertexArray, *m_IndexBuffer, *m_Shader, model);
         
-            Renderer::Draw(m_VertexArray, m_IndexBuffer, m_Shader);
-        }
 
         if (w > 1.0f)
             incr = -0.05f;

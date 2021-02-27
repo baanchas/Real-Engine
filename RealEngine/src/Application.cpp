@@ -62,15 +62,11 @@ namespace RealEngine {
 		m_TimeStep = time - m_LastFrameTime;
 		m_LastFrameTime = time;
 
+		m_ImGuiLayer->Begin();
+
 		for (Layer* layer : m_LayerStack)
 		{
-			//ENGINE_INFO("DeltaTime is {0}", m_TimeStep);
 			layer->OnUpdate(m_TimeStep);
-		}
-		
-		if (Input::IsKeyPressed(KeyCodes::LEFT))
-		{
-			//ENGINE_INFO("A is pressed!");
 		}
 		
 		m_Window->OnUpdate();
@@ -79,9 +75,6 @@ namespace RealEngine {
 	void Application::OnRender()
 	{
 		Renderer::Clear();
-		//glClear(GL_COLOR_BUFFER_BIT);
-
-		m_ImGuiLayer->Begin();
 
 		for (Layer* layer : m_LayerStack)
 		{

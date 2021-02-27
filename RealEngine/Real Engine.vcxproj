@@ -55,9 +55,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GLEW_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEW_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\spdlog\include\;$(SolutionDIr)RealEngine\libs\glew\include;$(SolutionDir)RealEngine\libs\GLFW\include\;$(SolutionDir)RealEngine\src\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\RealEngine\src\Engine\Graphics\Platform\;$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\spdlog\include\;$(SolutionDIr)RealEngine\libs\glew\include;$(SolutionDir)RealEngine\libs\GLFW\include\;$(SolutionDir)RealEngine\src\</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>repch.h</PrecompiledHeaderFile>
       <DisableSpecificWarnings>26495;</DisableSpecificWarnings>
@@ -92,12 +92,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="libs\stb_image\stb_image.cpp" />
     <ClCompile Include="src\Engine\Events\Event.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\Renderer\CameraController.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\Renderer\OrthographicCamera.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\Renderer\Renderer.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\Shader.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\IndexBuffer.cpp" />
+    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\CameraController.cpp" />
+    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\OrthographicCamera.cpp" />
+    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Shader.cpp" />
+    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\IndexBuffer.cpp" />
     <ClCompile Include="src\Engine\Layers\ImGuiLayer.cpp" />
     <ClCompile Include="src\Engine\Layers\ExampleLayer.cpp" />
     <ClCompile Include="src\Engine\Layers\EditorLayer.cpp" />
@@ -114,21 +115,23 @@
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Engine\Graphics\Window.cpp" />
+    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Texture.cpp" />
     <ClCompile Include="src\repch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\Platform\OpenGL\VertexArray.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\VertexBuffer.cpp" />
+    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\VertexArray.cpp" />
+    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="libs\stb_image\stb_image.h" />
     <ClInclude Include="src\Engine\Events\Event.h" />
     <ClInclude Include="src\Engine\Timestep.h" />
-    <ClInclude Include="src\Platform\OpenGL\Renderer\CameraController.h" />
-    <ClInclude Include="src\Platform\OpenGL\Renderer\OrthographicCamera.h" />
-    <ClInclude Include="src\Platform\OpenGL\Renderer\Renderer.h" />
-    <ClInclude Include="src\Platform\OpenGL\Shader.h" />
-    <ClInclude Include="src\Platform\OpenGL\IndexBuffer.h" />
+    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\CameraController.h" />
+    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\OrthographicCamera.h" />
+    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\Renderer.h" />
+    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Shader.h" />
+    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\IndexBuffer.h" />
     <ClInclude Include="src\Engine\Layers\ImGuiLayer.h" />
     <ClInclude Include="src\Engine\Layers\EditorLayer.h" />
     <ClInclude Include="src\Engine\Layers\Layer.h" />
@@ -139,10 +142,11 @@
     <ClInclude Include="src\Engine\Layers\LayersStack.h" />
     <ClInclude Include="src\Engine\Log.h" />
     <ClInclude Include="src\Engine\Layers\ExampleLayer.h" />
-    <ClInclude Include="src\Platform\OpenGL\VertexBufferLayout.h" />
+    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Texture.h" />
+    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\VertexBufferLayout.h" />
     <ClInclude Include="src\repch.h" />
-    <ClInclude Include="src\Platform\OpenGL\VertexArray.h" />
-    <ClInclude Include="src\Platform\OpenGL\VertexBuffer.h" />
+    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\VertexArray.h" />
+    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\VertexBuffer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

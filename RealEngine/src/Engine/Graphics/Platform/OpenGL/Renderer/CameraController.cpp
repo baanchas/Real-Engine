@@ -17,17 +17,21 @@ namespace RealEngine {
 
     void CameraController::OnEvent(Event& event)
     {
-        if (event.MouseScrolled.yOffset == 1)
+        if (event.Type == EventType::MouseScrolled)
         {
-            m_ZoomLevel *= 0.95f;
-            m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel * m_Height, m_AspectRatio * m_ZoomLevel * m_Height, -m_ZoomLevel * m_Height, m_ZoomLevel * m_Height);
-        }
-        else if (event.MouseScrolled.yOffset == -1)
-        {
-            m_ZoomLevel *= 1.05f;
+            if (event.MouseScrolled.yOffset == 1)
+            {
+                m_ZoomLevel *= 0.95f;
+                m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel * m_Height, m_AspectRatio * m_ZoomLevel * m_Height, -m_ZoomLevel * m_Height, m_ZoomLevel * m_Height);
+            }
+            else if (event.MouseScrolled.yOffset == -1)
+            {
+                m_ZoomLevel *= 1.05f;
 
-            m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel * m_Height, m_AspectRatio * m_ZoomLevel * m_Height, -m_ZoomLevel * m_Height, m_ZoomLevel * m_Height);
+                m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel * m_Height, m_AspectRatio * m_ZoomLevel * m_Height, -m_ZoomLevel * m_Height, m_ZoomLevel * m_Height);
+            }
         }
+        
     }
 
 	void CameraController::OnUpdate(float ts)

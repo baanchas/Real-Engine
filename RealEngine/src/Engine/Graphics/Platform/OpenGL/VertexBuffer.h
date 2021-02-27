@@ -1,6 +1,14 @@
 #pragma once
 
+#include <array>
+
 namespace RealEngine {
+
+	struct Vertex
+	{
+		glm::vec2 Position;
+		glm::vec4 Color;
+	};
 
 	class VertexBuffer
 	{
@@ -12,24 +20,11 @@ namespace RealEngine {
 		void Bind();
 		void UnBind();
 
+		static std::array<Vertex, 4> CreateQuad(float x, float y, float size);
+
 	private:
 		unsigned int m_RendererID;
 	};
 
-	struct Vec2
-	{
-		float x, y;
-	};
-
-	struct Vec4
-	{
-		float x, y, z, w;
-	};
-
-	struct Vertex
-	{
-		Vec2 Position;
-		Vec4 Color;
-	};
 }
 

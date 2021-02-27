@@ -72,15 +72,57 @@ namespace RealEngine {
 			WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);
 			
 			Event event;
-			event.Type = EventType::KeyPressed;
-				
-			event.KeyPressed.Key = key;
-			event.KeyPressed.ScanCode = scancode;
-			event.KeyPressed.Action = action;
-			event.KeyPressed.Mods = mods;
+
+			if (action == GLFW_PRESS || action == GLFW_REPEAT)
+			{
+				event.Type = EventType::KeyPressed;
+
+				event.KeyPressed.Key = key;
+				event.KeyPressed.ScanCode = scancode;
+				event.KeyPressed.Action = action;
+				event.KeyPressed.Mods = mods;
+			}
+			else if (action == GLFW_RELEASE)
+			{
+				event.Type = EventType::KeyReleased;
+
+				event.KeyReleased.Key = key;
+				event.KeyReleased.ScanCode = scancode;
+				event.KeyReleased.Action = action;
+				event.KeyReleased.Mods = mods;
+			}
+
+			
 
 			data.m_Event = event;
 
+		});
+
+		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
+		{
+			WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);
+
+			Event event;
+
+			if (action == GLFW_PRESS)
+			{
+				event.Type = EventType::MouseButtonPressed;
+
+				event.MouseButtonPressed.Button = button;
+				event.MouseButtonPressed.Action = action;
+				event.MouseButtonPressed.Mods = mods;
+			}
+			else if (action == GLFW_RELEASE)
+			{
+				event.Type = EventType::MouseButtonReleased;
+
+				event.MouseButtonReleased.Button = button;
+				event.MouseButtonReleased.Action = action;
+				event.MouseButtonReleased.Mods = mods;
+			}
+
+
+			data.m_Event = event;
 		});
 
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)
@@ -95,6 +137,19 @@ namespace RealEngine {
 
 			data.m_Event = event;
 
+		});
+
+		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
+		{
+			WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);
+			
+			Event event;
+			event.Type = EventType::MouseMoved;
+
+			event.MouseMoved.xOffset = xPos;
+			event.MouseMoved.yOffset = yPos;
+
+			data.m_Event = event;
 		});
 
 		//SetVSync(props.VSync);

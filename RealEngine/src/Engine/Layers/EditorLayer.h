@@ -3,17 +3,16 @@
 #include "Application.h"
 
 #include "Layer.h"
-#include "Platform/OpenGL/Shader.h"
-#include "Platform/OpenGL/VertexArray.h"
-#include "Platform/OpenGL/VertexBuffer.h"
-#include "Platform/OpenGL/IndexBuffer.h"
-#include "Platform/OpenGL/VertexBufferLayout.h"
-#include "Platform/OpenGL/Renderer/Renderer.h"
+#include "OpenGL/Shader.h"
+#include "OpenGL/VertexArray.h"
+#include "OpenGL/VertexBuffer.h"
+#include "OpenGL/IndexBuffer.h"
+#include "OpenGL/VertexBufferLayout.h"
+#include "OpenGL/Renderer/Renderer.h"
 
-#include "Platform/OpenGL/Renderer/CameraController.h"
+#include "OpenGL/Renderer/CameraController.h"
 
-#include "Platform/OpenGL/Renderer/OrthographicCamera.h"
-
+#include "OpenGL/Renderer/Renderer.h"
 
 namespace RealEngine {
 
@@ -66,39 +65,13 @@ namespace RealEngine {
 		//glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB); // "Models" pos
 		glm::mat4 mvp = projection * view * model;
 
-		std::string vertexSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) in vec4 a_Position;
-			layout(location = 1) in vec4 a_Color;
-            
-			uniform mat4 u_ViewProjection;
-            uniform mat4 u_MVP;
+		
 
-            out vec4 v_Color;
+		Vertex m_Vertices[8];
 
-			void main()
-			{
-                v_Color = a_Color;
-				gl_Position = u_ViewProjection * u_MVP * a_Position;	
-            }
-		)";
-
-		std::string fragmentSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) out vec4 color;
-            
-            in vec4 v_Color;
-                        
-			void main()
-			{
-            	color = v_Color;
-			}
-		)";
-		Shader m_Shader = Shader(vertexSrc, fragmentSrc);
-		VertexBuffer m_VertexBuffer = VertexBuffer(positionsRect, sizeof(positionsRect));
-		IndexBuffer m_IndexBuffer = IndexBuffer(indices, 12);
+		Shader* m_Shader; 
+		VertexBuffer* m_VertexBuffer; 
+		IndexBuffer* m_IndexBuffer;
 
 		VertexArray m_VertexArray;
 		VertexBufferLayout m_Layout;

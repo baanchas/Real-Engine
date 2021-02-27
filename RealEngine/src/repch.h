@@ -1,11 +1,12 @@
 #pragma once
+#define _CRT_SECURE_NO_WARNINGS
 
 // ---------- STD -----------------
 
 #include <iostream>
-//#include <memory>
+#include <memory>
 #include <string>
-//#include <functional>
+#include <functional>
 #include <map>
 #include <vector>
 #include <stack>
@@ -36,8 +37,9 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 //----------- Timestep ------------
+
+//#include "Engine/Timestep.h"
+
 //----------- Event ------------
 
 //#include "Engine/Events/Event.h"
-
-//#include "Engine/Timestep.h"

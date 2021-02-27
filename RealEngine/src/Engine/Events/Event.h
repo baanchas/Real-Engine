@@ -8,9 +8,12 @@ namespace RealEngine {
 		WindowResized,
 		KeyPressed,
 		KeyReleased,
+		KeyRepeated,
 		MouseButtonPressed,
 		MouseButtonReleased,
-		MouseScrolled
+		MouseButtonRepeated,
+		MouseScrolled,
+		MouseMoved
 	};
 
 	class WindowResized
@@ -35,6 +38,40 @@ namespace RealEngine {
 		int Mods;
 	};
 
+	class KeyReleased
+	{
+	public:
+		KeyReleased() {};
+		~KeyReleased() {};
+
+		int Key;
+		int ScanCode;
+		int Action;
+		int Mods;
+	};
+
+	class MouseButtonPressed
+	{
+	public:
+		MouseButtonPressed() {};
+		~MouseButtonPressed() {};
+
+		int Button = -1;
+		int Action;
+		int Mods;
+	};
+
+	class MouseButtonReleased
+	{
+	public:
+		MouseButtonReleased() {};
+		~MouseButtonReleased() {};
+
+		int Button;
+		int Action;
+		int Mods;
+	};
+
 	class MouseScrolled
 	{
 	public:
@@ -45,6 +82,15 @@ namespace RealEngine {
 		int yOffset = 0;
 	};
 
+	class MouseMoved
+	{
+	public:
+		MouseMoved() {};
+		~MouseMoved() {};
+
+		int xOffset;
+		int yOffset;
+	};
 
 	class Event
 	{
@@ -58,7 +104,11 @@ namespace RealEngine {
 		{
 			WindowResized WindowResized;
 			KeyPressed KeyPressed;
+			KeyReleased KeyReleased;
+			MouseButtonPressed MouseButtonPressed;
+			MouseButtonReleased MouseButtonReleased;
 			MouseScrolled MouseScrolled;
+			MouseMoved MouseMoved;
 		};
 	private:
 	};

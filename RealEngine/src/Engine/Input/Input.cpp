@@ -17,8 +17,8 @@ namespace RealEngine {
 	bool Input::IsMouseButtonPressed(int button)
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-		auto state = glfwGetKey(window, button);
-		return state == GLFW_PRESS;
+		auto state = glfwGetMouseButton(window, button);
+		return state;
 	}
 
 
