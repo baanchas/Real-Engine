@@ -3,7 +3,17 @@
 
 namespace RealEngine {
 
-	Shader::Shader(const std::string& vertexSrc, const std::string& fragmentSrc)
+	Shader::Shader()
+	{
+		
+	}
+
+	Shader::~Shader()
+	{
+		glDeleteProgram(m_RendererID);
+	}
+
+	void Shader::Create(const std::string& vertexSrc, const std::string& fragmentSrc)
 	{
 		// Create an empty vertex shader handle
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -105,11 +115,6 @@ namespace RealEngine {
 		// Always detach shaders after a successful link.
 		glDetachShader(program, vertexShader);
 		glDetachShader(program, fragmentShader);
-	}
-
-	Shader::~Shader()
-	{
-		glDeleteProgram(m_RendererID);
 	}
 
 	void Shader::Bind() const

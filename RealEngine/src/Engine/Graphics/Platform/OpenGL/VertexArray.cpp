@@ -6,13 +6,18 @@ namespace RealEngine {
 
 	VertexArray::VertexArray()
 	{
-		glGenVertexArrays(1, &m_RendererID);
+		//glGenVertexArrays(1, &m_RendererID);
 		//glBindVertexArray(m_RendererID);
 	}
 
 	VertexArray::~VertexArray()
 	{
 		glDeleteVertexArrays(1, &m_RendererID);
+	}
+
+	void VertexArray::Create()
+	{
+		glGenVertexArrays(1, &m_RendererID);
 	}
 
 	void VertexArray::Bind() const
@@ -45,6 +50,7 @@ namespace RealEngine {
 	{
 		Bind();
 		vb.Bind();
+
 		glEnableVertexArrayAttrib(m_RendererID, 0);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex, Position));
 

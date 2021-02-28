@@ -1,7 +1,5 @@
 #pragma once
 
-#include <array>
-
 namespace RealEngine {
 
 	struct Vertex
@@ -13,14 +11,15 @@ namespace RealEngine {
 	class VertexBuffer
 	{
 	public:
-		VertexBuffer() {};
-		VertexBuffer(const void* data, unsigned int size);
+		VertexBuffer();
 		~VertexBuffer();
+
+		void Create();
 
 		void Bind();
 		void UnBind();
 
-		static std::array<Vertex, 4> CreateQuad(float x, float y, float size);
+		void SetData(const void* data, uint32_t size);
 
 	private:
 		unsigned int m_RendererID;

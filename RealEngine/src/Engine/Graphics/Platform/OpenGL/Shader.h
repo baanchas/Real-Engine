@@ -6,9 +6,11 @@ namespace RealEngine {
 	class Shader
 	{
 	public:
-		Shader() {};
+		Shader();
 		Shader(const std::string& vertexSrc, const std::string& fragmentSrc);
 		~Shader();
+
+		void Create(const std::string& vertexSrc, const std::string& fragmentSrc);
 
 		void Bind() const;
 		void Unbind() const;

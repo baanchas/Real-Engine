@@ -12,76 +12,29 @@ namespace RealEngine {
 
         a = int(5);
 
-        m_PosX = 100;
-        m_PosY = 100;
-        m_PosX2 = -200;
-        m_PosY2 = -200;
+        m_PosX = 100.0f;
+        m_PosY = 100.0f;
+        m_PosX2 = -200.0f;
+        m_PosY2 = -200.0f;
 
+        //auto q3 = Renderer::CreateQuad(100.0f, 100.0f, 200.0f);
+        //auto q4 = Renderer::CreateQuad(-200.0f, -200.0f, 200.0f);
+        //auto q0 = Renderer::CreateQuadByVerticies(100.0f, 100.0f, 200.0f);
+        //auto q1 = Renderer::CreateQuadByVerticies(-200.0f, -200.0f, 200.0f);
 
-        auto q0 = VertexBuffer::CreateQuad(100.0f, 100.0f, 200.0f);
-        auto q1 = VertexBuffer::CreateQuad(-200.0f, -200.0f, 200.0f);
+        //m_Quads[0] = q3;
+        //m_Quads[1] = q4;
 
-        memcpy(m_Vertices, q0.data(), q0.size() * sizeof(Vertex));
-        memcpy(m_Vertices + q0.size(), q1.data(), q1.size() * sizeof(Vertex));
+        //memcpy(m_Verticies, q0.data(), q0.size() * sizeof(Vertex));
+        //memcpy(m_Verticies + q0.size(), q1.data(), q1.size() * sizeof(Vertex));
 
-
-        translationC = glm::vec3(0, 0, 0);
-        model = glm::translate(glm::mat4(1.0f), translationA); 
-
-
-        std::string vertexSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) in vec4 a_Position;
-			layout(location = 1) in vec4 a_Color;
-            
-			uniform mat4 u_ViewProjection;
-            uniform mat4 u_Transform;
-
-            out vec4 v_Color;
-
-			void main()
-			{
-                v_Color = a_Color;
-				gl_Position = u_ViewProjection * u_Transform * a_Position;	
-            }
-		)";
-
-        std::string fragmentSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) out vec4 color;
-            
-            in vec4 v_Color;
-                        
-			void main()
-			{
-            	color = v_Color;
-			}
-		)";
-
-        m_Shader = new Shader(vertexSrc, fragmentSrc);
-        m_VertexBuffer = new VertexBuffer(m_Vertices, sizeof(m_Vertices));
-        m_IndexBuffer = new IndexBuffer(indices, 12);
-
-
-        m_VertexBuffer->Bind();
-        m_Shader->Bind();
-        m_IndexBuffer->Bind();
-
-		//m_Layout.Push<float>(2);
-		//m_Layout.Push<float>(4);
-		//m_VertexArray.Addbuffer(*m_VertexBuffer, m_Layout);
-		m_VertexArray.AddVertexBuffer(*m_VertexBuffer);
-
-
+        //translationC = glm::vec3(0, 0, 0);
+        //model = glm::translate(glm::mat4(1.0f), translationA); 
+        Renderer::Init();
 	}
 
 	EditorLayer::~EditorLayer()
 	{
-        delete m_Shader;
-        delete m_VertexBuffer;
-        delete m_IndexBuffer;
 	}
 
     void EditorLayer::OnUpdate(float ts)
@@ -116,32 +69,23 @@ namespace RealEngine {
 
 	void EditorLayer::OnRender()
 	{
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(m_Vertices), m_Vertices);
+        
 
-        auto q0 = VertexBuffer::CreateQuad(m_PosX, m_PosY, 200.0f);
-        auto q1 = VertexBuffer::CreateQuad(m_PosX2, m_PosY2, 200.0f);
+        /*m_Quads[0].SetPosition(m_PosX, m_PosY, 200.0f);
+        m_Quads[0].SetColor(glm::vec4(0.18f, w, 0.96f, 1.0f));
 
-        memcpy(m_Vertices, q0.data(), q0.size() * sizeof(Vertex));
-        memcpy(m_Vertices + q0.size(), q1.data(), q1.size() * sizeof(Vertex));
-       
-        m_Vertices[0].Color[0] = w;
-        m_Vertices[1].Color[0] = w;
-        m_Vertices[2].Color[0] = w;
-        m_Vertices[3].Color[0] = w;
+        m_Quads[1].SetPosition(m_PosX2, m_PosY2, 200.0f);
+        m_Quads[1].SetColor(glm::vec4(w, 0.45f, 0.96f, 1.0f));
 
-
-        m_Vertices[4].Color[2] = w;
-        m_Vertices[5].Color[2] = w;
-        m_Vertices[6].Color[2] = w;
-        m_Vertices[7].Color[2] = w;
-
-        model = glm::translate(glm::mat4(1.0f), translationC); // "Models" pos
+        model = glm::translate(glm::mat4(1.0f), translationC); // "Models" pos*/
            
 
         Renderer::BeginScene(m_CameraController.GetCamera());
 
-        Renderer::Draw(m_VertexArray, *m_IndexBuffer, *m_Shader, model);
-        
+        Renderer::DrawQuad(m_PosX, m_PosY, 200.0f);
+        Renderer::DrawQuad(m_PosX2, m_PosY2, 200.0f);
+        //Renderer::DrawIndexed();
+        Renderer::EndScene();
 
         if (w > 1.0f)
             incr = -0.05f;

@@ -7,7 +7,7 @@ namespace RealEngine {
 	{
 		unsigned int type;
 		unsigned int count;
-		unsigned char  normalized;
+		unsigned char normalized;
 
 		static unsigned int GetSize(unsigned int type)
 		{
@@ -15,7 +15,7 @@ namespace RealEngine {
 			{
 			case GL_FLOAT:			return 4;
 			case GL_UNSIGNED_INT:	return 4;
-			case GL_UNSIGNED_BYTE:	return 1;
+			case GL_UNSIGNED_BYTE:	return 1;			
 			}
 			return 0;
 		}

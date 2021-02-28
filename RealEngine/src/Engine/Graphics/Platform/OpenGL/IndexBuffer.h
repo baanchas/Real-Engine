@@ -10,6 +10,8 @@ namespace RealEngine {
 		IndexBuffer(const unsigned int* data, unsigned int count);
 		~IndexBuffer();
 
+		void Create(const unsigned int* data, unsigned int count);
+
 		void Bind() const;
 		void UnBind() const;
 
@@ -18,6 +20,7 @@ namespace RealEngine {
 	private:
 		unsigned int m_RendererID;
 		unsigned int m_Count;
+
 	};
 
 }

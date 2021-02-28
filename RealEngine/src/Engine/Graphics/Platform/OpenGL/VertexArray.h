@@ -11,6 +11,8 @@ namespace RealEngine {
 		VertexArray();
 		~VertexArray();
 
+		void Create();
+
 		void Bind() const;
 		void UnBind() const;
 
