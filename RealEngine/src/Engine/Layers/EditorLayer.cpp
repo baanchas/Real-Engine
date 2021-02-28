@@ -17,20 +17,14 @@ namespace RealEngine {
         m_PosX2 = -200.0f;
         m_PosY2 = -200.0f;
 
-        //auto q3 = Renderer::CreateQuad(100.0f, 100.0f, 200.0f);
-        //auto q4 = Renderer::CreateQuad(-200.0f, -200.0f, 200.0f);
-        //auto q0 = Renderer::CreateQuadByVerticies(100.0f, 100.0f, 200.0f);
-        //auto q1 = Renderer::CreateQuadByVerticies(-200.0f, -200.0f, 200.0f);
-
-        //m_Quads[0] = q3;
-        //m_Quads[1] = q4;
-
-        //memcpy(m_Verticies, q0.data(), q0.size() * sizeof(Vertex));
-        //memcpy(m_Verticies + q0.size(), q1.data(), q1.size() * sizeof(Vertex));
-
-        //translationC = glm::vec3(0, 0, 0);
-        //model = glm::translate(glm::mat4(1.0f), translationA); 
+        m_PosX3 = -400.0f;
+        m_PosY3 = -400.0f;
+        
         Renderer::Init();
+
+        quad.Size = 200.0f;
+        quad.SetPosition(100.f, 100.f, 0.0f);
+        quad.SetColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	}
 
 	EditorLayer::~EditorLayer()
@@ -59,6 +53,14 @@ namespace RealEngine {
         ImGui::DragFloat("Quad 2 - y", &m_PosY2, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
         ImGui::PopID();
 
+        ImGui::PushID("Quad 3 - x");
+        ImGui::DragFloat("Quad 3 - x", &m_PosX3, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui::PopID();
+
+        ImGui::PushID("Quad 3 - y");
+        ImGui::DragFloat("Quad 3 - y", &m_PosY3, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui::PopID();
+
         ImGui::End();
     }
 
@@ -69,22 +71,19 @@ namespace RealEngine {
 
 	void EditorLayer::OnRender()
 	{
-        
-
-        /*m_Quads[0].SetPosition(m_PosX, m_PosY, 200.0f);
-        m_Quads[0].SetColor(glm::vec4(0.18f, w, 0.96f, 1.0f));
-
-        m_Quads[1].SetPosition(m_PosX2, m_PosY2, 200.0f);
-        m_Quads[1].SetColor(glm::vec4(w, 0.45f, 0.96f, 1.0f));
-
-        model = glm::translate(glm::mat4(1.0f), translationC); // "Models" pos*/
-           
 
         Renderer::BeginScene(m_CameraController.GetCamera());
 
-        Renderer::DrawQuad(m_PosX, m_PosY, 200.0f);
-        Renderer::DrawQuad(m_PosX2, m_PosY2, 200.0f);
-        //Renderer::DrawIndexed();
+        Renderer::DrawQuad(m_PosX, m_PosY, 0.0f, 200.0f, 200.f, 1.0f, 1.0f, 1.0f, 1.0f);
+        
+        Renderer::DrawQuad(m_PosX2, m_PosY2, 0.0f, 200.0f, 200.f, 0.2f, 0.4f, 0.3f, 1.0f);
+
+        Renderer::DrawQuad(glm::vec3(-400.0f, 0.0f, 0.0f), glm::vec2(100.0f, 50.0f), glm::vec4(0.7f, 0.1f, 1.0f, 1.0f));
+        
+        quad.SetPosition(m_PosX3, m_PosY3, 0.0f);
+        quad.SetColor(glm::vec4(w, 1.0f, 1.0f, 1.0f));
+        Renderer::DrawQuad(quad);
+
         Renderer::EndScene();
 
         if (w > 1.0f)
@@ -93,10 +92,6 @@ namespace RealEngine {
             incr = 0.05f;
 
         w += incr;
-
-		ImGui::Begin("Test");
-		ImGui::DragFloat("dragfloat", &a, 1.0f);
-		ImGui::End();
 
 	}
 }
