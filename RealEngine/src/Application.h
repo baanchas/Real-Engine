@@ -21,7 +21,7 @@ namespace RealEngine {
 
 		void Run();
 		void OnUpdate();
-		void OnEvent();
+		void OnEvent(Event& event);
 		void OnRender();
 
 		void PushLayer(Layer* layer)

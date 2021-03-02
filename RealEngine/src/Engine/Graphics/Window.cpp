@@ -1,5 +1,6 @@
 #include "repch.h"
 #include "Window.h"
+#include "Application.h"
 
 namespace RealEngine {
 
@@ -65,6 +66,8 @@ namespace RealEngine {
 
 			data.m_Event = event;
 
+			Application::Get().OnEvent(event);
+
 		});
 
 		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -90,12 +93,11 @@ namespace RealEngine {
 				event.KeyReleased.ScanCode = scancode;
 				event.KeyReleased.Action = action;
 				event.KeyReleased.Mods = mods;
-			}
-
-			
+			}		
 
 			data.m_Event = event;
 
+			Application::Get().OnEvent(event);
 		});
 
 		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
@@ -121,8 +123,9 @@ namespace RealEngine {
 				event.MouseButtonReleased.Mods = mods;
 			}
 
-
 			data.m_Event = event;
+
+			Application::Get().OnEvent(event);
 		});
 
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)
@@ -137,6 +140,7 @@ namespace RealEngine {
 
 			data.m_Event = event;
 
+			Application::Get().OnEvent(event);
 		});
 
 		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
@@ -150,6 +154,8 @@ namespace RealEngine {
 			event.MouseMoved.yOffset = yPos;
 
 			data.m_Event = event;
+
+			Application::Get().OnEvent(event);
 		});
 
 		//SetVSync(props.VSync);

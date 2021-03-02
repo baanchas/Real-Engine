@@ -67,6 +67,41 @@ namespace RealEngine {
 	void EditorLayer::OnEvent(Event& event)
 	{
         m_CameraController.OnEvent(event);
+
+        if (event.Type == EventType::WindowResized)
+        {
+            ENGINE_INFO("window resiez");
+        }
+
+        if (event.Type == EventType::MouseButtonPressed)
+        {
+            if (event.MouseButtonPressed.Button == KeyCodes::Mouse::MOUSE_LEFT)
+            {
+                ENGINE_INFO("mouse button pressed");
+            }
+        }
+        else if (event.Type == EventType::MouseButtonReleased)
+        {
+            if (event.MouseButtonPressed.Button == KeyCodes::Mouse::MOUSE_LEFT)
+            {
+                ENGINE_INFO("mouse button released");
+            }
+        }
+
+        if (event.Type == EventType::KeyPressed)
+        {
+            if (event.KeyPressed.Key == KeyCodes::Keyboard::A)
+            {
+                ENGINE_INFO("A pressed");
+            }
+        }
+        else if (event.Type == EventType::KeyReleased)
+        {
+            if (event.KeyReleased.Key == KeyCodes::Keyboard::A)
+            {
+                ENGINE_INFO("A released");
+            }
+        }
    	}
 
 	void EditorLayer::OnRender()

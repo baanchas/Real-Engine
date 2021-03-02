@@ -1,5 +1,7 @@
 #pragma once
 
+//
+
 #include "Engine/Events/Event.h"
 
 namespace RealEngine {
@@ -42,8 +44,6 @@ namespace RealEngine {
 		//inline WindowProperties GetProps() { return m_Properties; }
 		inline Event GetEvent() const { return m_Properties.m_Event; }
 
-		inline int GetYOffset() { return m_Properties.yOffset; }
-
 		inline GLFWwindow* GetNativeWindow() const { return m_Window; }
 				
 	private:
@@ -56,13 +56,10 @@ namespace RealEngine {
 			unsigned int Width;
 			unsigned int Height;
 
-
-			int xOffset = 0;
-			int yOffset = 0;
-
 			Event m_Event;
 
 			bool VSync;
+
 		};
 
 		WindowProperties m_Properties;

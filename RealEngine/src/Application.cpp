@@ -33,16 +33,16 @@ namespace RealEngine {
 	{
 		while (m_Running)
 		{
-			OnEvent();
+			glfwPollEvents();
+			//OnEvent(m_Event);
 			OnUpdate();
 			OnRender();
 			glfwSwapBuffers(m_Window->GetNativeWindow());
 		}
 	}
 
-	void Application::OnEvent()
+	void Application::OnEvent(Event& event)
 	{
-		glfwPollEvents();
 
 		m_Event = m_Window->GetEvent();
 
