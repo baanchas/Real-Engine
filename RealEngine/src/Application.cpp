@@ -34,23 +34,34 @@ namespace RealEngine {
 		while (m_Running)
 		{
 			glfwPollEvents();
-			//OnEvent(m_Event);
+
 			OnUpdate();
 			OnRender();
+
 			glfwSwapBuffers(m_Window->GetNativeWindow());
 		}
 	}
 
 	void Application::OnEvent(Event& event)
 	{
+		if (event.Type == EventType::WindowResized)
+		{
+			if (event.WindowResized.Width == 0 || event.WindowResized.Height == 0)
+			{
+				m_Minimizied = true;
+			}
+			else
+			{
+				m_Minimizied = false;
 
-		m_Event = m_Window->GetEvent();
+				Renderer::SetViewport(0, 0, event.WindowResized.Width, event.WindowResized.Height);
+			}
+		}
 
 		for (Layer* layer : m_LayerStack)
 		{
-			layer->OnEvent(m_Event);
+			layer->OnEvent(event);
 		}
-
 	}
 
 	void Application::OnUpdate()
@@ -64,21 +75,30 @@ namespace RealEngine {
 
 		m_ImGuiLayer->Begin();
 
-		for (Layer* layer : m_LayerStack)
+		if (!m_Minimizied)
 		{
-			layer->OnUpdate(m_TimeStep);
+			for (Layer* layer : m_LayerStack)
+			{
+				layer->OnUpdate(m_TimeStep);
+			}
 		}
-		
-		m_Window->OnUpdate();
 	}
 
 	void Application::OnRender()
 	{
-		Renderer::Clear();
+
+		if (!m_Minimizied)
+		{
+			Renderer::Clear();
+			for (Layer* layer : m_LayerStack)
+			{
+				layer->OnRender();
+			}
+		}
 
 		for (Layer* layer : m_LayerStack)
 		{
-			layer->OnRender();
+			layer->OnImGuiRender();
 		}
 
 		m_ImGuiLayer->End();

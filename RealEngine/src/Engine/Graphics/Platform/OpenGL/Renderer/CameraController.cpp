@@ -7,7 +7,7 @@
 namespace RealEngine {
 
 	CameraController::CameraController(float width, float height)
-        : m_AspectRatio(width / height), m_Height(height / 2), m_Camera(-m_Height * m_AspectRatio * m_ZoomLevel, m_Height * m_AspectRatio * m_ZoomLevel, -m_Height * m_ZoomLevel, m_Height * m_ZoomLevel)
+        : m_ProjectionWidth(width / 2), m_ProjectionHeight(height / 2), m_Camera(-m_ProjectionWidth * m_ZoomLevel, m_ProjectionWidth * m_ZoomLevel, -m_ProjectionHeight * m_ZoomLevel, m_ProjectionHeight * m_ZoomLevel)
 	{
 	}
 
@@ -17,18 +17,37 @@ namespace RealEngine {
 
     void CameraController::OnEvent(Event& event)
     {
+        if (event.Type == EventType::WindowResized)
+        {
+            float aspectRatio;
+
+            if (1280.0f / event.WindowResized.Width > 720.0f / event.WindowResized.Height)
+            {
+                aspectRatio = 1280.0f / event.WindowResized.Width;
+            }
+            else
+            {
+                aspectRatio = 720.0f / event.WindowResized.Height;
+            }
+
+            m_ProjectionWidth = aspectRatio * (float)event.WindowResized.Width / 2;
+            m_ProjectionHeight = aspectRatio * (float)event.WindowResized.Height / 2;
+
+            m_Camera.SetProjection(-m_ProjectionWidth * m_ZoomLevel, m_ProjectionWidth  * m_ZoomLevel, -m_ProjectionHeight  * m_ZoomLevel, m_ProjectionHeight * m_ZoomLevel);
+        }
+
         if (event.Type == EventType::MouseScrolled)
         {
             if (event.MouseScrolled.yOffset == 1)
             {
                 m_ZoomLevel *= 0.95f;
-                m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel * m_Height, m_AspectRatio * m_ZoomLevel * m_Height, -m_ZoomLevel * m_Height, m_ZoomLevel * m_Height);
+                m_Camera.SetProjection(-m_ProjectionWidth * m_ZoomLevel, m_ProjectionWidth * m_ZoomLevel, -m_ProjectionHeight * m_ZoomLevel, m_ProjectionHeight * m_ZoomLevel);
             }
             else if (event.MouseScrolled.yOffset == -1)
             {
                 m_ZoomLevel *= 1.05f;
 
-                m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel * m_Height, m_AspectRatio * m_ZoomLevel * m_Height, -m_ZoomLevel * m_Height, m_ZoomLevel * m_Height);
+                m_Camera.SetProjection(-m_ProjectionWidth * m_ZoomLevel, m_ProjectionWidth * m_ZoomLevel, -m_ProjectionHeight * m_ZoomLevel, m_ProjectionHeight * m_ZoomLevel);
             }
         }
         

@@ -42,7 +42,7 @@ namespace RealEngine {
 		inline unsigned int GetHeight() const { return m_Properties.Height; }
 
 		//inline WindowProperties GetProps() { return m_Properties; }
-		inline Event GetEvent() const { return m_Properties.m_Event; }
+		//inline Event GetEvent() const { return m_Properties.m_Event; }
 
 		inline GLFWwindow* GetNativeWindow() const { return m_Window; }
 				
@@ -55,8 +55,6 @@ namespace RealEngine {
 			std::string Title;
 			unsigned int Width;
 			unsigned int Height;
-
-			Event m_Event;
 
 			bool VSync;
 

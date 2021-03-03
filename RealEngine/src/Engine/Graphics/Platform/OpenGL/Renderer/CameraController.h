@@ -18,10 +18,10 @@ namespace RealEngine {
 		OrthographicCamera& GetCamera() { return m_Camera; }
 
 	private:
-		float m_AspectRatio;
 		float m_ZoomLevel = 1.0f;
 
-		float m_Height;
+		float m_ProjectionWidth;
+		float m_ProjectionHeight;
 
 		OrthographicCamera m_Camera;
 

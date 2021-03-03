@@ -23,7 +23,9 @@ namespace RealEngine {
 
 		void OnUpdate(float ts) override;
 		void OnEvent(Event& event) override;
+		void OnImGuiRender() override;
 		void OnRender() override;
+
 
 	private:
 		CameraController m_CameraController;

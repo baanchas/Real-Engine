@@ -35,9 +35,6 @@ namespace RealEngine {
 
 		static Application& Get() { return *s_Instance; }
 
-	public:
-		Event m_Event;
-
 	private:
 		Application();
 	private:
@@ -51,6 +48,7 @@ namespace RealEngine {
 		ImGuiLayer* m_ImGuiLayer;
 
 		bool m_Running;
+		bool m_Minimizied = false;
 		
 	};
 

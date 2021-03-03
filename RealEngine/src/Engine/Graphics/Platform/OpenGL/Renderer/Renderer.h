@@ -93,6 +93,8 @@ namespace RealEngine {
 		static void Clear() { glClear(GL_COLOR_BUFFER_BIT); };
 		static void DrawIndexed();
 
+		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+
 		static void DrawQuad(Quad quad);
 		static void DrawQuad(glm::vec3 position, glm::vec2 size, glm::vec4 color);
 		static void DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, float r, float g, float b, float t);

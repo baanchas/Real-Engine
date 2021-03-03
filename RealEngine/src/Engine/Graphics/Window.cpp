@@ -17,8 +17,6 @@ namespace RealEngine {
 
 	void Window::OnUpdate()
 	{
-		//glfwSwapBuffers(m_Window);
-		m_Properties.m_Event = Event();
 	}
 
 	void Window::Init(const WindowProps& props)
@@ -64,8 +62,6 @@ namespace RealEngine {
 			event.WindowResized.Width = width;
 			event.WindowResized.Height = height;
 
-			data.m_Event = event;
-
 			Application::Get().OnEvent(event);
 
 		});
@@ -76,7 +72,7 @@ namespace RealEngine {
 			
 			Event event;
 
-			if (action == GLFW_PRESS || action == GLFW_REPEAT)
+			if (action == GLFW_PRESS)
 			{
 				event.Type = EventType::KeyPressed;
 
@@ -93,9 +89,16 @@ namespace RealEngine {
 				event.KeyReleased.ScanCode = scancode;
 				event.KeyReleased.Action = action;
 				event.KeyReleased.Mods = mods;
-			}		
+			}
+			else if (action == GLFW_REPEAT)
+			{
+				event.Type = EventType::KeyRepeated;
 
-			data.m_Event = event;
+				event.KeyReleased.Key = key;
+				event.KeyReleased.ScanCode = scancode;
+				event.KeyReleased.Action = action;
+				event.KeyReleased.Mods = mods;
+			}
 
 			Application::Get().OnEvent(event);
 		});
@@ -123,8 +126,6 @@ namespace RealEngine {
 				event.MouseButtonReleased.Mods = mods;
 			}
 
-			data.m_Event = event;
-
 			Application::Get().OnEvent(event);
 		});
 
@@ -138,8 +139,6 @@ namespace RealEngine {
 			event.MouseScrolled.yOffset = yOffset;
 			event.MouseScrolled.xOffset = xOffset;
 
-			data.m_Event = event;
-
 			Application::Get().OnEvent(event);
 		});
 
@@ -152,8 +151,6 @@ namespace RealEngine {
 
 			event.MouseMoved.xOffset = xPos;
 			event.MouseMoved.yOffset = yPos;
-
-			data.m_Event = event;
 
 			Application::Get().OnEvent(event);
 		});

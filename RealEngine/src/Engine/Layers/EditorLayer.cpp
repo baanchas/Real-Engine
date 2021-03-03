@@ -35,6 +35,57 @@ namespace RealEngine {
     {
         m_CameraController.OnUpdate(ts);
 
+    }
+
+	void EditorLayer::OnEvent(Event& event)
+	{
+        m_CameraController.OnEvent(event);
+
+        if (event.Type == EventType::WindowResized)
+        {
+            ENGINE_INFO("{0} {1}", event.WindowResized.Width, event.WindowResized.Height);
+        }
+
+        if (event.Type == EventType::MouseButtonPressed)
+        {
+            if (event.MouseButtonPressed.Button == KeyCodes::Mouse::MOUSE_LEFT)
+            {
+                ENGINE_INFO("mouse button pressed");
+            }
+        }
+        else if (event.Type == EventType::MouseButtonReleased)
+        {
+            if (event.MouseButtonPressed.Button == KeyCodes::Mouse::MOUSE_LEFT)
+            {
+                ENGINE_INFO("mouse button released");
+            }
+        }
+
+        if (event.Type == EventType::KeyPressed)
+        {
+            if (event.KeyPressed.Key == KeyCodes::Keyboard::A)
+            {
+                ENGINE_INFO("A Pressed");
+            }
+        }
+        else if (event.Type == EventType::KeyRepeated)
+        {
+            if (event.KeyReleased.Key == KeyCodes::Keyboard::A)
+            {
+                ENGINE_INFO("A Repeated");
+            }
+        }
+        else if (event.Type == EventType::KeyReleased)
+        {
+            if (event.KeyPressed.Key == KeyCodes::Keyboard::A)
+            {
+                ENGINE_INFO("A released");
+            }
+        }
+   	}
+
+    void EditorLayer::OnImGuiRender()
+    {
         ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
         ImGui::PushID("Quad 1 - x");
@@ -63,46 +114,6 @@ namespace RealEngine {
 
         ImGui::End();
     }
-
-	void EditorLayer::OnEvent(Event& event)
-	{
-        m_CameraController.OnEvent(event);
-
-        if (event.Type == EventType::WindowResized)
-        {
-            ENGINE_INFO("window resiez");
-        }
-
-        if (event.Type == EventType::MouseButtonPressed)
-        {
-            if (event.MouseButtonPressed.Button == KeyCodes::Mouse::MOUSE_LEFT)
-            {
-                ENGINE_INFO("mouse button pressed");
-            }
-        }
-        else if (event.Type == EventType::MouseButtonReleased)
-        {
-            if (event.MouseButtonPressed.Button == KeyCodes::Mouse::MOUSE_LEFT)
-            {
-                ENGINE_INFO("mouse button released");
-            }
-        }
-
-        if (event.Type == EventType::KeyPressed)
-        {
-            if (event.KeyPressed.Key == KeyCodes::Keyboard::A)
-            {
-                ENGINE_INFO("A pressed");
-            }
-        }
-        else if (event.Type == EventType::KeyReleased)
-        {
-            if (event.KeyReleased.Key == KeyCodes::Keyboard::A)
-            {
-                ENGINE_INFO("A released");
-            }
-        }
-   	}
 
 	void EditorLayer::OnRender()
 	{
