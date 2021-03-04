@@ -11,6 +11,7 @@
 #include "OpenGL/Renderer/Renderer.h"
 
 #include "OpenGL/Renderer/CameraController.h"
+#include "OpenGL/Texture2D.h"
 
 namespace RealEngine {
 
@@ -30,7 +31,12 @@ namespace RealEngine {
 	private:
 		CameraController m_CameraController;
 		Quad quad;
-		
+		Texture2D texture;
+		Texture2D texture2;
+		Texture2D texture3;
+		Texture2D texture4;
+
+
 		float m_CaneraSpeed = 3.0f;
 		float m_CameraRotationSpeed = 1.0f;
 

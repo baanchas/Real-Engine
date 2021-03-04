@@ -17,9 +17,15 @@ namespace RealEngine {
 	void Renderer::EndScene()
 	{
         uint32_t dataSize = (uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase;
+
+        for (uint32_t i = 0; i < s_Data.TextureIndex; i++)
+        {
+            if (s_Data.TextureSlots[i] != nullptr)
+                s_Data.TextureSlots[i]->Bind(i);
+        }
+
         s_Data.VertexBuffer.SetData(s_Data.QuadVertexBufferBase, dataSize);
-
-
+        
         DrawIndexed();
 	}
 
@@ -37,15 +43,21 @@ namespace RealEngine {
 			
 			layout(location = 0) in vec4 a_Position;
 			layout(location = 1) in vec4 a_Color;
+			layout(location = 2) in vec2 a_TexCoord;
+			layout(location = 3) in float a_TexID;
             
 			uniform mat4 u_ViewProjection;
             uniform mat4 u_Transform;
 
             out vec4 v_Color;
+            out vec2 v_TexCoord;
+            out float v_TexID;
 
 			void main()
 			{
                 v_Color = a_Color;
+                v_TexCoord = a_TexCoord;
+                v_TexID = a_TexID;
 				gl_Position = u_ViewProjection * a_Position;	
             }
 		)";
@@ -56,14 +68,55 @@ namespace RealEngine {
 			layout(location = 0) out vec4 color;
             
             in vec4 v_Color;
-                        
+            in vec2 v_TexCoord;
+            in float v_TexID;
+
+            uniform sampler2D u_Texture[32];
+
 			void main()
 			{
-            	color = v_Color;
+                //color = texture(u_Texture[int(v_TexID)], v_TexCoord) * v_Color;      
+            	vec4 texColor = v_Color;
+	            switch(int(v_TexID))
+	            {
+		            case 1: texColor *= texture(u_Texture[0], v_TexCoord); break;
+		            case 2: texColor *= texture(u_Texture[1], v_TexCoord); break;
+		            case 3: texColor *= texture(u_Texture[2], v_TexCoord); break;
+		            case 4: texColor *= texture(u_Texture[3], v_TexCoord); break;
+		            case 5: texColor *= texture(u_Texture[4], v_TexCoord); break;
+		            case 6: texColor *= texture(u_Texture[5], v_TexCoord); break;
+		            case 7: texColor *= texture(u_Texture[6], v_TexCoord); break;
+		            case 8: texColor *= texture(u_Texture[7], v_TexCoord); break;
+		            case 9: texColor *= texture(u_Texture[8], v_TexCoord); break;
+		            case 10: texColor *= texture(u_Texture[9], v_TexCoord); break;
+		            case 11: texColor *= texture(u_Texture[10], v_TexCoord); break;
+		            case 12: texColor *= texture(u_Texture[11], v_TexCoord); break;
+		            case 13: texColor *= texture(u_Texture[12], v_TexCoord); break;
+		            case 14: texColor *= texture(u_Texture[13], v_TexCoord); break;
+		            case 15: texColor *= texture(u_Texture[14], v_TexCoord); break;
+		            case 16: texColor *= texture(u_Texture[15], v_TexCoord); break;
+		            case 17: texColor *= texture(u_Texture[16], v_TexCoord); break;
+		            case 18: texColor *= texture(u_Texture[17], v_TexCoord); break;
+		            case 19: texColor *= texture(u_Texture[18], v_TexCoord); break;
+		            case 20: texColor *= texture(u_Texture[19], v_TexCoord); break;
+		            case 21: texColor *= texture(u_Texture[20], v_TexCoord); break;
+		            case 22: texColor *= texture(u_Texture[21], v_TexCoord); break;
+		            case 23: texColor *= texture(u_Texture[22], v_TexCoord); break;
+		            case 24: texColor *= texture(u_Texture[23], v_TexCoord); break;
+		            case 25: texColor *= texture(u_Texture[24], v_TexCoord); break;
+		            case 26: texColor *= texture(u_Texture[25], v_TexCoord); break;
+		            case 27: texColor *= texture(u_Texture[26], v_TexCoord); break;
+		            case 28: texColor *= texture(u_Texture[27], v_TexCoord); break;
+		            case 29: texColor *= texture(u_Texture[28], v_TexCoord); break;
+		            case 30: texColor *= texture(u_Texture[29], v_TexCoord); break;
+		            case 31: texColor *= texture(u_Texture[30], v_TexCoord); break;
+		            case 32: texColor *= texture(u_Texture[31], v_TexCoord); break;
+	            }
+	            color = texColor;
 			}
 		)";
-
-
+        //color = v_Color;
+        //
         s_Data.VertexArray.Create();
         s_Data.Shader.Create(vertexSrc, fragmentSrc);
         s_Data.VertexBuffer.Create();
@@ -85,7 +138,6 @@ namespace RealEngine {
         }
 
         s_Data.IndexBuffer.Create(quadIndices, s_Data.MaxIndices);
-        //s_Data.QuadVertexArray->SetIndexBuffer(quadIB);
         delete[] quadIndices;
 
 
@@ -95,47 +147,55 @@ namespace RealEngine {
 
         m_Layout.Push<float>(3);
         m_Layout.Push<float>(4);
+        m_Layout.Push<float>(2);
+        m_Layout.Push<float>(1);
         s_Data.VertexArray.Addbuffer(s_Data.VertexBuffer, m_Layout);
 
         s_Data.QuadVertexBufferBase = new Vertex[s_Data.MaxVertices];
+
+        int32_t samplers[s_Data.MaxTextureSlots];
+        for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
+        {
+            samplers[i] = i;
+        }
+        s_Data.Shader.SetUniformIntArray("u_Texture", samplers, s_Data.MaxTextureSlots);
+
+        for (uint32_t i = 0; i < s_Data.TextureIndex; i++)
+        {
+            if (s_Data.TextureSlots[i] != nullptr)
+                s_Data.TextureSlots[i]->SetRendererID(0);
+        }
     }
 
     void Renderer::DrawQuad(glm::vec3 position, glm::vec2 size, glm::vec4 color)
     {
-        s_Data.QuadVertexBufferPtr->Position = { position.x, position.y, position.z };
-        s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
-        s_Data.QuadVertexBufferPtr++;
-
-        s_Data.QuadVertexBufferPtr->Position = { position.x + size.x, position.y, position.z };
-        s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
-        s_Data.QuadVertexBufferPtr++;
-
-        s_Data.QuadVertexBufferPtr->Position = { position.x + size.x, position.y + size.y, position.z };
-        s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
-        s_Data.QuadVertexBufferPtr++;
-
-        s_Data.QuadVertexBufferPtr->Position = { position.x, position.y + size.y, position.z };
-        s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
-
-        s_Data.QuadVertexBufferPtr++;
+        DrawQuad(position.x, position.y, position.z, size.x, size.y, color.x, color.y, color.z, color.w);
     }
 
     void Renderer::DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, float r, float g, float b, float t)
     {
         s_Data.QuadVertexBufferPtr->Position = { posX, posY, posZ };
         s_Data.QuadVertexBufferPtr->Color = { r, g, b, t };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
+        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = { posX + sizeX, posY, posZ };
         s_Data.QuadVertexBufferPtr->Color = { r, g, b, t };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f };
+        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = { posX + sizeX, posY + sizeY, posZ };
         s_Data.QuadVertexBufferPtr->Color = { r, g, b, t };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 1.0f };
+        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = { posX, posY + sizeY, posZ };
         s_Data.QuadVertexBufferPtr->Color = { r, g, b, t };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
+        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
 
         s_Data.QuadVertexBufferPtr++;
     }
@@ -144,27 +204,83 @@ namespace RealEngine {
     {
         s_Data.QuadVertexBufferPtr->Position = { quad.Vertex_0.Position.x, quad.Vertex_0.Position.y, quad.Vertex_0.Position.z };
         s_Data.QuadVertexBufferPtr->Color = { quad.Vertex_0.Color.x, quad.Vertex_0.Color.y, quad.Vertex_0.Color.z, quad.Vertex_0.Color.w };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
+        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr++;
 
-        s_Data.QuadVertexBufferPtr->Position = { quad.Vertex_0.Position.x + quad.Size, quad.Vertex_0.Position.y, quad.Vertex_0.Position.z };
+        s_Data.QuadVertexBufferPtr->Position = { quad.Vertex_0.Position.x + quad.Size.x, quad.Vertex_0.Position.y, quad.Vertex_0.Position.z };
         s_Data.QuadVertexBufferPtr->Color = { quad.Vertex_0.Color.x, quad.Vertex_0.Color.y, quad.Vertex_0.Color.z, quad.Vertex_0.Color.w };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f };
+        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr++;
 
-        s_Data.QuadVertexBufferPtr->Position = { quad.Vertex_0.Position.x + quad.Size, quad.Vertex_0.Position.y + quad.Size, quad.Vertex_0.Position.z };
+        s_Data.QuadVertexBufferPtr->Position = { quad.Vertex_0.Position.x + quad.Size.x, quad.Vertex_0.Position.y + quad.Size.y, quad.Vertex_0.Position.z };
         s_Data.QuadVertexBufferPtr->Color = { quad.Vertex_0.Color.x, quad.Vertex_0.Color.y, quad.Vertex_0.Color.z, quad.Vertex_0.Color.w };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 1.f, 1.0f };
+        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr++;
 
-        s_Data.QuadVertexBufferPtr->Position = { quad.Vertex_0.Position.x, quad.Vertex_0.Position.y + quad.Size, quad.Vertex_0.Position.z };
+        s_Data.QuadVertexBufferPtr->Position = { quad.Vertex_0.Position.x, quad.Vertex_0.Position.y + quad.Size.y, quad.Vertex_0.Position.z };
         s_Data.QuadVertexBufferPtr->Color = { quad.Vertex_0.Color.x, quad.Vertex_0.Color.y, quad.Vertex_0.Color.z, quad.Vertex_0.Color.w };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
+        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
 
         s_Data.QuadVertexBufferPtr++;
     }
 
+    void Renderer::DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, Texture2D& texture)
+    {
+        float textureIndex = 0.0f;
+        
+        for (uint32_t i = 1; i < s_Data.TextureIndex; i++)
+        {
+            if (s_Data.TextureSlots[i] == &texture)
+            {
+                textureIndex = (float)i;
+                break;
+            }
+        }
+
+        if (textureIndex == 0.0f)
+        {
+            textureIndex = (float)s_Data.TextureIndex;
+
+            s_Data.TextureSlots[s_Data.TextureIndex] = &texture;
+            s_Data.TextureIndex++;
+        }
+
+        s_Data.QuadVertexBufferPtr->Position = { posX, posY, posZ };
+        s_Data.QuadVertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
+        s_Data.QuadVertexBufferPtr->TexId = textureIndex;
+        s_Data.QuadVertexBufferPtr++;
+
+        s_Data.QuadVertexBufferPtr->Position = { posX + sizeX, posY, posZ };
+        s_Data.QuadVertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f };
+        s_Data.QuadVertexBufferPtr->TexId = textureIndex;
+        s_Data.QuadVertexBufferPtr++;
+
+        s_Data.QuadVertexBufferPtr->Position = { posX + sizeX, posY + sizeY, posZ };
+        s_Data.QuadVertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 1.0f };
+        s_Data.QuadVertexBufferPtr->TexId = textureIndex;
+        s_Data.QuadVertexBufferPtr++;
+
+        s_Data.QuadVertexBufferPtr->Position = { posX, posY + sizeY, posZ };
+        s_Data.QuadVertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
+        s_Data.QuadVertexBufferPtr->TexId = textureIndex;
+
+        //s_Data.TextureIndex++;
+        s_Data.QuadVertexBufferPtr++;
+    }
+        
 	void Renderer::DrawIndexed()
 	{
        	s_Data.Shader.Bind();
         s_Data.Shader.SetUniformMat4f("u_ViewProjection", m_SceneData->ViewProjectionMatrix);
-       
+
 		s_Data.VertexArray.Bind();
         s_Data.IndexBuffer.Bind();
 
@@ -176,44 +292,5 @@ namespace RealEngine {
         glViewport(x, y, width, height);
     }
 
-    Quad Renderer::CreateQuad(float x, float y, float z, float size)
-    {
-        Quad quad;
-
-        quad.Vertex_0.Position = { x, y, z };
-        quad.Vertex_0.Color = { 0.18f, 0.6f, 0.96f, 1.0f };
-
-        quad.Vertex_1.Position = { x + size, y, z };
-        quad.Vertex_1.Color = { 0.18f, 0.6f, 0.96f, 1.0f };
-
-        quad.Vertex_2.Position = { x + size, y + size, z };
-        quad.Vertex_2.Color = { 0.18f, 0.6f, 0.96f, 1.0f };
-
-        quad.Vertex_3.Position = { x, y + size, z };
-        quad.Vertex_3.Color = { 0.18f, 0.6f, 0.96f, 1.0f };
-
-        return quad;
-    }
-
-    std::array<Vertex, 4> Renderer::CreateQuadByVerticies(float x, float y, float z, float size)
-    {
-
-        Vertex v0;
-        v0.Position = { x, y, z };
-        v0.Color = { 0.18f, 0.6f, 0.96f, 1.0f };
-
-        Vertex v1;
-        v1.Position = { x + size, y, z };
-        v1.Color = { 0.18f, 0.6f, 0.96f, 1.0f };
-
-        Vertex v2;
-        v2.Position = { x + size, y + size, z };
-        v2.Color = { 0.18f, 0.6f, 0.96f, 1.0f };
-
-        Vertex v3;
-        v3.Position = { x, y + size, z };
-        v3.Color = { 0.18f, 0.6f, 0.96f, 1.0f };
-
-        return { v0, v1, v2, v3 };
-    }
+   
 }

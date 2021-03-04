@@ -22,9 +22,19 @@ namespace RealEngine {
         
         Renderer::Init();
 
-        quad.Size = 200.0f;
+        quad.Size = glm::vec2(200.0f, 200.0f);
         quad.SetPosition(100.f, 100.f, 0.0f);
         quad.SetColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+        texture.LoadFromFile("res/sprites/checkerboard.png");
+        texture2.LoadFromFile("res/sprites/checkerboard.png");
+        texture3.LoadFromFile("res/sprites/checkerboard.png");
+        texture4.LoadFromFile("res/sprites/checkerboard.png");
+        //texture.w
+        texture.Bind();
+        texture2.Bind();
+        texture3.Bind();
+        texture4.Bind();
 	}
 
 	EditorLayer::~EditorLayer()
@@ -120,14 +130,21 @@ namespace RealEngine {
 
         Renderer::BeginScene(m_CameraController.GetCamera());
 
+        Renderer::DrawQuad(-300.0f, -200.0f, 0.0f, 200, 200.0f, texture);
+        Renderer::DrawQuad(-100.0f, -200.0f, 0.0f, 200, 200.0f, texture2);
+        Renderer::DrawQuad(-300.0f, 0.0f, 0.0f, 200, 200.0f, texture3);
+        Renderer::DrawQuad(-100.0f, 0.0f, 0.0f, 200, 200.0f, texture4);
+
+
         Renderer::DrawQuad(m_PosX, m_PosY, 0.0f, 200.0f, 200.f, 1.0f, 1.0f, 1.0f, 1.0f);
         
         Renderer::DrawQuad(m_PosX2, m_PosY2, 0.0f, 200.0f, 200.f, 0.2f, 0.4f, 0.3f, 1.0f);
 
-        Renderer::DrawQuad(glm::vec3(-400.0f, 0.0f, 0.0f), glm::vec2(100.0f, 50.0f), glm::vec4(0.7f, 0.1f, 1.0f, 1.0f));
-        
+      
+        quad.SetSize(300.f, 300.0f);
         quad.SetPosition(m_PosX3, m_PosY3, 0.0f);
         quad.SetColor(glm::vec4(w, 1.0f, 1.0f, 1.0f));
+
         Renderer::DrawQuad(quad);
 
         Renderer::EndScene();
