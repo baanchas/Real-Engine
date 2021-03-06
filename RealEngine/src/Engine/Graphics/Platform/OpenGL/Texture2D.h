@@ -18,9 +18,13 @@ namespace RealEngine {
 
 		void SetRendererID(unsigned int id) { m_RendererID = id; };
 
+		void SetRotation(float rotation) { m_Rotation = rotation; }
+
 		inline int GetWidth() const { return m_Width; }
 		inline int GetHeight() const { return m_Height; }
 
+		inline float GetRotation() const { return m_Rotation; }
+		
 		inline unsigned int GetRendererID() const { return m_RendererID; }
 
 		bool operator==(Texture2D& other)
@@ -32,6 +36,7 @@ namespace RealEngine {
 		std::string m_FilePath;
 		unsigned char* m_LocalBuffer;
 		int m_Width, m_Height, m_BitsPerPixel;
+		float m_Rotation = 0.0f;
 	};
 
 }

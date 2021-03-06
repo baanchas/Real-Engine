@@ -42,12 +42,18 @@ namespace RealEngine {
             {
                 m_ZoomLevel *= 0.95f;
                 m_Camera.SetProjection(-m_ProjectionWidth * m_ZoomLevel, m_ProjectionWidth * m_ZoomLevel, -m_ProjectionHeight * m_ZoomLevel, m_ProjectionHeight * m_ZoomLevel);
+
+                if (m_CameraSpeed > 20.0f)
+                    m_CameraSpeed -= 10.0f; 
             }
             else if (event.MouseScrolled.yOffset == -1)
             {
                 m_ZoomLevel *= 1.05f;
 
                 m_Camera.SetProjection(-m_ProjectionWidth * m_ZoomLevel, m_ProjectionWidth * m_ZoomLevel, -m_ProjectionHeight * m_ZoomLevel, m_ProjectionHeight * m_ZoomLevel);
+
+
+                m_CameraSpeed += 10.0f;
             }
         }
         

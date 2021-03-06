@@ -165,34 +165,43 @@ namespace RealEngine {
             if (s_Data.TextureSlots[i] != nullptr)
                 s_Data.TextureSlots[i]->SetRendererID(0);
         }
+
+        s_Data.QuadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f};
+        s_Data.QuadVertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f};
+        s_Data.QuadVertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f};
+        s_Data.QuadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f};
     }
 
-    void Renderer::DrawQuad(glm::vec3 position, glm::vec2 size, glm::vec4 color)
+    void Renderer::DrawQuad(glm::vec3 position, glm::vec2 size, float rotation, glm::vec4 color)
     {
-        DrawQuad(position.x, position.y, position.z, size.x, size.y, color.x, color.y, color.z, color.w);
+        DrawQuad(position.x, position.y, position.z, size.x, size.y, rotation, color.x, color.y, color.z, color.w);
     }
 
-    void Renderer::DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, float r, float g, float b, float t)
+    void Renderer::DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, float rotation, float r, float g, float b, float t)
     {
-        s_Data.QuadVertexBufferPtr->Position = { posX, posY, posZ };
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, posZ)) *
+            glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f }) *
+            glm::scale(glm::mat4(1.0f), { sizeX, sizeY, 1.0f });
+
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[0];
         s_Data.QuadVertexBufferPtr->Color = { r, g, b, t };
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
         s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr++;
 
-        s_Data.QuadVertexBufferPtr->Position = { posX + sizeX, posY, posZ };
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[1];
         s_Data.QuadVertexBufferPtr->Color = { r, g, b, t };
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f };
         s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr++;
 
-        s_Data.QuadVertexBufferPtr->Position = { posX + sizeX, posY + sizeY, posZ };
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[2];
         s_Data.QuadVertexBufferPtr->Color = { r, g, b, t };
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr++;
 
-        s_Data.QuadVertexBufferPtr->Position = { posX, posY + sizeY, posZ };
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[3];
         s_Data.QuadVertexBufferPtr->Color = { r, g, b, t };
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = 0.0f;
@@ -202,26 +211,31 @@ namespace RealEngine {
 
     void Renderer::DrawQuad(Quad quad)
     {
-        s_Data.QuadVertexBufferPtr->Position = { quad.Vertex_0.Position.x, quad.Vertex_0.Position.y, quad.Vertex_0.Position.z };
-        s_Data.QuadVertexBufferPtr->Color = { quad.Vertex_0.Color.x, quad.Vertex_0.Color.y, quad.Vertex_0.Color.z, quad.Vertex_0.Color.w };
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(quad.Vertex.Position.x, quad.Vertex.Position.y, quad.Vertex.Position.z)) *
+            glm::rotate(glm::mat4(1.0f), glm::radians(quad.Rotation), { 0.0f, 0.0f, 1.0f }) *
+            glm::scale(glm::mat4(1.0f), { quad.Size.x, quad.Size.y, 1.0f });
+
+
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[0];
+        s_Data.QuadVertexBufferPtr->Color = { quad.Vertex.Color.x, quad.Vertex.Color.y, quad.Vertex.Color.z, quad.Vertex.Color.w };
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
         s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr++;
 
-        s_Data.QuadVertexBufferPtr->Position = { quad.Vertex_0.Position.x + quad.Size.x, quad.Vertex_0.Position.y, quad.Vertex_0.Position.z };
-        s_Data.QuadVertexBufferPtr->Color = { quad.Vertex_0.Color.x, quad.Vertex_0.Color.y, quad.Vertex_0.Color.z, quad.Vertex_0.Color.w };
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[1];
+        s_Data.QuadVertexBufferPtr->Color = { quad.Vertex.Color.x, quad.Vertex.Color.y, quad.Vertex.Color.z, quad.Vertex.Color.w };
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f };
         s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr++;
 
-        s_Data.QuadVertexBufferPtr->Position = { quad.Vertex_0.Position.x + quad.Size.x, quad.Vertex_0.Position.y + quad.Size.y, quad.Vertex_0.Position.z };
-        s_Data.QuadVertexBufferPtr->Color = { quad.Vertex_0.Color.x, quad.Vertex_0.Color.y, quad.Vertex_0.Color.z, quad.Vertex_0.Color.w };
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[2];
+        s_Data.QuadVertexBufferPtr->Color = { quad.Vertex.Color.x, quad.Vertex.Color.y, quad.Vertex.Color.z, quad.Vertex.Color.w };
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr++;
 
-        s_Data.QuadVertexBufferPtr->Position = { quad.Vertex_0.Position.x, quad.Vertex_0.Position.y + quad.Size.y, quad.Vertex_0.Position.z };
-        s_Data.QuadVertexBufferPtr->Color = { quad.Vertex_0.Color.x, quad.Vertex_0.Color.y, quad.Vertex_0.Color.z, quad.Vertex_0.Color.w };
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[3];
+        s_Data.QuadVertexBufferPtr->Color = { quad.Vertex.Color.x, quad.Vertex.Color.y, quad.Vertex.Color.z, quad.Vertex.Color.w };
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = 0.0f;
 
@@ -249,25 +263,29 @@ namespace RealEngine {
             s_Data.TextureIndex++;
         }
 
-        s_Data.QuadVertexBufferPtr->Position = { posX, posY, posZ };
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, posZ)) *
+            glm::rotate(glm::mat4(1.0f), glm::radians(texture.GetRotation()), { 0.0f, 0.0f, 1.0f }) *
+            glm::scale(glm::mat4(1.0f), { sizeX, sizeY, 1.0f });
+
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[0];
         s_Data.QuadVertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
         s_Data.QuadVertexBufferPtr->TexId = textureIndex;
         s_Data.QuadVertexBufferPtr++;
 
-        s_Data.QuadVertexBufferPtr->Position = { posX + sizeX, posY, posZ };
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[1];
         s_Data.QuadVertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f };
         s_Data.QuadVertexBufferPtr->TexId = textureIndex;
         s_Data.QuadVertexBufferPtr++;
 
-        s_Data.QuadVertexBufferPtr->Position = { posX + sizeX, posY + sizeY, posZ };
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[2];
         s_Data.QuadVertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = textureIndex;
         s_Data.QuadVertexBufferPtr++;
 
-        s_Data.QuadVertexBufferPtr->Position = { posX, posY + sizeY, posZ };
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[3];
         s_Data.QuadVertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = textureIndex;
@@ -276,6 +294,7 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr++;
     }
         
+
 	void Renderer::DrawIndexed()
 	{
        	s_Data.Shader.Bind();
