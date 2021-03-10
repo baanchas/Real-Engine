@@ -92,6 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\FrameBuffer.cpp" />
     <ClCompile Include="libs\stb_image\stb_image.cpp" />
     <ClCompile Include="src\Engine\Events\Event.cpp" />
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\CameraController.cpp" />
@@ -124,6 +125,7 @@
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\FrameBuffer.h" />
     <ClInclude Include="libs\stb_image\stb_image.h" />
     <ClInclude Include="src\Engine\Events\Event.h" />
     <ClInclude Include="src\Engine\Timestep.h" />

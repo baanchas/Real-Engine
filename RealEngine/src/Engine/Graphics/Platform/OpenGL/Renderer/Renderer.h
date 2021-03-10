@@ -75,7 +75,7 @@ namespace RealEngine {
 
 	struct RendererData
 	{
-		const uint32_t MaxQuads = 1000;
+		const uint32_t MaxQuads = 10000;
 		const uint32_t MaxVertices = MaxQuads * 4;
 		const uint32_t MaxIndices = MaxQuads * 6;
 		static const uint32_t MaxTextureSlots = 32;
@@ -115,9 +115,10 @@ namespace RealEngine {
 		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 
 		static void DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, float rotation, float r, float g, float b, float t);
-		static void DrawQuad(glm::vec3 position, glm::vec2 size, float rotation, glm::vec4 color);
-		static void DrawQuad(Quad quad);
-		static void DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, Texture2D& texture);
+		static void DrawQuad(glm::vec3& position, glm::vec2& size, float rotation, glm::vec4& color);
+		static void DrawQuad(Quad& quad);
+		static void DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, Texture2D& texture, float tilingFactor);
+		static void DrawQuad(glm::vec3& position, glm::vec2& size, Texture2D& texture, float tilingFactor);
 
 	private:
 		glm::mat4 ViewProjectionMatrix = glm::mat4(1.0f);

@@ -132,6 +132,11 @@ namespace RealEngine {
 		glUniform1i(GetUniformLocation(name), value);
 	}
 
+	void Shader::SetUniform1f(const std::string& name, float value)
+	{
+		glUniform1f(GetUniformLocation(name), value);
+	}
+
 	void Shader::SetUniformIntArray(const std::string& name, int* value, uint32_t count)
 	{
 		glUniform1iv(GetUniformLocation(name), count, value);

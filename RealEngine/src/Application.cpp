@@ -89,7 +89,6 @@ namespace RealEngine {
 
 		if (!m_Minimizied)
 		{
-			Renderer::Clear();
 			for (Layer* layer : m_LayerStack)
 			{
 				layer->OnRender();
