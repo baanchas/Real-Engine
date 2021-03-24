@@ -36,6 +36,8 @@ namespace RealEngine {
 
 		FrameBuffer* m_FrameBuffer;
 
+		glm::vec2 m_ViewPortSize;
+
 		float m_CaneraSpeed = 3.0f;
 		float m_CameraRotationSpeed = 1.0f;
 

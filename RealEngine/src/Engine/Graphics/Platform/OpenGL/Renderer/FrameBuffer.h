@@ -13,10 +13,11 @@ namespace RealEngine {
 	class FrameBuffer
 	{
 	public:
-		FrameBuffer();
+		FrameBuffer(FrameBufferSpecification& spec);
 		virtual ~FrameBuffer();
 
-		void Create(FrameBufferSpecification& spec);
+		void Create();
+		void Resize(const glm::vec2& size);
 
 		void Bind();
 		void Unbind();
@@ -27,8 +28,8 @@ namespace RealEngine {
 	private:
 		FrameBufferSpecification m_FrameBufferSpecification;
 
-		uint32_t m_RendererID;
-		uint32_t m_ColorAttachment, m_DepthAttachment;
+		uint32_t m_RendererID = 0;
+		uint32_t m_ColorAttachment = 0, m_DepthAttachment = 0;
 
 	};
 

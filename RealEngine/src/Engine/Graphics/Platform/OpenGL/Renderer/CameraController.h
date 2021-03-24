@@ -15,6 +15,8 @@ namespace RealEngine {
 		
 		void OnEvent(Event& event);
 
+		void OnBoundsResize(float width, float height);
+
 		OrthographicCamera& GetCamera() { return m_Camera; }
 
 	private:

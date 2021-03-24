@@ -11,6 +11,8 @@
 
 #include "Engine/Events/Event.h"
 
+#include "Engine/TimeStep.h"
+
 namespace RealEngine {
 
 	class Application
@@ -43,7 +45,8 @@ namespace RealEngine {
 		Window* m_Window;
 
 		float m_LastFrameTime;
-		float m_TimeStep;
+		Timestep m_TimeStep;
+
 		LayersStack m_LayerStack;
 		ImGuiLayer* m_ImGuiLayer;
 

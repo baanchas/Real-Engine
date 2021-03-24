@@ -17,15 +17,13 @@ namespace RealEngine {
 		void LoadFromFile(const std::string& path);
 
 		void SetRendererID(unsigned int id) { m_RendererID = id; };
+		inline unsigned int GetRendererID() const { return m_RendererID; }
 
 		void SetRotation(float rotation) { m_Rotation = rotation; }
+		inline float GetRotation() const { return m_Rotation; }
 
 		inline int GetWidth() const { return m_Width; }
 		inline int GetHeight() const { return m_Height; }
-
-		inline float GetRotation() const { return m_Rotation; }
-		
-		inline unsigned int GetRendererID() const { return m_RendererID; }
 
 		bool operator==(Texture2D& other)
 		{

@@ -53,7 +53,6 @@ namespace RealEngine {
 			else
 			{
 				m_Minimizied = false;
-
 				Renderer::SetViewport(0, 0, event.WindowResized.Width, event.WindowResized.Height);
 			}
 		}
@@ -79,7 +78,7 @@ namespace RealEngine {
 		{
 			for (Layer* layer : m_LayerStack)
 			{
-				layer->OnUpdate(m_TimeStep);
+				layer->OnUpdate(m_TimeStep.GetSeconds());
 			}
 		}
 	}

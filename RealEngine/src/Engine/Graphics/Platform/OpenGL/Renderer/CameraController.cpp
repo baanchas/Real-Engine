@@ -17,7 +17,7 @@ namespace RealEngine {
 
     void CameraController::OnEvent(Event& event)
     {
-        if (event.Type == EventType::WindowResized)
+        /*if (event.Type == EventType::WindowResized)
         {
             float aspectRatio;
 
@@ -34,7 +34,7 @@ namespace RealEngine {
             m_ProjectionHeight = aspectRatio * (float)event.WindowResized.Height / 2;
 
             m_Camera.SetProjection(-m_ProjectionWidth * m_ZoomLevel, m_ProjectionWidth  * m_ZoomLevel, -m_ProjectionHeight  * m_ZoomLevel, m_ProjectionHeight * m_ZoomLevel);
-        }
+        }*/
 
         if (event.Type == EventType::MouseScrolled)
         {
@@ -92,5 +92,24 @@ namespace RealEngine {
         m_Camera.SetRotation(m_CameraRotation);
         m_Camera.SetPosition(m_CameraPosition);
 	}
+
+    void CameraController::OnBoundsResize(float width, float height)
+    {
+        float aspectRatio;
+
+        if (1280.0f / width > 720.0f / height)
+        {
+            aspectRatio = 1280.0f / width;
+        }
+        else
+        {
+            aspectRatio = 720.0f / height;
+        }
+
+        m_ProjectionWidth = aspectRatio * (float)width / 2;
+        m_ProjectionHeight = aspectRatio * (float)height / 2;
+
+        m_Camera.SetProjection(-m_ProjectionWidth * m_ZoomLevel, m_ProjectionWidth * m_ZoomLevel, -m_ProjectionHeight * m_ZoomLevel, m_ProjectionHeight * m_ZoomLevel);
+    }
 
 }
