@@ -57,10 +57,11 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\RealEngine\src\Engine\Graphics\Platform\;$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\spdlog\include\;$(SolutionDIr)RealEngine\libs\glew\include;$(SolutionDir)RealEngine\libs\GLFW\include\;$(SolutionDir)RealEngine\src\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RealEngine\libs\entt\include;$(SolutionDir)\RealEngine\src\Engine\Graphics\Platform\;$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\spdlog\include\;$(SolutionDIr)RealEngine\libs\glew\include;$(SolutionDir)RealEngine\libs\GLFW\include\;$(SolutionDir)RealEngine\src\</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>repch.h</PrecompiledHeaderFile>
       <DisableSpecificWarnings>26495;</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -92,6 +93,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Scene\Entity.cpp" />
+    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Scene\Scene.cpp" />
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\FrameBuffer.cpp" />
     <ClCompile Include="libs\stb_image\stb_image.cpp" />
     <ClCompile Include="src\Engine\Events\Event.cpp" />
@@ -125,6 +128,10 @@
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="libs\entt\include\entt.hpp" />
+    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Scene\Components.h" />
+    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Scene\Entity.h" />
+    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Scene\Scene.h" />
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\FrameBuffer.h" />
     <ClInclude Include="libs\stb_image\stb_image.h" />
     <ClInclude Include="src\Engine\Events\Event.h" />

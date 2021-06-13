@@ -9,6 +9,7 @@
 #include "OpenGL/IndexBuffer.h"
 #include "OpenGL/VertexBufferLayout.h"
 #include "OpenGL/Renderer/Renderer.h"
+#include "OpenGL/Scene/Scene.h"
 
 #include "OpenGL/Renderer/CameraController.h"
 #include "OpenGL/Texture2D.h"
@@ -31,28 +32,24 @@ namespace RealEngine {
 
 	private:
 		CameraController m_CameraController;
-		Quad quad;
+
 		Texture2D texture;
+
+		Quad quad;
 
 		FrameBuffer* m_FrameBuffer;
 
+		Scene* m_ActiveScene;
+
+		Entity square;
+
 		glm::vec2 m_ViewPortSize;
 
-		float m_CaneraSpeed = 3.0f;
-		float m_CameraRotationSpeed = 1.0f;
+		bool m_SceneWindowIsFocused = false;
 
-		float a = 0;
+		float m_PosX = 100.0f;
+		float m_PosY = 100.0f;
 
-
-		float m_PosX;
-		float m_PosY;
-		float m_PosX2;
-		float m_PosY2;
-		float m_PosX3;
-		float m_PosY3;
-		
-		float w = 0.18f;
-		float incr = 0.1f;
 	};
 
 }

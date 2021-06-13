@@ -35,6 +35,7 @@ namespace RealEngine {
 		stbi_set_flip_vertically_on_load(1);
 
 		stbi_uc* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+		ENGINE_ASSERT(data, "Failed to load Image");
 		m_Width = width;
 		m_Height = height;
 

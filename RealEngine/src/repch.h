@@ -45,4 +45,7 @@
 
 #include "Engine/Events/Event.h"
 
-//----------- 
+//----------- ENTITY ----------------
+
+#include "entt/include/entt.hpp"
+#include "Engine/Graphics/Platform/OpenGL/Scene/Entity.h"

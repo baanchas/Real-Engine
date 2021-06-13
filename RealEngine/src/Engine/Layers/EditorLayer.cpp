@@ -11,42 +11,51 @@ namespace RealEngine {
 		ENGINE_INFO("Editor Layer is pushed");
         
         Renderer::Init();
+        
+        FrameBufferSpecification FrameBufferSpec;
+        FrameBufferSpec.m_Width = Application::Get().GetWindow().GetWidth();
+        FrameBufferSpec.m_Height = Application::Get().GetWindow().GetHeight();
+        m_FrameBuffer = new FrameBuffer(FrameBufferSpec);
 
         texture.LoadFromFile("res/sprites/checkerboard.png");
+                
+        m_ActiveScene = new Scene();
         
-        FrameBufferSpecification spec;
-        spec.m_Width = Application::Get().GetWindow().GetWidth();
-        spec.m_Height = Application::Get().GetWindow().GetHeight();
-        m_FrameBuffer = new FrameBuffer(spec);
         
-        m_PosX = 100.0f;
-        m_PosY = 100.0f;
-        m_PosX2 = -200.0f;
-        m_PosY2 = -200.0f;
-        m_PosX3 = -400.0f;
-        m_PosY3 = -400.0f;
-        
+        square = m_ActiveScene->CreateEntity();
 
-        quad.Size = glm::vec2(200.0f, 200.0f);
-        quad.SetPosition(100.f, 100.f, 0.0f);
-        quad.SetColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-        quad.SetRotation(45.0f);
-
+        square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 1.0f, 0.5f});
 	}
 
 	EditorLayer::~EditorLayer()
 	{
         delete m_FrameBuffer;
+        delete m_ActiveScene;
 	}
 
     void EditorLayer::OnUpdate(float ts)
     {
-        m_CameraController.OnUpdate(ts);
+        if (m_SceneWindowIsFocused)
+        {
+            m_CameraController.OnUpdate(ts);
+        }
+
+        auto& tc = square.GetComponent<TransformComponent>();
+
+        //auto& tc = m_ActiveScene->Reg().get<TransformComponent>(square);
+
+        tc = glm::translate(glm::mat4(1.0f), glm::vec3(m_PosX, m_PosY, 0.0f)) *
+            glm::rotate(glm::mat4(1.0f), glm::radians(quad.GetRotation()), { 0.0f, 0.0f, 1.0f }) *
+            glm::scale(glm::mat4(1.0f), { 200.0f, 200.0f, 1.0f });
+
+        float inc = 1.0f;
+        quad.SetRotation(quad.GetRotation() - inc);
     }
 
 	void EditorLayer::OnEvent(Event& event)
 	{
-        m_CameraController.OnEvent(event);
+        if (m_SceneWindowIsFocused)
+            m_CameraController.OnEvent(event);
    	}
 
     void EditorLayer::OnImGuiRender()
@@ -91,6 +100,7 @@ namespace RealEngine {
         //-------- Render scene to ImGui window
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+
         ImGui::Begin("Scene");
         ImGui::PopStyleVar();
 
@@ -104,6 +114,16 @@ namespace RealEngine {
         }
         uint32_t TextureID = m_FrameBuffer->GetColorAttachmentID();
         ImGui::Image((void*)TextureID, ImVec2{ m_ViewPortSize.x, m_ViewPortSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+        if (ImGui::IsWindowFocused() || ImGui::IsWindowHovered())
+        {
+            m_SceneWindowIsFocused = true;
+        }
+        else
+        {
+            m_SceneWindowIsFocused = false;
+        }
+
         ImGui::End();
 
         //
@@ -117,22 +137,6 @@ namespace RealEngine {
         ImGui::DragFloat("Quad 1 - y", &m_PosY, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
         ImGui::PopID();
 
-        ImGui::PushID("Quad 2 - x");
-        ImGui::DragFloat("Quad 2 - x", &m_PosX2, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::PopID();
-
-        ImGui::PushID("Quad 2 - y");
-        ImGui::DragFloat("Quad 2 - y", &m_PosY2, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::PopID();
-
-        ImGui::PushID("Quad 3 - x");
-        ImGui::DragFloat("Quad 3 - x", &m_PosX3, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::PopID();
-
-        ImGui::PushID("Quad 3 - y");
-        ImGui::DragFloat("Quad 3 - y", &m_PosY3, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::PopID();
-
         ImGui::End();
         //
     }
@@ -140,36 +144,16 @@ namespace RealEngine {
     void EditorLayer::OnRender()
     {
         m_FrameBuffer->Bind();
-        texture.Bind();
 
         Renderer::Clear();
         Renderer::BeginScene(m_CameraController.GetCamera());
 
-        glm::vec4 color;
-        float inc = 1.0f;
-
         glm::vec3 pos = { 0.0f, 0.0f, 0.0f };
         glm::vec2 size = { 3000.0f, 3000.0f };
-
         Renderer::DrawQuad(pos.x, pos.y, pos.z, size.x, size.y, texture, 10.0f);
 
-        quad.SetSize(200.f, 200.0f);
-        quad.SetPosition(m_PosX3, m_PosY3, 0.0f);
-
-        if (w > 1.0f)
-            incr = -0.05f;
-        else if (w < 0.0f)
-            incr = 0.05f;
-
-        w += incr;
-
-        quad.SetColor(glm::vec4(w, 1.0f, 1.0f, 1.0f));
-        quad.SetRotation(quad.GetRotation() - inc);
-
-        Renderer::DrawQuad(quad);
-        Renderer::DrawQuad(m_PosX2, m_PosY2, 0.0f, 200.0f, 200.0f, 0.0f, 0.2f, 0.4f, 1.0f, 1.0f);
-        Renderer::DrawQuad(m_PosX, m_PosY, 0.0f, 200.0f, 200.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
-        
+        m_ActiveScene->OnUpdate();
+    
         Renderer::EndScene();
 
         m_FrameBuffer->Unbind();
