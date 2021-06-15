@@ -116,6 +116,7 @@ namespace RealEngine {
 
 		static void Init();
 
+		static void BeginScene(Camera& camera, glm::mat4& transform);
 		static void BeginScene(OrthographicCamera& camera);
 		static void EndScene();
 
@@ -128,7 +129,7 @@ namespace RealEngine {
 		static void DrawQuad(glm::vec3& position, glm::vec2& size, float rotation, glm::vec4& color, float tf = 1.0f);
 		static void DrawQuad(Quad& quad);
 
-		static void DrawQuad( const glm::mat4& transform, const glm::vec4& color);
+		static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
 		static void DrawQuad(glm::mat4& transform, Texture2D& texture, float tilingFactor);
 
 		static void DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, Texture2D& texture, float tilingFactor);

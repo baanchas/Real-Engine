@@ -33,15 +33,18 @@ namespace RealEngine {
 	private:
 		CameraController m_CameraController;
 
-		Texture2D texture;
-
-		Quad quad;
+		Texture2D SpriteCheckerBoard;
 
 		FrameBuffer* m_FrameBuffer;
 
 		Scene* m_ActiveScene;
 
+		Quad quad;
+
 		Entity square;
+		Entity m_CheckerBoardEntity;
+		Entity m_CameraEntity;
+		Entity m_CameraEntity2;
 
 		glm::vec2 m_ViewPortSize;
 

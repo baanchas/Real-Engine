@@ -20,26 +20,62 @@ namespace RealEngine {
 
 	void Scene::OnUpdate()
 	{
-		auto TCView = m_Registry.view<SpriteRendererComponent>();
 
-		for (auto entity : TCView)
+		Camera* mainCamera = nullptr;
+		glm::mat4* cameraTransform = nullptr;
 		{
-			if (m_Registry.has<SpriteRendererComponent>(entity))
-			{
-				auto transform = m_Registry.get<TransformComponent>(entity);
-				auto sprite = m_Registry.get<SpriteRendererComponent>(entity);
+			auto view = m_Registry.view<TransformComponent, CameraComponent>();
 
-				Renderer::DrawQuad(transform, sprite);
+			for (auto entity : view)
+			{
+				auto [transform, camera] = m_Registry.get<TransformComponent, CameraComponent>(entity);
+
+				if (camera.Primary)
+				{
+					mainCamera = &camera.Camera;
+					cameraTransform = &transform.Transform;
+					break;
+				}
 			}
 		}
 
-		/*auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-		for (auto entity : group)
+		if (mainCamera)
 		{
-			auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-			
-			
-		}*/
+			Renderer::BeginScene((*mainCamera), *cameraTransform);
+
+			auto TCView = m_Registry.view<SpriteRendererComponent>();
+
+			for (auto entity : TCView)
+			{
+				if (m_Registry.has<SpriteRendererComponent>(entity))
+				{
+					auto transform = m_Registry.get<TransformComponent>(entity);
+					auto sprite = m_Registry.get<SpriteRendererComponent>(entity);
+
+					Renderer::DrawQuad(transform, sprite);
+				}
+			}
+
+			Renderer::EndScene();
+		}
+
+	}
+
+	void Scene::OnViewportResize(uint32_t width, uint32_t height)
+	{
+		m_ViewportWidth = width;
+		m_ViewportHeight = height;
+
+		auto view = m_Registry.view<CameraComponent>();
+		for (auto entity : view)
+		{
+			auto& cameraComponent = m_Registry.get<CameraComponent>(entity);
+
+			if (!cameraComponent.FixedAspectRatio)
+			{
+				cameraComponent.Camera.SetViewportSize(width, height);
+			}
+		}
 	}
 
 	Entity Scene::CreateEntity()

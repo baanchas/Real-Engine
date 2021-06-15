@@ -17,14 +17,22 @@ namespace RealEngine {
         FrameBufferSpec.m_Height = Application::Get().GetWindow().GetHeight();
         m_FrameBuffer = new FrameBuffer(FrameBufferSpec);
 
-        texture.LoadFromFile("res/sprites/checkerboard.png");
+        SpriteCheckerBoard.LoadFromFile("res/sprites/checkerboard.png");
                 
         m_ActiveScene = new Scene();
         
         
         square = m_ActiveScene->CreateEntity();
+       // m_CheckerBoardEntity = m_ActiveScene->CreateEntity();
+        square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 1.0f, 1.0f});
 
-        square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 1.0f, 0.5f});
+        m_CameraEntity = m_ActiveScene->CreateEntity();
+        m_CameraEntity.AddComponent<CameraComponent>();
+
+        m_CameraEntity2 = m_ActiveScene->CreateEntity();
+        m_CameraEntity2.AddComponent<CameraComponent>();
+
+        m_CameraEntity2.GetComponent<CameraComponent>().Primary = false;
 	}
 
 	EditorLayer::~EditorLayer()
@@ -35,27 +43,20 @@ namespace RealEngine {
 
     void EditorLayer::OnUpdate(float ts)
     {
+        m_ActiveScene->OnViewportResize(m_ViewPortSize.x, m_ViewPortSize.y);
+
         if (m_SceneWindowIsFocused)
         {
             m_CameraController.OnUpdate(ts);
         }
 
-        auto& tc = square.GetComponent<TransformComponent>();
-
-        //auto& tc = m_ActiveScene->Reg().get<TransformComponent>(square);
-
-        tc = glm::translate(glm::mat4(1.0f), glm::vec3(m_PosX, m_PosY, 0.0f)) *
-            glm::rotate(glm::mat4(1.0f), glm::radians(quad.GetRotation()), { 0.0f, 0.0f, 1.0f }) *
-            glm::scale(glm::mat4(1.0f), { 200.0f, 200.0f, 1.0f });
-
-        float inc = 1.0f;
-        quad.SetRotation(quad.GetRotation() - inc);
     }
 
 	void EditorLayer::OnEvent(Event& event)
 	{
         if (m_SceneWindowIsFocused)
             m_CameraController.OnEvent(event);
+
    	}
 
     void EditorLayer::OnImGuiRender()
@@ -109,8 +110,6 @@ namespace RealEngine {
         {
             m_FrameBuffer->Resize(glm::vec2(AvailableContentSize.x, AvailableContentSize.y));
             m_ViewPortSize = { (uint32_t)AvailableContentSize.x, (uint32_t)AvailableContentSize.y };
-            
-            m_CameraController.OnBoundsResize(AvailableContentSize.x, AvailableContentSize.y);
         }
         uint32_t TextureID = m_FrameBuffer->GetColorAttachmentID();
         ImGui::Image((void*)TextureID, ImVec2{ m_ViewPortSize.x, m_ViewPortSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
@@ -146,16 +145,9 @@ namespace RealEngine {
         m_FrameBuffer->Bind();
 
         Renderer::Clear();
-        Renderer::BeginScene(m_CameraController.GetCamera());
-
-        glm::vec3 pos = { 0.0f, 0.0f, 0.0f };
-        glm::vec2 size = { 3000.0f, 3000.0f };
-        Renderer::DrawQuad(pos.x, pos.y, pos.z, size.x, size.y, texture, 10.0f);
 
         m_ActiveScene->OnUpdate();
     
-        Renderer::EndScene();
-
         m_FrameBuffer->Unbind();
 
 	}

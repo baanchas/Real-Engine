@@ -7,6 +7,13 @@ namespace RealEngine {
 
     static RendererData s_Data;
 
+    void Renderer::BeginScene(Camera& camera, glm::mat4& transform)
+    {
+        m_SceneData->ViewProjectionMatrix = camera.GetProjection() * glm::inverse(transform);
+
+        s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
+    }
+
     void Renderer::BeginScene(OrthographicCamera& camera)
 	{
 		m_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();

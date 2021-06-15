@@ -57,6 +57,7 @@ namespace RealEngine {
 			}
 		}
 
+
 		for (Layer* layer : m_LayerStack)
 		{
 			layer->OnEvent(event);
@@ -72,7 +73,6 @@ namespace RealEngine {
 		m_TimeStep = time - m_LastFrameTime;
 		m_LastFrameTime = time;
 
-		m_ImGuiLayer->Begin();
 
 		if (!m_Minimizied)
 		{
@@ -85,18 +85,15 @@ namespace RealEngine {
 
 	void Application::OnRender()
 	{
+		m_ImGuiLayer->Begin();
 
 		if (!m_Minimizied)
 		{
 			for (Layer* layer : m_LayerStack)
 			{
+				layer->OnImGuiRender();
 				layer->OnRender();
 			}
-		}
-
-		for (Layer* layer : m_LayerStack)
-		{
-			layer->OnImGuiRender();
 		}
 
 		m_ImGuiLayer->End();
