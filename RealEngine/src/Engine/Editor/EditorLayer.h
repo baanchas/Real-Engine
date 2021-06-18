@@ -2,7 +2,8 @@
 
 #include "Application.h"
 
-#include "Layer.h"
+#include "Engine/Layers/Layer.h"
+#include "Engine/Editor/SceneHierarchyPanel.h"
 #include "OpenGL/Shader.h"
 #include "OpenGL/VertexArray.h"
 #include "OpenGL/VertexBuffer.h"
@@ -11,7 +12,6 @@
 #include "OpenGL/Renderer/Renderer.h"
 #include "OpenGL/Scene/Scene.h"
 
-#include "OpenGL/Renderer/CameraController.h"
 #include "OpenGL/Texture2D.h"
 #include "OpenGL/Renderer/FrameBuffer.h"
 
@@ -31,20 +31,22 @@ namespace RealEngine {
 
 
 	private:
-		CameraController m_CameraController;
-
 		Texture2D SpriteCheckerBoard;
 
 		FrameBuffer* m_FrameBuffer;
 
 		Scene* m_ActiveScene;
 
+		SceneHierarchyPanel m_SceneHierarchyPanel = SceneHierarchyPanel(m_ActiveScene);
+
 		Quad quad;
 
 		Entity square;
-		Entity m_CheckerBoardEntity;
+		Entity square2;
 		Entity m_CameraEntity;
 		Entity m_CameraEntity2;
+
+
 
 		glm::vec2 m_ViewPortSize;
 

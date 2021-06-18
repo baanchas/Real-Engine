@@ -18,9 +18,43 @@ namespace RealEngine {
 	{
 	}
 
-	void Scene::OnUpdate()
+	void Scene::OnUpdate(float ts)
 	{
+		{
+			m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+			{
+				if (!nsc.Instance)
+				{
+					nsc.InstantiateFunction();
+					nsc.Instance->m_Entity = Entity{ entity, this };
+					nsc.OnCreateFunction(nsc.Instance);
+				}
 
+				nsc.OnUpdateFunction(nsc.Instance, ts);
+			});
+		}
+	}
+
+	void Scene::OnEvent(Event event)
+	{
+		{
+			m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+			{
+				if (!nsc.Instance)
+				{
+					nsc.InstantiateFunction();
+					nsc.Instance->m_Entity = Entity{ entity, this };
+					nsc.OnCreateFunction(nsc.Instance);
+				}
+
+				nsc.OnEventFunction(nsc.Instance, event);
+			});
+		}
+	}
+
+	void Scene::OnRender()
+	{
+		// Render
 		Camera* mainCamera = nullptr;
 		glm::mat4* cameraTransform = nullptr;
 		{
@@ -81,6 +115,17 @@ namespace RealEngine {
 	Entity Scene::CreateEntity()
 	{
 		Entity entity = { m_Registry.create(), this };
+		entity.AddComponent<TagComponent>();
+		entity.AddComponent<TransformComponent>();
+
+		return entity;
+	}
+
+	Entity Scene::CreateEntity(const std::string& name)
+	{
+		Entity entity = { m_Registry.create(), this };
+		auto& tc = entity.AddComponent<TagComponent>();
+		tc.Tag = name;
 		entity.AddComponent<TransformComponent>();
 
 		return entity;

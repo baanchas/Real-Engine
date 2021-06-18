@@ -51,7 +51,7 @@
     <ClCompile Include="libs\imgui\imgui_widgets.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\Layers\EditorLayer.cpp">
+    <ClCompile Include="src\Engine\Editor\EditorLayer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\Engine\Layers\ExampleLayer.cpp">
@@ -67,9 +67,6 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\Engine\Events\Event.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\CameraController.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\OrthographicCamera.cpp">
@@ -108,6 +105,9 @@
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\SceneCamera.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\Engine\Editor\SceneHierarchyPanel.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h">
@@ -128,7 +128,7 @@
     <ClInclude Include="src\Engine\Input\KeyCodes.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine\Layers\EditorLayer.h">
+    <ClInclude Include="src\Engine\Editor\EditorLayer.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\Engine\Layers\ExampleLayer.h">
@@ -147,9 +147,6 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\Engine\Events\Event.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\CameraController.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\OrthographicCamera.h">
@@ -198,6 +195,12 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\SceneCamera.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Scene\CameraController.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Engine\Editor\SceneHierarchyPanel.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

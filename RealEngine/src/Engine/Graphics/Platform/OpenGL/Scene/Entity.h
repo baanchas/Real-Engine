@@ -4,6 +4,8 @@
 
 namespace RealEngine {
 
+	//class SceneHierarchyPanel;
+
 	class Entity
 	{
 	public:
@@ -59,6 +61,19 @@ namespace RealEngine {
 	private:
 		entt::entity m_EntityId;
 		Scene* m_Scene;
+	};
+
+	class ScriptableEntity
+	{
+	public:
+		template<typename T>
+		T& GetComponent()
+		{
+			return m_Entity.GetComponent<T>();
+		}
+	private:
+		Entity m_Entity;
+		friend class Scene;
 	};
 
 }

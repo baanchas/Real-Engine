@@ -3,7 +3,6 @@
 #include "entt.hpp"
 #include "Components.h"
 #include "Engine/Graphics/Platform/OpenGL/Renderer/Renderer.h"
-#include "Entity.h"
 
 namespace RealEngine {
 
@@ -16,8 +15,11 @@ namespace RealEngine {
 		~Scene();
 
 		Entity CreateEntity();
+		Entity CreateEntity(const std::string& name);
 
-		void OnUpdate();
+		void OnUpdate(float ts);
+		void OnEvent(Event event);
+		void OnRender();
 		void OnViewportResize(uint32_t width, uint32_t height);
 	private:
 		entt::registry m_Registry;
@@ -26,6 +28,7 @@ namespace RealEngine {
 		uint32_t m_ViewportHeight = 0;
 
 		friend class Entity;
+		friend class SceneHierarchyPanel;
 	};
 
 }

@@ -1,12 +1,11 @@
 #include "repch.h"
 
 #include "EditorLayer.h"
-
+#include "OpenGL/Scene/CameraController.h"
 
 namespace RealEngine {
 
     EditorLayer::EditorLayer()
-        : m_CameraController(1280.0f, 720.0f)
 	{
 		ENGINE_INFO("Editor Layer is pushed");
         
@@ -20,19 +19,28 @@ namespace RealEngine {
         SpriteCheckerBoard.LoadFromFile("res/sprites/checkerboard.png");
                 
         m_ActiveScene = new Scene();
+        m_SceneHierarchyPanel.SetContext(m_ActiveScene);
         
-        
-        square = m_ActiveScene->CreateEntity();
+        square = m_ActiveScene->CreateEntity("sqaure");
        // m_CheckerBoardEntity = m_ActiveScene->CreateEntity();
         square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 1.0f, 1.0f});
 
-        m_CameraEntity = m_ActiveScene->CreateEntity();
-        m_CameraEntity.AddComponent<CameraComponent>();
+        square2 = m_ActiveScene->CreateEntity("sqaure");
+        // m_CheckerBoardEntity = m_ActiveScene->CreateEntity();
+        square2.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 1.0f, 1.0f });
 
-        m_CameraEntity2 = m_ActiveScene->CreateEntity();
+        
+        m_CameraEntity = m_ActiveScene->CreateEntity("Camera 1");
+        m_CameraEntity.AddComponent<CameraComponent>();
+        
+        m_CameraEntity2 = m_ActiveScene->CreateEntity("Camera 2");
         m_CameraEntity2.AddComponent<CameraComponent>();
 
+
         m_CameraEntity2.GetComponent<CameraComponent>().Primary = false;
+
+        m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+
 	}
 
 	EditorLayer::~EditorLayer()
@@ -45,18 +53,30 @@ namespace RealEngine {
     {
         m_ActiveScene->OnViewportResize(m_ViewPortSize.x, m_ViewPortSize.y);
 
+        m_ActiveScene->OnUpdate(ts);
+
+        if (Input::IsKeyPressed(KeyCodes::A))
+        {
+            m_CameraEntity2.GetComponent<CameraComponent>().Primary = true;
+            m_CameraEntity.GetComponent<CameraComponent>().Primary = false;
+        }
+
+        if (Input::IsKeyPressed(KeyCodes::D))
+        {
+            m_CameraEntity2.GetComponent<CameraComponent>().Primary = false;
+            m_CameraEntity.GetComponent<CameraComponent>().Primary = true;
+        }
+
         if (m_SceneWindowIsFocused)
         {
-            m_CameraController.OnUpdate(ts);
+            //CameraController.OnUpdate(ts);
         }
 
     }
 
 	void EditorLayer::OnEvent(Event& event)
 	{
-        if (m_SceneWindowIsFocused)
-            m_CameraController.OnEvent(event);
-
+        m_ActiveScene->OnEvent(event);
    	}
 
     void EditorLayer::OnImGuiRender()
@@ -79,6 +99,8 @@ namespace RealEngine {
         ImGui::Begin("DockSpace Demo", &dockspaceOpen, Windowflags);
         ImGui::PopStyleVar();
         ImGui::PopStyleVar(2);
+       
+
         ImGuiIO& io = ImGui::GetIO();
         ImGuiStyle& style = ImGui::GetStyle();
         style.WindowMinSize.x = 370.0f;
@@ -124,19 +146,10 @@ namespace RealEngine {
         }
 
         ImGui::End();
-
         //
-        ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
-        ImGui::PushID("Quad 1 - x");
-        ImGui::DragFloat("Quad 1 - x", &m_PosX, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::PopID();
 
-        ImGui::PushID("Quad 1 - y");
-        ImGui::DragFloat("Quad 1 - y", &m_PosY, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::PopID();
-
-        ImGui::End();
+        m_SceneHierarchyPanel.OnImGuiRender();
         //
     }
 
@@ -146,7 +159,7 @@ namespace RealEngine {
 
         Renderer::Clear();
 
-        m_ActiveScene->OnUpdate();
+        m_ActiveScene->OnRender();
     
         m_FrameBuffer->Unbind();
 

@@ -93,20 +93,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Engine\Editor\SceneHierarchyPanel.cpp" />
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\SceneCamera.cpp" />
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Scene\Entity.cpp" />
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Scene\Scene.cpp" />
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\FrameBuffer.cpp" />
     <ClCompile Include="libs\stb_image\stb_image.cpp" />
     <ClCompile Include="src\Engine\Events\Event.cpp" />
-    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\CameraController.cpp" />
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\OrthographicCamera.cpp" />
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Shader.cpp" />
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\IndexBuffer.cpp" />
     <ClCompile Include="src\Engine\Layers\ImGuiLayer.cpp" />
     <ClCompile Include="src\Engine\Layers\ExampleLayer.cpp" />
-    <ClCompile Include="src\Engine\Layers\EditorLayer.cpp" />
+    <ClCompile Include="src\Engine\Editor\EditorLayer.cpp" />
     <ClCompile Include="src\Engine\Layers\LayersStack.cpp" />
     <ClCompile Include="src\Engine\Layers\Layer.cpp" />
     <ClCompile Include="libs\imgui\imgui.cpp" />
@@ -129,6 +129,8 @@
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Engine\Editor\SceneHierarchyPanel.h" />
+    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Scene\CameraController.h" />
     <ClInclude Include="libs\entt\include\entt.hpp" />
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\SceneCamera.h" />
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\Camera.h" />
@@ -139,13 +141,12 @@
     <ClInclude Include="libs\stb_image\stb_image.h" />
     <ClInclude Include="src\Engine\Events\Event.h" />
     <ClInclude Include="src\Engine\Timestep.h" />
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\CameraController.h" />
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\OrthographicCamera.h" />
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\Renderer.h" />
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Shader.h" />
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\IndexBuffer.h" />
     <ClInclude Include="src\Engine\Layers\ImGuiLayer.h" />
-    <ClInclude Include="src\Engine\Layers\EditorLayer.h" />
+    <ClInclude Include="src\Engine\Editor\EditorLayer.h" />
     <ClInclude Include="src\Engine\Layers\Layer.h" />
     <ClInclude Include="src\Engine\Input\Input.h" />
     <ClInclude Include="src\Application.h" />

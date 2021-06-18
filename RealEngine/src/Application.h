@@ -5,7 +5,7 @@
 #include "Engine/Layers/LayersStack.h"
 #include "Engine/Layers/Layer.h"
 
-#include "Engine/Layers/EditorLayer.h"
+#include "Engine/Editor/EditorLayer.h"
 #include "Engine/Layers/ExampleLayer.h"
 #include "Engine/Layers/ImGuiLayer.h"
 
