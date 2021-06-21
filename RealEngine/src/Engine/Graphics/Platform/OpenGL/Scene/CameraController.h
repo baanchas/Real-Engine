@@ -43,25 +43,25 @@ namespace RealEngine {
 
         void OnUpdate(float ts)
         {
-            auto& transform = GetComponent<TransformComponent>().Transform;
+            auto& transform = GetComponent<TransformComponent>();
             float speed = 5.0;
 
 
             if (Input::IsKeyPressed(KeyCodes::LEFT))
             {
-                transform[3][0] -= speed * ts;
+                transform.Position.x -= speed * ts;
             }
             if (Input::IsKeyPressed(KeyCodes::RIGHT))
             {
-                transform[3][0] += speed * ts;
+                transform.Position.x += speed * ts;
             }
             if (Input::IsKeyPressed(KeyCodes::DOWN))
             {
-                transform[3][1] -= speed * ts;
+                transform.Position.y -= speed * ts;
             }
             if (Input::IsKeyPressed(KeyCodes::UP))
             {
-                transform[3][1] += speed * ts;
+                transform.Position.y += speed * ts;
             }
 
             //m_ProjectionWidth = transform[3][0];

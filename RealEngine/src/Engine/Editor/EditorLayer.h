@@ -43,6 +43,7 @@ namespace RealEngine {
 
 		Entity square;
 		Entity square2;
+		Entity square3;
 		Entity m_CameraEntity;
 		Entity m_CameraEntity2;
 

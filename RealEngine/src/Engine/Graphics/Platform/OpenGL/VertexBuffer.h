@@ -17,7 +17,7 @@ namespace RealEngine {
 		VertexBuffer();
 		~VertexBuffer();
 
-		void Create();
+		void Create(uint32_t size);
 
 		void Bind();
 		void UnBind();

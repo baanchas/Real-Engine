@@ -5,10 +5,6 @@ namespace RealEngine {
 
 	//class Entity;
 
-	static void DoMath(const glm::mat4& transform)
-	{
-	}
-
 	Scene::Scene()
 	{
 		
@@ -33,6 +29,16 @@ namespace RealEngine {
 				nsc.OnUpdateFunction(nsc.Instance, ts);
 			});
 		}
+
+
+		if (Input::IsKeyPressed(KeyCodes::Z))
+		{
+			p = p - 1;
+		}
+		if (Input::IsKeyPressed(KeyCodes::X))
+		{
+			p = p + 1;
+		}
 	}
 
 	void Scene::OnEvent(Event event)
@@ -56,7 +62,7 @@ namespace RealEngine {
 	{
 		// Render
 		Camera* mainCamera = nullptr;
-		glm::mat4* cameraTransform = nullptr;
+		glm::mat4 cameraTransform;
 		{
 			auto view = m_Registry.view<TransformComponent, CameraComponent>();
 
@@ -67,7 +73,7 @@ namespace RealEngine {
 				if (camera.Primary)
 				{
 					mainCamera = &camera.Camera;
-					cameraTransform = &transform.Transform;
+					cameraTransform = transform.GetTransform();
 					break;
 				}
 			}
@@ -75,9 +81,12 @@ namespace RealEngine {
 
 		if (mainCamera)
 		{
-			Renderer::BeginScene((*mainCamera), *cameraTransform);
+			Renderer::Clear();
+
+			Renderer::BeginScene((*mainCamera), cameraTransform);
 
 			auto TCView = m_Registry.view<SpriteRendererComponent>();
+			auto TRCView = m_Registry.view<TextureRendererComponent>();
 
 			for (auto entity : TCView)
 			{
@@ -86,7 +95,18 @@ namespace RealEngine {
 					auto transform = m_Registry.get<TransformComponent>(entity);
 					auto sprite = m_Registry.get<SpriteRendererComponent>(entity);
 
-					Renderer::DrawQuad(transform, sprite);
+					Renderer::DrawQuad(transform.GetTransform(), sprite);
+				}
+			}
+
+			for (auto entity : TRCView)
+			{
+				if (m_Registry.has<TextureRendererComponent>(entity))
+				{
+					auto transform = m_Registry.get<TransformComponent>(entity).GetTransform();
+					auto sprite = m_Registry.get<TextureRendererComponent>(entity).Texture;
+
+					Renderer::DrawQuad(transform, sprite, 1.0f);
 				}
 			}
 

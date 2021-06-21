@@ -32,16 +32,32 @@ namespace RealEngine {
 				m_SelectedItem = entity;
 			}
 
+			if (ImGui::BeginPopupContextItem(0, 1))
+			{
+				if (ImGui::MenuItem("Delete Entity"))
+				{
+					if (m_SelectedItem == entity)
+						m_SelectedItem = { entt::null, m_Context };
+					m_Context->m_Registry.destroy(entity);
+				}
+				ImGui::EndPopup();
+			}
+
 			if (opened)
 			{
-				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
-				bool opened = ImGui::TreeNodeEx((void*)9817239, flags, tc.c_str());
-				if (opened)
-					ImGui::TreePop();
 				ImGui::TreePop();
 			}
 		});
 
+		if (ImGui::BeginPopupContextWindow(0, 1, false))
+		{
+			if (ImGui::MenuItem("Create Empty Entity"))
+			{
+				m_Context->CreateEntity("Empty Entity");
+			}
+
+			ImGui::EndPopup();
+		}
 
 		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
 		{
@@ -80,9 +96,11 @@ namespace RealEngine {
 		{
 			if (ImGui::TreeNode("Transform"))
 			{
-				auto& transform = entity.GetComponent<TransformComponent>().Transform;
+				auto& transform = entity.GetComponent<TransformComponent>();
 
-				ImGui::DragFloat3("Position", glm::value_ptr(transform[3]), 0.1f);
+				ImGui::DragFloat3("Position", glm::value_ptr(transform.Position), 0.1f);
+				ImGui::DragFloat3("Rotation", glm::value_ptr(transform.Rotation), 0.1f);
+				ImGui::DragFloat3("Scale", glm::value_ptr(transform.Scale), 0.1f);
 
 				ImGui::TreePop();
 			}

@@ -22,23 +22,38 @@ namespace RealEngine {
         m_SceneHierarchyPanel.SetContext(m_ActiveScene);
         
         square = m_ActiveScene->CreateEntity("sqaure");
-       // m_CheckerBoardEntity = m_ActiveScene->CreateEntity();
-        square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 1.0f, 1.0f});
+        square.AddComponent<SpriteRendererComponent>();
+        auto& trc = square.GetComponent<SpriteRendererComponent>();
+        trc.Color = glm::vec4{0.0f, 0.0f, 0.0f, 0.0f};
 
-        square2 = m_ActiveScene->CreateEntity("sqaure");
-        // m_CheckerBoardEntity = m_ActiveScene->CreateEntity();
-        square2.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 1.0f, 1.0f });
 
-        
+        square2 = m_ActiveScene->CreateEntity("sqaure2");
+        square2.AddComponent<SpriteRendererComponent>();
+        auto& trc2 = square2.GetComponent<SpriteRendererComponent>();
+        trc2.Color = glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f };
+        //auto& trc2 = square2.GetComponent<TextureRendererComponent>().Texture;
+        //trc2 = &SpriteCheckerBoard;
+        auto& tcsq2 = square2.GetComponent<TransformComponent>();
+        tcsq2.Position = glm::vec3{ -0.35f, 0.0f, 0.0f };
+        tcsq2.Rotation = glm::vec3{ 0.0f, -45.0f, 0.0f };
+
+        square3 = m_ActiveScene->CreateEntity("sqaure3");
+        square3.AddComponent<SpriteRendererComponent>();
+        auto& trc3 = square3.GetComponent<SpriteRendererComponent>();
+        trc3.Color = glm::vec4{ 0.0f, 0.0f, 1.0f, 1.0f };
+        //square3.AddComponent<SpriteRendererComponent>();
+        //auto& trc3 = square3.GetComponent<SpriteRendererComponent>().Color;
+        //trc3 = glm::vec4{0.1f, 1.0f, 0.0f, 1.0f};
+        auto& tcsq3 = square3.GetComponent<TransformComponent>();
+        tcsq3.Position = glm::vec3{ 0.0f, 0.5f, -0.35f };
+        tcsq3.Rotation = glm::vec3{ 90.0f, 0.0f, 45.0f };
+
+
         m_CameraEntity = m_ActiveScene->CreateEntity("Camera 1");
         m_CameraEntity.AddComponent<CameraComponent>();
-        
-        m_CameraEntity2 = m_ActiveScene->CreateEntity("Camera 2");
-        m_CameraEntity2.AddComponent<CameraComponent>();
-
-
-        m_CameraEntity2.GetComponent<CameraComponent>().Primary = false;
-
+        auto& cctc = m_CameraEntity.GetComponent<TransformComponent>();
+        cctc.Position = glm::vec3{ 0.0f, 0.85f, 1.7f };
+        cctc.Rotation = glm::vec3{ -25.5f, 0.0f, 0.0f };
         m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
 
 	}
@@ -156,11 +171,9 @@ namespace RealEngine {
     void EditorLayer::OnRender()
     {
         m_FrameBuffer->Bind();
-
-        Renderer::Clear();
-
+        
         m_ActiveScene->OnRender();
-    
+           
         m_FrameBuffer->Unbind();
 
 	}

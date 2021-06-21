@@ -2,8 +2,10 @@
 
 #include "glm/glm.hpp"
 
+#include "OpenGL/Texture2D.h"
 #include "OpenGL/Renderer/SceneCamera.h"
 #include "Entity.h"
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace RealEngine{
 
@@ -23,14 +25,26 @@ namespace RealEngine{
 
 	struct TransformComponent
 	{
-		glm::mat4 Transform = glm::mat4(1.0f);
+		glm::vec3 Position = glm::vec3{ 0.0f, 0.0f, 0.0f };
+		glm::vec3 Rotation = glm::vec3{ 0.0f, 0.0f, 0.0f };
+		glm::vec3 Scale = glm::vec3{ 1.0f, 1.0f, 1.0f };
+		
 
 		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
-		TransformComponent(const glm::mat4& transform)
-			: Transform(transform) {};
+		TransformComponent(const glm::vec3& position)
+			: Position(position) {};
 
-		operator const glm::mat4() { return Transform; }
+		glm::mat4 GetTransform() {
+			glm::mat4 transform = glm::translate(glm::mat4(1.0f), Position)
+			* glm::rotate(glm::mat4(1.0f), glm::radians(Rotation.x), { 1.0f, 0.0f, 0.0f }) 
+			* glm::rotate(glm::mat4(1.0f), glm::radians(Rotation.y), { 0.0f, 1.0f, 0.0f })
+			* glm::rotate(glm::mat4(1.0f), glm::radians(Rotation.z), { 0.0f, 0.0f, 1.0f })
+			* glm::scale(glm::mat4(1.0f), Scale);
+
+			return transform;
+		}
+
 	};
 
 	struct SpriteRendererComponent
@@ -44,6 +58,19 @@ namespace RealEngine{
 			: Color(color) {};
 
 		operator const glm::vec4() { return Color; }
+
+	};
+
+	struct TextureRendererComponent
+	{
+		Texture2D* Texture;
+
+		TextureRendererComponent() = default;
+		TextureRendererComponent(const TextureRendererComponent&) = default;
+		TextureRendererComponent(Texture2D* texture)
+			: Texture(texture) {};
+
+		operator const Texture2D*() { return Texture; }
 
 	};
 

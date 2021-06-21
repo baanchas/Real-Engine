@@ -23,6 +23,7 @@ namespace RealEngine {
 
 	void Renderer::EndScene()
 	{
+    
         uint32_t dataSize = (uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase;
 
         for (uint32_t i = 0; i < s_Data.TextureIndex; i++)
@@ -36,14 +37,18 @@ namespace RealEngine {
         DrawIndexed();
 	}
 
+    void Renderer::ShutDown()
+    {
+        delete[] s_Data.QuadVertexBufferBase;
+    }
+
     void Renderer::Init()
     {
-        unsigned int indices[12] = {
-            0, 1, 2, 2, 3, 0,
-            4, 5, 6, 6, 7, 4
-        };
-
-        VertexBufferLayout m_Layout;
+        
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        glEnable(GL_DEPTH_TEST);
 
         std::string vertexSrc = R"(
 			#version 330 core
@@ -55,8 +60,7 @@ namespace RealEngine {
             layout(location = 4) in float a_TilingFactor;
 
 			uniform mat4 u_ViewProjection;
-            uniform mat4 u_Transform;
-
+            
             out vec4 v_Color;
             out vec2 v_TexCoord;
             out float v_TexID;
@@ -68,7 +72,8 @@ namespace RealEngine {
                 v_TexCoord = a_TexCoord;
                 v_TexID = a_TexID;
                 v_TilingFactor = a_TilingFactor;
-				gl_Position = u_ViewProjection * a_Position;	
+				gl_Position = u_ViewProjection * a_Position;
+
             }
 		)";
 
@@ -86,20 +91,19 @@ namespace RealEngine {
 
 			void main()
 			{
-                //color = texture(u_Texture[int(v_TexID)], v_TexCoord) * v_Color;      
-            	vec4 texColor = v_Color;
+              	vec4 texColor = v_Color;
 	            switch(int(v_TexID))
 	            {
-		            case 0: texColor *= texture(u_Texture[0], v_TexCoord * v_TilingFactor); break;
-		            case 1: texColor *= texture(u_Texture[1], v_TexCoord * v_TilingFactor); break;
-		            case 2: texColor *= texture(u_Texture[2], v_TexCoord * v_TilingFactor); break;
-		            case 3: texColor *= texture(u_Texture[3], v_TexCoord * v_TilingFactor); break;
-		            case 4: texColor *= texture(u_Texture[4], v_TexCoord * v_TilingFactor); break;
-		            case 5: texColor *= texture(u_Texture[5], v_TexCoord * v_TilingFactor); break;
-		            case 6: texColor *= texture(u_Texture[6], v_TexCoord * v_TilingFactor); break;
-		            case 7: texColor *= texture(u_Texture[7], v_TexCoord * v_TilingFactor); break;
-		            case 8: texColor *= texture(u_Texture[8], v_TexCoord * v_TilingFactor); break;
-		            case 9: texColor *= texture(u_Texture[9], v_TexCoord * v_TilingFactor); break;
+		            //case  0: texColor *= texture( u_Texture[0], v_TexCoord * v_TilingFactor); break;
+		            case  1: texColor *= texture( u_Texture[1], v_TexCoord * v_TilingFactor); break;
+		            case  2: texColor *= texture( u_Texture[2], v_TexCoord * v_TilingFactor); break;
+		            case  3: texColor *= texture( u_Texture[3], v_TexCoord * v_TilingFactor); break;
+		            case  4: texColor *= texture( u_Texture[4], v_TexCoord * v_TilingFactor); break;
+		            case  5: texColor *= texture( u_Texture[5], v_TexCoord * v_TilingFactor); break;
+		            case  6: texColor *= texture( u_Texture[6], v_TexCoord * v_TilingFactor); break;
+		            case  7: texColor *= texture( u_Texture[7], v_TexCoord * v_TilingFactor); break;
+		            case  8: texColor *= texture( u_Texture[8], v_TexCoord * v_TilingFactor); break;
+		            case  9: texColor *= texture( u_Texture[9], v_TexCoord * v_TilingFactor); break;
 		            case 10: texColor *= texture(u_Texture[10], v_TexCoord * v_TilingFactor); break;
 		            case 11: texColor *= texture(u_Texture[11], v_TexCoord * v_TilingFactor); break;
 		            case 12: texColor *= texture(u_Texture[12], v_TexCoord * v_TilingFactor); break;
@@ -129,7 +133,9 @@ namespace RealEngine {
 
         s_Data.VertexArray.Create();
         s_Data.Shader.Create(vertexSrc, fragmentSrc);
-        s_Data.VertexBuffer.Create();
+        s_Data.VertexBuffer.Create(sizeof(Vertex) * s_Data.MaxVertices);
+
+        VertexBufferLayout m_Layout;
 
         uint32_t* quadIndices = new uint32_t[s_Data.MaxIndices];
 
@@ -164,6 +170,8 @@ namespace RealEngine {
 
         s_Data.QuadVertexBufferBase = new Vertex[s_Data.MaxVertices];
 
+        std::cout << sizeof(Vertex) << std::endl;
+
         int32_t samplers[s_Data.MaxTextureSlots];
         for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
         {
@@ -185,6 +193,7 @@ namespace RealEngine {
 
     void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
     {
+       
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[0];
         s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
@@ -211,17 +220,17 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = 32.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
-
         s_Data.QuadVertexBufferPtr++;
+
     }
 
-    void Renderer::DrawQuad(glm::mat4& transform, Texture2D& texture, float tilingFactor)
+    void Renderer::DrawQuad(glm::mat4& transform, Texture2D* texture, float tilingFactor)
     {
         float textureIndex = 0.0f;
 
         for (uint32_t i = 1; i < s_Data.TextureIndex; i++)
         {
-            if (s_Data.TextureSlots[i] == &texture)
+            if (s_Data.TextureSlots[i] == texture)
             {
                 textureIndex = (float)i;
                 break;
@@ -232,7 +241,7 @@ namespace RealEngine {
         {
             textureIndex = (float)s_Data.TextureIndex;
 
-            s_Data.TextureSlots[s_Data.TextureIndex] = &texture;
+            s_Data.TextureSlots[s_Data.TextureIndex] = texture;
             s_Data.TextureIndex++;
         }
 
@@ -262,9 +271,8 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = textureIndex;
         s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
-
-        //s_Data.TextureIndex++;
         s_Data.QuadVertexBufferPtr++;
+      
     }
 
     void Renderer::DrawQuad(glm::vec3& position, glm::vec2& size, float rotation, glm::vec4& color, float tf)
@@ -438,6 +446,7 @@ namespace RealEngine {
         s_Data.IndexBuffer.Bind();
 
 		glDrawElements(GL_TRIANGLES, s_Data.IndexBuffer.GetCount(), GL_UNSIGNED_INT, nullptr);
+        glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
     void Renderer::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
