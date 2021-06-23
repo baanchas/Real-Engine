@@ -29,16 +29,6 @@ namespace RealEngine {
 				nsc.OnUpdateFunction(nsc.Instance, ts);
 			});
 		}
-
-
-		if (Input::IsKeyPressed(KeyCodes::Z))
-		{
-			p = p - 1;
-		}
-		if (Input::IsKeyPressed(KeyCodes::X))
-		{
-			p = p + 1;
-		}
 	}
 
 	void Scene::OnEvent(Event event)
@@ -81,8 +71,6 @@ namespace RealEngine {
 
 		if (mainCamera)
 		{
-			Renderer::Clear();
-
 			Renderer::BeginScene((*mainCamera), cameraTransform);
 
 			auto TCView = m_Registry.view<SpriteRendererComponent>();
@@ -92,6 +80,7 @@ namespace RealEngine {
 			{
 				if (m_Registry.has<SpriteRendererComponent>(entity))
 				{
+					
 					auto transform = m_Registry.get<TransformComponent>(entity);
 					auto sprite = m_Registry.get<SpriteRendererComponent>(entity);
 
@@ -103,10 +92,10 @@ namespace RealEngine {
 			{
 				if (m_Registry.has<TextureRendererComponent>(entity))
 				{
-					auto transform = m_Registry.get<TransformComponent>(entity).GetTransform();
+					auto transform = m_Registry.get<TransformComponent>(entity);
 					auto sprite = m_Registry.get<TextureRendererComponent>(entity).Texture;
 
-					Renderer::DrawQuad(transform, sprite, 1.0f);
+					Renderer::DrawQuad(transform.GetTransform(), sprite, 1.0f);
 				}
 			}
 

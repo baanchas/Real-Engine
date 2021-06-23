@@ -32,8 +32,8 @@ namespace RealEngine {
 
 	void VertexArray::Addbuffer(VertexBuffer& vb, const VertexBufferLayout& layout)
 	{
-		Bind();
-		vb.Bind();
+		glBindVertexArray(m_RendererID);
+		//vb.Bind();
 		const auto& elements = layout.GetElements();
 		unsigned int offset = 0;
 

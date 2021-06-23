@@ -11,11 +11,15 @@ namespace RealEngine {
     {
         m_SceneData->ViewProjectionMatrix = camera.GetProjection() * glm::inverse(transform);
 
+        s_Data.QuadIndexCount = 0;
+
         s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
     }
 
     void Renderer::BeginScene(OrthographicCamera& camera)
 	{
+        s_Data.QuadIndexCount = 0;
+
 		m_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
 
         s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
@@ -24,17 +28,23 @@ namespace RealEngine {
 	void Renderer::EndScene()
 	{
     
-        uint32_t dataSize = (uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase;
-
         for (uint32_t i = 0; i < s_Data.TextureIndex; i++)
         {
             if (s_Data.TextureSlots[i] != nullptr)
                 s_Data.TextureSlots[i]->Bind(i);
         }
 
-        s_Data.VertexBuffer.SetData(s_Data.QuadVertexBufferBase, dataSize);
-        
-        DrawIndexed();
+        s_Data.Shader.SetUniformMat4f("u_ViewProjection", m_SceneData->ViewProjectionMatrix);
+
+        uint32_t dataSize = (uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase;
+
+        s_Data.IndexBuffer.Bind();
+        s_Data.VertexBuffer.SetData((void*)s_Data.QuadVertexBufferBase, dataSize);
+        ENGINE_INFO(dataSize);
+
+        glDrawElements(GL_TRIANGLES, s_Data.QuadIndexCount, GL_UNSIGNED_INT, nullptr);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
 	}
 
     void Renderer::ShutDown()
@@ -53,7 +63,7 @@ namespace RealEngine {
         std::string vertexSrc = R"(
 			#version 330 core
 			
-			layout(location = 0) in vec4 a_Position;
+			layout(location = 0) in vec3 a_Position;
 			layout(location = 1) in vec4 a_Color;
 			layout(location = 2) in vec2 a_TexCoord;
 			layout(location = 3) in float a_TexID;
@@ -72,7 +82,7 @@ namespace RealEngine {
                 v_TexCoord = a_TexCoord;
                 v_TexID = a_TexID;
                 v_TilingFactor = a_TilingFactor;
-				gl_Position = u_ViewProjection * a_Position;
+				gl_Position = u_ViewProjection * vec4(a_Position, 1.0f);
 
             }
 		)";
@@ -157,8 +167,8 @@ namespace RealEngine {
         delete[] quadIndices;
 
 
-        s_Data.VertexBuffer.Bind();
         s_Data.Shader.Bind();
+        s_Data.VertexBuffer.Bind();
         s_Data.IndexBuffer.Bind();
 
         m_Layout.Push<float>(3);
@@ -197,34 +207,35 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[0];
         s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
-        s_Data.QuadVertexBufferPtr->TexId = 32.0f;
+        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[1];
         s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f };
-        s_Data.QuadVertexBufferPtr->TexId = 32.0f;
+        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[2];
         s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 1.0f };
-        s_Data.QuadVertexBufferPtr->TexId = 32.0f;
+        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[3];
         s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
-        s_Data.QuadVertexBufferPtr->TexId = 32.0f;
+        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
         s_Data.QuadVertexBufferPtr++;
 
+        s_Data.QuadIndexCount += 6;
     }
 
-    void Renderer::DrawQuad(glm::mat4& transform, Texture2D* texture, float tilingFactor)
+    void Renderer::DrawQuad(const glm::mat4& transform, Texture2D* texture, float tilingFactor)
     {
         float textureIndex = 0.0f;
 
@@ -273,6 +284,7 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
         s_Data.QuadVertexBufferPtr++;
       
+        s_Data.QuadIndexCount += 6;
     }
 
     void Renderer::DrawQuad(glm::vec3& position, glm::vec2& size, float rotation, glm::vec4& color, float tf)
@@ -315,6 +327,8 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
 
         s_Data.QuadVertexBufferPtr++;
+
+        s_Data.QuadIndexCount += 6;
     }
 
     void Renderer::DrawQuad(Quad& quad)
@@ -353,6 +367,8 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
 
         s_Data.QuadVertexBufferPtr++;
+
+        s_Data.QuadIndexCount += 6;
     }
 
     void Renderer::DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, Texture2D& texture, float tilingFactor)
@@ -409,6 +425,8 @@ namespace RealEngine {
 
         //s_Data.TextureIndex++;
         s_Data.QuadVertexBufferPtr++;
+
+        s_Data.QuadIndexCount += 6;
     }
     
     void Renderer::DrawQuad(glm::vec3& position, glm::vec2& size, Texture2D& texture, float tilingFactor)
@@ -439,14 +457,7 @@ namespace RealEngine {
 
 	void Renderer::DrawIndexed()
 	{
-       	s_Data.Shader.Bind();
-        s_Data.Shader.SetUniformMat4f("u_ViewProjection", m_SceneData->ViewProjectionMatrix);
 
-		s_Data.VertexArray.Bind();
-        s_Data.IndexBuffer.Bind();
-
-		glDrawElements(GL_TRIANGLES, s_Data.IndexBuffer.GetCount(), GL_UNSIGNED_INT, nullptr);
-        glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
     void Renderer::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)

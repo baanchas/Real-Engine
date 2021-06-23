@@ -21,10 +21,10 @@ namespace RealEngine {
         m_ActiveScene = new Scene();
         m_SceneHierarchyPanel.SetContext(m_ActiveScene);
         
-        square = m_ActiveScene->CreateEntity("sqaure");
-        square.AddComponent<SpriteRendererComponent>();
-        auto& trc = square.GetComponent<SpriteRendererComponent>();
-        trc.Color = glm::vec4{0.0f, 0.0f, 0.0f, 0.0f};
+        //square = m_ActiveScene->CreateEntity("sqaure");
+        //square.AddComponent<SpriteRendererComponent>();
+        //auto& trc = square.GetComponent<SpriteRendererComponent>();
+        //trc.Color = glm::vec4{0.0f, 0.0f, 0.0f, 0.0f};
 
 
         square2 = m_ActiveScene->CreateEntity("sqaure2");
@@ -66,9 +66,10 @@ namespace RealEngine {
 
     void EditorLayer::OnUpdate(float ts)
     {
+        m_ActiveScene->OnUpdate(ts);
+
         m_ActiveScene->OnViewportResize(m_ViewPortSize.x, m_ViewPortSize.y);
 
-        m_ActiveScene->OnUpdate(ts);
 
         if (Input::IsKeyPressed(KeyCodes::A))
         {
@@ -172,6 +173,8 @@ namespace RealEngine {
     {
         m_FrameBuffer->Bind();
         
+        Renderer::Clear();
+
         m_ActiveScene->OnRender();
            
         m_FrameBuffer->Unbind();
