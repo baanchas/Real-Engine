@@ -7,8 +7,6 @@ namespace RealEngine {
 
 	ImGuiLayer::ImGuiLayer()
 	{
-		ENGINE_INFO("ImGui Layer is pushed");
-
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;

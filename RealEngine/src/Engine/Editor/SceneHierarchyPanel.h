@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Engine/Graphics/Platform/OpenGL/Scene/Entity.h"
-#include "Engine/Graphics/Platform/OpenGL/Scene/Scene.h"
+#include "Scene/Entity.h"
+#include "Scene/Scene.h"
 
 namespace RealEngine {
 

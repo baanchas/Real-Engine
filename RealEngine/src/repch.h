@@ -11,6 +11,7 @@
 #include <vector>
 #include <stack>
 #include <array>
+#include <fstream>
 
 //----------- OPENGL --------------
 
@@ -48,4 +49,4 @@
 //----------- ENTITY ----------------
 
 #include "entt/include/entt.hpp"
-#include "Engine/Graphics/Platform/OpenGL/Scene/Entity.h"
+#include "Scene/Entity.h"

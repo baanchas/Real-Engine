@@ -19,7 +19,6 @@ namespace RealEngine {
 
 		PushLayer(new EditorLayer());
 		m_ImGuiLayer = new ImGuiLayer();
-		PushLayer(m_ImGuiLayer);
 	}
 
 	Application::~Application()

@@ -2,7 +2,8 @@
 
 #include "entt.hpp"
 #include "Components.h"
-#include "Engine/Graphics/Platform/OpenGL/Renderer/Renderer.h"
+#include "Renderer/Renderer.h"
+#include "SceneSerializer.h"
 
 namespace RealEngine {
 
@@ -21,6 +22,11 @@ namespace RealEngine {
 		void OnEvent(Event event);
 		void OnRender();
 		void OnViewportResize(uint32_t width, uint32_t height);
+
+	private:
+		template<typename T>
+		bool OnComponentAdded(Entity entity, T& component);
+
 	private:
 		entt::registry m_Registry;
 
@@ -29,6 +35,7 @@ namespace RealEngine {
 
 		friend class Entity;
 		friend class SceneHierarchyPanel;
+		friend class SceneSerializer;
 	};
 
 }

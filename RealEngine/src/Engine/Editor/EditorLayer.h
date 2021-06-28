@@ -9,11 +9,11 @@
 #include "OpenGL/VertexBuffer.h"
 #include "OpenGL/IndexBuffer.h"
 #include "OpenGL/VertexBufferLayout.h"
-#include "OpenGL/Renderer/Renderer.h"
-#include "OpenGL/Scene/Scene.h"
-
 #include "OpenGL/Texture2D.h"
-#include "OpenGL/Renderer/FrameBuffer.h"
+
+#include "Renderer/Renderer.h"
+#include "Scene/Scene.h"
+#include "Renderer/FrameBuffer.h"
 
 namespace RealEngine {
 
@@ -39,14 +39,13 @@ namespace RealEngine {
 
 		SceneHierarchyPanel m_SceneHierarchyPanel = SceneHierarchyPanel(m_ActiveScene);
 
-		Quad quad;
-
+		SceneSerializer serializer = SceneSerializer(m_ActiveScene);
+		
 		Entity square;
 		Entity square2;
 		Entity square3;
 		Entity m_CameraEntity;
 		Entity m_CameraEntity2;
-
 
 
 		glm::vec2 m_ViewPortSize;

@@ -139,4 +139,41 @@ namespace RealEngine {
 
 		return entity;
 	}
+
+	template<typename T>
+	bool Scene::OnComponentAdded(Entity entity, T& component)
+	{
+		static_assert(false);
+	}
+
+	template<>
+	bool Scene::OnComponentAdded<TagComponent>(Entity entity, TagComponent& component)
+	{
+		return true;
+	}
+
+	template<>
+	bool Scene::OnComponentAdded<TransformComponent>(Entity entity, TransformComponent& component)
+	{
+		return true;
+	}
+
+	template<>
+	bool Scene::OnComponentAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component)
+	{
+		return true;
+	}
+
+	template<>
+	bool Scene::OnComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& component)
+	{
+		return true;
+	}
+
+	template<>
+	bool Scene::OnComponentAdded<CameraComponent>(Entity entity, CameraComponent& component)
+	{
+		component.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
+		return true;
+	}
 }

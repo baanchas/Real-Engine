@@ -69,10 +69,10 @@
     <ClCompile Include="src\Engine\Events\Event.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\OrthographicCamera.cpp">
+    <ClCompile Include="src\Engine\Renderer\OrthographicCamera.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\Renderer.cpp">
+    <ClCompile Include="src\Engine\Renderer\Renderer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\IndexBuffer.cpp">
@@ -93,19 +93,22 @@
     <ClCompile Include="libs\stb_image\stb_image.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\FrameBuffer.cpp">
+    <ClCompile Include="src\Engine\Renderer\FrameBuffer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Scene\Scene.cpp">
+    <ClCompile Include="src\Engine\Scene\Scene.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Scene\Entity.cpp">
+    <ClCompile Include="src\Engine\Scene\Entity.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\SceneCamera.cpp">
+    <ClCompile Include="src\Engine\Renderer\SceneCamera.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\Engine\Editor\SceneHierarchyPanel.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\Scene\SceneSerializer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -149,10 +152,10 @@
     <ClInclude Include="src\Engine\Events\Event.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\OrthographicCamera.h">
+    <ClInclude Include="src\Engine\Renderer\OrthographicCamera.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\Renderer.h">
+    <ClInclude Include="src\Engine\Renderer\Renderer.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\IndexBuffer.h">
@@ -176,31 +179,34 @@
     <ClInclude Include="libs\stb_image\stb_image.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\FrameBuffer.h">
+    <ClInclude Include="src\Engine\Renderer\FrameBuffer.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="libs\entt\include\entt.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Scene\Scene.h">
+    <ClInclude Include="src\Engine\Scene\Scene.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Scene\Components.h">
+    <ClInclude Include="src\Engine\Scene\Components.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Scene\Entity.h">
+    <ClInclude Include="src\Engine\Scene\Entity.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\Camera.h">
+    <ClInclude Include="src\Engine\Renderer\Camera.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\SceneCamera.h">
+    <ClInclude Include="src\Engine\Renderer\SceneCamera.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Scene\CameraController.h">
+    <ClInclude Include="src\Engine\Scene\CameraController.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\Engine\Editor\SceneHierarchyPanel.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Engine\Scene\SceneSerializer.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

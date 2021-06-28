@@ -3,7 +3,7 @@
 #include "glm/glm.hpp"
 
 #include "OpenGL/Texture2D.h"
-#include "OpenGL/Renderer/SceneCamera.h"
+#include "Renderer/SceneCamera.h"
 #include "Entity.h"
 #include <glm/gtc/matrix_transform.hpp>
 

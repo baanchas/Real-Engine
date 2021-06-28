@@ -1,7 +1,7 @@
 #include "repch.h"
 
 #include "EditorLayer.h"
-#include "OpenGL/Scene/CameraController.h"
+#include "Scene/CameraController.h"
 
 namespace RealEngine {
 
@@ -21,11 +21,13 @@ namespace RealEngine {
         m_ActiveScene = new Scene();
         m_SceneHierarchyPanel.SetContext(m_ActiveScene);
         
-        //square = m_ActiveScene->CreateEntity("sqaure");
-        //square.AddComponent<SpriteRendererComponent>();
-        //auto& trc = square.GetComponent<SpriteRendererComponent>();
-        //trc.Color = glm::vec4{0.0f, 0.0f, 0.0f, 0.0f};
-
+        square = m_ActiveScene->CreateEntity("sqaure");
+        square.AddComponent<SpriteRendererComponent>();
+        auto& trc = square.GetComponent<SpriteRendererComponent>();
+        trc.Color = glm::vec4{1.0f, 0.0f, 0.0f, 1.0f};
+        auto& tcsq = square.GetComponent<TransformComponent>();
+        tcsq.Position = glm::vec3{ 0.353f, 0.0f, 0.0f };
+        tcsq.Rotation = glm::vec3{ 0.0f, 45.0f, 0.0f };
 
         square2 = m_ActiveScene->CreateEntity("sqaure2");
         square2.AddComponent<SpriteRendererComponent>();
@@ -34,7 +36,7 @@ namespace RealEngine {
         //auto& trc2 = square2.GetComponent<TextureRendererComponent>().Texture;
         //trc2 = &SpriteCheckerBoard;
         auto& tcsq2 = square2.GetComponent<TransformComponent>();
-        tcsq2.Position = glm::vec3{ -0.35f, 0.0f, 0.0f };
+        tcsq2.Position = glm::vec3{ -0.355f, 0.0f, 0.0f };
         tcsq2.Rotation = glm::vec3{ 0.0f, -45.0f, 0.0f };
 
         square3 = m_ActiveScene->CreateEntity("sqaure3");
@@ -56,6 +58,12 @@ namespace RealEngine {
         cctc.Rotation = glm::vec3{ -25.5f, 0.0f, 0.0f };
         m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
 
+        serializer.SetContext(m_ActiveScene);
+
+        std::string path = "src/assets/scenes/example.rl";
+
+        serializer.Serialize(path);
+
 	}
 
 	EditorLayer::~EditorLayer()
@@ -70,22 +78,11 @@ namespace RealEngine {
 
         m_ActiveScene->OnViewportResize(m_ViewPortSize.x, m_ViewPortSize.y);
 
-
-        if (Input::IsKeyPressed(KeyCodes::A))
-        {
-            m_CameraEntity2.GetComponent<CameraComponent>().Primary = true;
-            m_CameraEntity.GetComponent<CameraComponent>().Primary = false;
-        }
-
-        if (Input::IsKeyPressed(KeyCodes::D))
-        {
-            m_CameraEntity2.GetComponent<CameraComponent>().Primary = false;
-            m_CameraEntity.GetComponent<CameraComponent>().Primary = true;
-        }
+        
 
         if (m_SceneWindowIsFocused)
         {
-            //CameraController.OnUpdate(ts);
+        
         }
 
     }
@@ -93,6 +90,24 @@ namespace RealEngine {
 	void EditorLayer::OnEvent(Event& event)
 	{
         m_ActiveScene->OnEvent(event);
+
+        if (event.Type == EventType::KeyPressed)
+        {
+            if (event.KeyPressed.Key == KeyCodes::D)
+            {
+                std::string peth = "src/assets/scenes/example.rl";
+                serializer.Deserialize(peth);
+            }
+        }
+
+        if (event.Type == EventType::KeyPressed)
+        {
+            if (event.KeyPressed.Key == KeyCodes::S)
+            {
+                std::string peth = "src/assets/scenes/example.rl";
+                serializer.Serialize(peth);
+            }
+        }
    	}
 
     void EditorLayer::OnImGuiRender()
@@ -176,7 +191,9 @@ namespace RealEngine {
         Renderer::Clear();
 
         m_ActiveScene->OnRender();
-           
+        
+        ImGui::ShowDemoWindow();
+
         m_FrameBuffer->Unbind();
 
 	}

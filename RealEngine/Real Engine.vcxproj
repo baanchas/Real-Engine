@@ -57,7 +57,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)RealEngine\libs\entt\include;$(SolutionDir)\RealEngine\src\Engine\Graphics\Platform\;$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\spdlog\include\;$(SolutionDIr)RealEngine\libs\glew\include;$(SolutionDir)RealEngine\libs\GLFW\include\;$(SolutionDir)RealEngine\src\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RealEngine\libs\entt\include;$(SolutionDir)\RealEngine\src\Engine\Graphics\Platform\;$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\spdlog\include\;$(SolutionDIr)RealEngine\libs\glew\include;$(SolutionDir)RealEngine\libs\GLFW\include\;$(SolutionDir)RealEngine\src\;$(SolutionDir)RealEngine\src\Engine;</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>repch.h</PrecompiledHeaderFile>
       <DisableSpecificWarnings>26495;</DisableSpecificWarnings>
@@ -94,14 +94,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine\Editor\SceneHierarchyPanel.cpp" />
-    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\SceneCamera.cpp" />
-    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Scene\Entity.cpp" />
-    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Scene\Scene.cpp" />
-    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\FrameBuffer.cpp" />
+    <ClCompile Include="src\Engine\Renderer\SceneCamera.cpp" />
+    <ClCompile Include="src\Engine\Scene\Entity.cpp" />
+    <ClCompile Include="src\Engine\Scene\Scene.cpp" />
+    <ClCompile Include="src\Engine\Renderer\FrameBuffer.cpp" />
     <ClCompile Include="libs\stb_image\stb_image.cpp" />
     <ClCompile Include="src\Engine\Events\Event.cpp" />
-    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\OrthographicCamera.cpp" />
-    <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Engine\Renderer\OrthographicCamera.cpp" />
+    <ClCompile Include="src\Engine\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Shader.cpp" />
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\IndexBuffer.cpp" />
     <ClCompile Include="src\Engine\Layers\ImGuiLayer.cpp" />
@@ -118,6 +118,7 @@
     <ClCompile Include="libs\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\Engine\Input\Input.cpp" />
     <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\Engine\Scene\SceneSerializer.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Engine\Graphics\Window.cpp" />
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Texture2D.cpp" />
@@ -130,19 +131,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Engine\Editor\SceneHierarchyPanel.h" />
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Scene\CameraController.h" />
+    <ClInclude Include="src\Engine\Scene\CameraController.h" />
     <ClInclude Include="libs\entt\include\entt.hpp" />
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\SceneCamera.h" />
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\Camera.h" />
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Scene\Components.h" />
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Scene\Entity.h" />
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Scene\Scene.h" />
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\FrameBuffer.h" />
+    <ClInclude Include="src\Engine\Renderer\SceneCamera.h" />
+    <ClInclude Include="src\Engine\Renderer\Camera.h" />
+    <ClInclude Include="src\Engine\Scene\Components.h" />
+    <ClInclude Include="src\Engine\Scene\Entity.h" />
+    <ClInclude Include="src\Engine\Scene\Scene.h" />
+    <ClInclude Include="src\Engine\Renderer\FrameBuffer.h" />
     <ClInclude Include="libs\stb_image\stb_image.h" />
     <ClInclude Include="src\Engine\Events\Event.h" />
+    <ClInclude Include="src\Engine\Scene\SceneSerializer.h" />
     <ClInclude Include="src\Engine\Timestep.h" />
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\OrthographicCamera.h" />
-    <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Renderer\Renderer.h" />
+    <ClInclude Include="src\Engine\Renderer\OrthographicCamera.h" />
+    <ClInclude Include="src\Engine\Renderer\Renderer.h" />
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Shader.h" />
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\IndexBuffer.h" />
     <ClInclude Include="src\Engine\Layers\ImGuiLayer.h" />

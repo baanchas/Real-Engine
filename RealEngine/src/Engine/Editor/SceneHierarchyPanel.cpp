@@ -58,7 +58,7 @@ namespace RealEngine {
 
 			ImGui::EndPopup();
 		}
-
+		
 		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
 		{
 			m_SelectedItem = {entt::null, m_Context };
@@ -71,6 +71,29 @@ namespace RealEngine {
 		if (m_SelectedItem)
 		{
 			DrawComponents(m_SelectedItem);
+
+			if (ImGui::Button("Add Component"))
+			{
+				ImGui::OpenPopup("AddComponent");
+			}
+
+			if (ImGui::BeginPopup("AddComponent"))
+			{
+				if (ImGui::MenuItem("Camera"))
+				{
+					m_SelectedItem.AddComponent<CameraComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+	
+				if (ImGui::MenuItem("Sprite Renderer Component"))
+				{
+					m_SelectedItem.AddComponent<SpriteRendererComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::EndPopup();
+			}
+
 		}
 
 		ImGui::End();
@@ -92,9 +115,13 @@ namespace RealEngine {
 			}
 		}
 
+		const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_Framed;
+
 		if (entity.HasComponent<TransformComponent>())
 		{
-			if (ImGui::TreeNode("Transform"))
+			bool open = ImGui::TreeNodeEx((void*)typeid(TransformComponent).hash_code(), treeNodeFlags, "Transform");
+			
+			if (open)
 			{
 				auto& transform = entity.GetComponent<TransformComponent>();
 
@@ -108,7 +135,27 @@ namespace RealEngine {
 
 		if (entity.HasComponent<SpriteRendererComponent>())
 		{
-			if (ImGui::TreeNode("Color"))
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
+			bool open = ImGui::TreeNodeEx((void*)typeid(SpriteRendererComponent).hash_code(), treeNodeFlags, "Sprite Renderer Component");
+			ImGui::SameLine(ImGui::GetWindowWidth() - 40.0f);
+			if (ImGui::Button("+", ImVec2{ 20, 20}))
+			{
+				ImGui::OpenPopup("ComponentSettings");
+			}
+
+			bool removeComponent = false;
+
+			if (ImGui::BeginPopup("ComponentSettings"))
+			{
+				if (ImGui::MenuItem("Remove Component"))
+				{
+					removeComponent = true;
+				}
+
+				ImGui::EndPopup();
+			}
+
+			if (open)
 			{
 				auto& color = entity.GetComponent<SpriteRendererComponent>().Color;
 
@@ -116,11 +163,18 @@ namespace RealEngine {
 
 				ImGui::TreePop();
 			}
+
+			if (removeComponent)
+			{
+				entity.RemoveComponent<SpriteRendererComponent>();
+			}
+
+			ImGui::PopStyleVar();
 		}
 
 		if (entity.HasComponent<CameraComponent>())
 		{
-			if (ImGui::TreeNode("Camera Component"))
+			if (ImGui::TreeNodeEx((void*)typeid(CameraComponent).hash_code(), treeNodeFlags, "Camera Component"))
 			{
 				auto& camera = entity.GetComponent<CameraComponent>().Camera;
 

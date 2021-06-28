@@ -40,7 +40,6 @@ namespace RealEngine {
 
         s_Data.IndexBuffer.Bind();
         s_Data.VertexBuffer.SetData((void*)s_Data.QuadVertexBufferBase, dataSize);
-        ENGINE_INFO(dataSize);
 
         glDrawElements(GL_TRIANGLES, s_Data.QuadIndexCount, GL_UNSIGNED_INT, nullptr);
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -453,12 +452,6 @@ namespace RealEngine {
         DrawQuad(position.x, position.y, position.z, size.x, size.y, texture, tilingFactor);
 
     }
-
-
-	void Renderer::DrawIndexed()
-	{
-
-	}
 
     void Renderer::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
     {

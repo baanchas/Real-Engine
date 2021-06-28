@@ -1,6 +1,6 @@
 #include "repch.h"
 
-#include "Engine/Graphics/Platform/OpenGL/Renderer/Renderer.h"
+#include "Renderer/Renderer.h"
 #include "Texture2D.h"
 
 namespace RealEngine {
