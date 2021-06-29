@@ -13,6 +13,7 @@ namespace RealEngine {
 	void SceneHierarchyPanel::SetContext(Scene* scene)
 	{
 		m_Context = scene;
+		m_SelectedItem = { entt::null, m_Context };
 	}
 
 	void SceneHierarchyPanel::OnImGuiRender()

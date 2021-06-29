@@ -2,6 +2,7 @@
 
 #include "EditorLayer.h"
 #include "Scene/CameraController.h"
+#include "Uilities/OpenGL/OpenGLFileDialogs.h"
 
 namespace RealEngine {
 
@@ -21,48 +22,7 @@ namespace RealEngine {
         m_ActiveScene = new Scene();
         m_SceneHierarchyPanel.SetContext(m_ActiveScene);
         
-        square = m_ActiveScene->CreateEntity("sqaure");
-        square.AddComponent<SpriteRendererComponent>();
-        auto& trc = square.GetComponent<SpriteRendererComponent>();
-        trc.Color = glm::vec4{1.0f, 0.0f, 0.0f, 1.0f};
-        auto& tcsq = square.GetComponent<TransformComponent>();
-        tcsq.Position = glm::vec3{ 0.353f, 0.0f, 0.0f };
-        tcsq.Rotation = glm::vec3{ 0.0f, 45.0f, 0.0f };
-
-        square2 = m_ActiveScene->CreateEntity("sqaure2");
-        square2.AddComponent<SpriteRendererComponent>();
-        auto& trc2 = square2.GetComponent<SpriteRendererComponent>();
-        trc2.Color = glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f };
-        //auto& trc2 = square2.GetComponent<TextureRendererComponent>().Texture;
-        //trc2 = &SpriteCheckerBoard;
-        auto& tcsq2 = square2.GetComponent<TransformComponent>();
-        tcsq2.Position = glm::vec3{ -0.355f, 0.0f, 0.0f };
-        tcsq2.Rotation = glm::vec3{ 0.0f, -45.0f, 0.0f };
-
-        square3 = m_ActiveScene->CreateEntity("sqaure3");
-        square3.AddComponent<SpriteRendererComponent>();
-        auto& trc3 = square3.GetComponent<SpriteRendererComponent>();
-        trc3.Color = glm::vec4{ 0.0f, 0.0f, 1.0f, 1.0f };
-        //square3.AddComponent<SpriteRendererComponent>();
-        //auto& trc3 = square3.GetComponent<SpriteRendererComponent>().Color;
-        //trc3 = glm::vec4{0.1f, 1.0f, 0.0f, 1.0f};
-        auto& tcsq3 = square3.GetComponent<TransformComponent>();
-        tcsq3.Position = glm::vec3{ 0.0f, 0.5f, -0.35f };
-        tcsq3.Rotation = glm::vec3{ 90.0f, 0.0f, 45.0f };
-
-
-        m_CameraEntity = m_ActiveScene->CreateEntity("Camera 1");
-        m_CameraEntity.AddComponent<CameraComponent>();
-        auto& cctc = m_CameraEntity.GetComponent<TransformComponent>();
-        cctc.Position = glm::vec3{ 0.0f, 0.85f, 1.7f };
-        cctc.Rotation = glm::vec3{ -25.5f, 0.0f, 0.0f };
-        m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
-
-        serializer.SetContext(m_ActiveScene);
-
-        std::string path = "src/assets/scenes/example.rl";
-
-        serializer.Serialize(path);
+        m_Serializer.SetContext(m_ActiveScene);
 
 	}
 
@@ -78,8 +38,6 @@ namespace RealEngine {
 
         m_ActiveScene->OnViewportResize(m_ViewPortSize.x, m_ViewPortSize.y);
 
-        
-
         if (m_SceneWindowIsFocused)
         {
         
@@ -93,19 +51,35 @@ namespace RealEngine {
 
         if (event.Type == EventType::KeyPressed)
         {
-            if (event.KeyPressed.Key == KeyCodes::D)
-            {
-                std::string peth = "src/assets/scenes/example.rl";
-                serializer.Deserialize(peth);
-            }
-        }
+            bool control = Input::IsKeyPressed(KeyCodes::LEFT_CONTROL) || Input::IsKeyPressed(KeyCodes::RIGHT_CONTROL);
+            bool shift = Input::IsKeyPressed(KeyCodes::LEFT_SHIFT) || Input::IsKeyPressed(KeyCodes::RIGHT_SHIFT);
 
-        if (event.Type == EventType::KeyPressed)
-        {
-            if (event.KeyPressed.Key == KeyCodes::S)
+            switch (event.KeyPressed.Key)
             {
-                std::string peth = "src/assets/scenes/example.rl";
-                serializer.Serialize(peth);
+            case KeyCodes::N:
+            {
+                if (control)
+                {
+                    NewScene();
+                }
+                break;
+            }
+            case KeyCodes::O:
+            {
+                if (control)
+                {
+                    OpenScene();
+                }
+                break;
+            }
+            case KeyCodes::S:
+            {
+                if (control && shift)
+                {
+                    SaveScene();
+                }
+                break;
+            }
             }
         }
    	}
@@ -126,12 +100,10 @@ namespace RealEngine {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-        // DockSpace
         ImGui::Begin("DockSpace Demo", &dockspaceOpen, Windowflags);
         ImGui::PopStyleVar();
         ImGui::PopStyleVar(2);
        
-
         ImGuiIO& io = ImGui::GetIO();
         ImGuiStyle& style = ImGui::GetStyle();
         style.WindowMinSize.x = 370.0f;
@@ -144,14 +116,33 @@ namespace RealEngine {
         {
             if (ImGui::BeginMenu("File"))
             {
-                if (ImGui::MenuItem("Exit")) Application::Get().Exit();
+                if (ImGui::MenuItem("New", "Ctrl+N"))
+                {
+                    NewScene();
+                }
+
+                if (ImGui::MenuItem("Open...", "Ctrl+O"))
+                {
+                    OpenScene();
+                }
+                
+                if (ImGui::MenuItem("Save as...", "Ctrl+Shift+S"))
+                {
+                    SaveScene();
+                }
+                
+                if (ImGui::MenuItem("Exit"))
+                {
+                    Application::Get().Exit();
+                }
+
                 ImGui::EndMenu();
             }
             ImGui::EndMenuBar();
         }
         ImGui::End();
 
-        //-------- Render scene to ImGui window
+        // Render scene to ImGui window
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
@@ -177,11 +168,8 @@ namespace RealEngine {
         }
 
         ImGui::End();
-        //
-
 
         m_SceneHierarchyPanel.OnImGuiRender();
-        //
     }
 
     void EditorLayer::OnRender()
@@ -191,10 +179,43 @@ namespace RealEngine {
         Renderer::Clear();
 
         m_ActiveScene->OnRender();
-        
-        ImGui::ShowDemoWindow();
 
         m_FrameBuffer->Unbind();
 
 	}
+
+    void EditorLayer::NewScene()
+    {
+        m_ActiveScene = new Scene();
+        m_ActiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
+
+        m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+        m_Serializer.SetContext(m_ActiveScene);
+    }
+
+    void EditorLayer::OpenScene()
+    {
+        std::string filePath = FileDialogs::OpenFile("Engine Scene (*.rl)\0*.rl\0");
+
+        if (!filePath.empty())
+        {
+            m_ActiveScene = new Scene();
+            m_ActiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
+
+            m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+
+            m_Serializer.SetContext(m_ActiveScene);
+            m_Serializer.Deserialize(filePath);
+        }
+    }
+
+    void EditorLayer::SaveScene()
+    {
+        std::string filePath = FileDialogs::SaveFile("Engine Scene (*.rl)\0*.rl\0");
+        if (!filePath.empty())
+        {
+            m_Serializer.SetContext(m_ActiveScene);
+            m_Serializer.Serialize(filePath);
+        }
+    }
 }

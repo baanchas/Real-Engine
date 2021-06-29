@@ -111,6 +111,9 @@
     <ClCompile Include="src\Engine\Scene\SceneSerializer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\Engine\Uilities\OpenGL\WindowsOpenGLFileDialogs.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h">
@@ -207,6 +210,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\Engine\Scene\SceneSerializer.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Engine\Uilities\OpenGL\OpenGLFileDialogs.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

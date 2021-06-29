@@ -119,6 +119,7 @@
     <ClCompile Include="src\Engine\Input\Input.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Engine\Scene\SceneSerializer.cpp" />
+    <ClCompile Include="src\Engine\Uilities\OpenGL\WindowsOpenGLFileDialogs.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Engine\Graphics\Window.cpp" />
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\Texture2D.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="src\Engine\Layers\ExampleLayer.h" />
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\Texture2D.h" />
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\VertexBufferLayout.h" />
+    <ClInclude Include="src\Engine\Uilities\OpenGL\OpenGLFileDialogs.h" />
     <ClInclude Include="src\repch.h" />
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\VertexArray.h" />
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\VertexBuffer.h" />

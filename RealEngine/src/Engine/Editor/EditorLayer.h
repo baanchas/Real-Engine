@@ -29,6 +29,10 @@ namespace RealEngine {
 		void OnImGuiRender() override;
 		void OnRender() override;
 
+	private:
+		void NewScene();
+		void OpenScene();
+		void SaveScene();
 
 	private:
 		Texture2D SpriteCheckerBoard;
@@ -39,22 +43,11 @@ namespace RealEngine {
 
 		SceneHierarchyPanel m_SceneHierarchyPanel = SceneHierarchyPanel(m_ActiveScene);
 
-		SceneSerializer serializer = SceneSerializer(m_ActiveScene);
-		
-		Entity square;
-		Entity square2;
-		Entity square3;
-		Entity m_CameraEntity;
-		Entity m_CameraEntity2;
-
+		SceneSerializer m_Serializer = SceneSerializer(m_ActiveScene);
 
 		glm::vec2 m_ViewPortSize;
 
 		bool m_SceneWindowIsFocused = false;
-
-		float m_PosX = 100.0f;
-		float m_PosY = 100.0f;
-
 	};
 
 }
