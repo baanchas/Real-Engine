@@ -12,8 +12,9 @@
 #include "OpenGL/Texture2D.h"
 
 #include "Renderer/Renderer.h"
-#include "Scene/Scene.h"
 #include "Renderer/FrameBuffer.h"
+#include "Renderer/EditorCamera.h"
+#include "Scene/Scene.h"
 
 namespace RealEngine {
 
@@ -45,9 +46,13 @@ namespace RealEngine {
 
 		SceneSerializer m_Serializer = SceneSerializer(m_ActiveScene);
 
+		EditorCamera m_EditorCamera;
+
 		glm::vec2 m_ViewPortSize;
 
 		bool m_SceneWindowIsFocused = false;
+
+		int m_GyzmoType = -1;
 	};
 
 }

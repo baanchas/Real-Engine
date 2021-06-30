@@ -48,7 +48,41 @@ namespace RealEngine {
 		}
 	}
 
-	void Scene::OnRender()
+	void Scene::OnRenderEditor(EditorCamera& camera)
+	{
+		Renderer::BeginScene(camera);
+
+		auto TCView = m_Registry.view<SpriteRendererComponent>();
+		auto TRCView = m_Registry.view<TextureRendererComponent>();
+
+		for (auto entity : TCView)
+		{
+			if (m_Registry.has<SpriteRendererComponent>(entity))
+			{
+
+				auto transform = m_Registry.get<TransformComponent>(entity);
+				auto sprite = m_Registry.get<SpriteRendererComponent>(entity);
+
+				Renderer::DrawQuad(transform.GetTransform(), sprite);
+			}
+		}
+
+		for (auto entity : TRCView)
+		{
+			if (m_Registry.has<TextureRendererComponent>(entity))
+			{
+				auto transform = m_Registry.get<TransformComponent>(entity);
+				auto sprite = m_Registry.get<TextureRendererComponent>(entity).Texture;
+
+				Renderer::DrawQuad(transform.GetTransform(), sprite, 1.0f);
+			}
+		}
+
+		Renderer::EndScene();
+	}
+
+
+	void Scene::OnRenderRuntime()
 	{
 		// Render
 		Camera* mainCamera = nullptr;
@@ -119,6 +153,21 @@ namespace RealEngine {
 				cameraComponent.Camera.SetViewportSize(width, height);
 			}
 		}
+	}
+
+	Entity Scene::GetPrimaryCameraEntity()
+	{
+		Entity entity{ entt::null, this };
+		auto cameraEntities = m_Registry.view<CameraComponent>();
+		for (auto entityID : cameraEntities)
+		{
+			auto& cc = m_Registry.get<CameraComponent>(entityID);
+			if (cc.Primary)
+			{
+				entity = Entity{ entityID, this };
+			}
+		}
+		return entity;
 	}
 
 	Entity Scene::CreateEntity()

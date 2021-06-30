@@ -11,6 +11,8 @@ namespace RealEngine {
 	public:
 		SceneHierarchyPanel(Scene* scene);
 
+		Entity GetSelectedEntity() { return m_SelectedItem; }
+
 		void SetContext(Scene* scene);
 
 		void OnImGuiRender();

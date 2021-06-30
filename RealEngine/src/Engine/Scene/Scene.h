@@ -3,8 +3,8 @@
 #include "entt.hpp"
 #include "Components.h"
 #include "Renderer/Renderer.h"
+#include "Renderer/EditorCamera.h"
 #include "SceneSerializer.h"
-
 namespace RealEngine {
 
 	class Entity;
@@ -20,9 +20,11 @@ namespace RealEngine {
 
 		void OnUpdate(float ts);
 		void OnEvent(Event event);
-		void OnRender();
+		void OnRenderEditor(EditorCamera& camera);
+		void OnRenderRuntime();
 		void OnViewportResize(uint32_t width, uint32_t height);
 
+		Entity GetPrimaryCameraEntity();
 	private:
 		template<typename T>
 		bool OnComponentAdded(Entity entity, T& component);

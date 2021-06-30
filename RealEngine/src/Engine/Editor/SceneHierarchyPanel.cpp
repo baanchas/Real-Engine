@@ -125,9 +125,10 @@ namespace RealEngine {
 			if (open)
 			{
 				auto& transform = entity.GetComponent<TransformComponent>();
-
 				ImGui::DragFloat3("Position", glm::value_ptr(transform.Position), 0.1f);
-				ImGui::DragFloat3("Rotation", glm::value_ptr(transform.Rotation), 0.1f);
+				glm::vec3 rotation = glm::degrees(transform.Rotation);
+				ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 0.1f);
+				transform.Rotation = glm::radians(rotation);
 				ImGui::DragFloat3("Scale", glm::value_ptr(transform.Scale), 0.1f);
 
 				ImGui::TreePop();

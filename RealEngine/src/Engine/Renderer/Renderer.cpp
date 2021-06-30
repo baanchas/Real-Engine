@@ -16,6 +16,15 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
     }
 
+    void Renderer::BeginScene(EditorCamera& camera)
+    {
+        m_SceneData->ViewProjectionMatrix = camera.GetViewProjection();
+
+        s_Data.QuadIndexCount = 0;
+
+        s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
+    }
+
     void Renderer::BeginScene(OrthographicCamera& camera)
 	{
         s_Data.QuadIndexCount = 0;
@@ -90,6 +99,7 @@ namespace RealEngine {
 			#version 330 core
 			
 			layout(location = 0) out vec4 color;
+			layout(location = 1) out vec4 color2;
             
             in vec4 v_Color;
             in vec2 v_TexCoord;
@@ -137,6 +147,8 @@ namespace RealEngine {
 		            case 31: texColor *= texture(u_Texture[31], v_TexCoord * v_TilingFactor); break;
 	            }
 	            color = texColor;
+
+                color2 = vec4(1.0, 1.0, 0.0, 1.0);
 			}
 		)";
 
@@ -178,8 +190,6 @@ namespace RealEngine {
         s_Data.VertexArray.Addbuffer(s_Data.VertexBuffer, m_Layout);
 
         s_Data.QuadVertexBufferBase = new Vertex[s_Data.MaxVertices];
-
-        std::cout << sizeof(Vertex) << std::endl;
 
         int32_t samplers[s_Data.MaxTextureSlots];
         for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
@@ -321,46 +331,6 @@ namespace RealEngine {
 
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[3];
         s_Data.QuadVertexBufferPtr->Color = { r, g, b, t };
-        s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
-        s_Data.QuadVertexBufferPtr->TexId = 32.0f;
-        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
-
-        s_Data.QuadVertexBufferPtr++;
-
-        s_Data.QuadIndexCount += 6;
-    }
-
-    void Renderer::DrawQuad(Quad& quad)
-    {
-        
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(quad.Vertex.Position.x, quad.Vertex.Position.y, quad.Vertex.Position.z)) *
-            glm::rotate(glm::mat4(1.0f), glm::radians(quad.Rotation), { 0.0f, 0.0f, 1.0f }) *
-            glm::scale(glm::mat4(1.0f), { quad.Size.x, quad.Size.y, 1.0f });
-
-
-        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[0];
-        s_Data.QuadVertexBufferPtr->Color = { quad.Vertex.Color.x, quad.Vertex.Color.y, quad.Vertex.Color.z, quad.Vertex.Color.w };
-        s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
-        s_Data.QuadVertexBufferPtr->TexId = 32.0f;
-        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
-        s_Data.QuadVertexBufferPtr++;
-
-        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[1];
-        s_Data.QuadVertexBufferPtr->Color = { quad.Vertex.Color.x, quad.Vertex.Color.y, quad.Vertex.Color.z, quad.Vertex.Color.w };
-        s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f };
-        s_Data.QuadVertexBufferPtr->TexId = 32.0f;
-        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
-        s_Data.QuadVertexBufferPtr++;
-
-        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[2];
-        s_Data.QuadVertexBufferPtr->Color = { quad.Vertex.Color.x, quad.Vertex.Color.y, quad.Vertex.Color.z, quad.Vertex.Color.w };
-        s_Data.QuadVertexBufferPtr->TexCoord = { 1.f, 1.0f };
-        s_Data.QuadVertexBufferPtr->TexId = 32.0f;
-        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
-        s_Data.QuadVertexBufferPtr++;
-
-        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[3];
-        s_Data.QuadVertexBufferPtr->Color = { quad.Vertex.Color.x, quad.Vertex.Color.y, quad.Vertex.Color.z, quad.Vertex.Color.w };
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = 32.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;

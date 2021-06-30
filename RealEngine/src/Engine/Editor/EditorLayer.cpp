@@ -3,6 +3,11 @@
 #include "EditorLayer.h"
 #include "Scene/CameraController.h"
 #include "Uilities/OpenGL/OpenGLFileDialogs.h"
+#include "Math/Math.h"
+
+
+#include <ImGuizmo.h>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace RealEngine {
 
@@ -13,17 +18,17 @@ namespace RealEngine {
         Renderer::Init();
         
         FrameBufferSpecification FrameBufferSpec;
+        FrameBufferSpec.Attachments = { FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::Depth };
         FrameBufferSpec.m_Width = Application::Get().GetWindow().GetWidth();
         FrameBufferSpec.m_Height = Application::Get().GetWindow().GetHeight();
         m_FrameBuffer = new FrameBuffer(FrameBufferSpec);
+
+        m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 
         SpriteCheckerBoard.LoadFromFile("res/sprites/checkerboard.png");
                 
         m_ActiveScene = new Scene();
         m_SceneHierarchyPanel.SetContext(m_ActiveScene);
-        
-        m_Serializer.SetContext(m_ActiveScene);
-
 	}
 
 	EditorLayer::~EditorLayer()
@@ -38,9 +43,10 @@ namespace RealEngine {
 
         m_ActiveScene->OnViewportResize(m_ViewPortSize.x, m_ViewPortSize.y);
 
+
         if (m_SceneWindowIsFocused)
         {
-        
+            m_EditorCamera.OnUpdate(ts);
         }
 
     }
@@ -48,6 +54,11 @@ namespace RealEngine {
 	void EditorLayer::OnEvent(Event& event)
 	{
         m_ActiveScene->OnEvent(event);
+
+        if (m_SceneWindowIsFocused)
+        {
+            m_EditorCamera.OnEvent(event);
+        }
 
         if (event.Type == EventType::KeyPressed)
         {
@@ -80,6 +91,26 @@ namespace RealEngine {
                 }
                 break;
             }
+            case KeyCodes::Q:
+            {
+                m_GyzmoType = -1;
+                break;
+            }
+            case KeyCodes::W:
+            {
+                m_GyzmoType = 0;
+                break;
+            }
+            case KeyCodes::E:
+            {
+                m_GyzmoType = 1;
+                break;
+            }
+            case KeyCodes::R:
+            {
+                m_GyzmoType = 2;
+                break;
+            }
             }
         }
    	}
@@ -106,7 +137,7 @@ namespace RealEngine {
        
         ImGuiIO& io = ImGui::GetIO();
         ImGuiStyle& style = ImGui::GetStyle();
-        style.WindowMinSize.x = 370.0f;
+        style.WindowMinSize.x = 150.0f;
         if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
         {
             ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
@@ -155,16 +186,54 @@ namespace RealEngine {
             m_FrameBuffer->Resize(glm::vec2(AvailableContentSize.x, AvailableContentSize.y));
             m_ViewPortSize = { (uint32_t)AvailableContentSize.x, (uint32_t)AvailableContentSize.y };
         }
-        uint32_t TextureID = m_FrameBuffer->GetColorAttachmentID();
+        m_EditorCamera.SetViewportSize(m_ViewPortSize.x, m_ViewPortSize.y);
+        uint32_t TextureID = m_FrameBuffer->GetColorAttachmentID(0);
         ImGui::Image((void*)TextureID, ImVec2{ m_ViewPortSize.x, m_ViewPortSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
-        if (ImGui::IsWindowFocused() || ImGui::IsWindowHovered())
+        if (ImGui::IsWindowHovered())
         {
             m_SceneWindowIsFocused = true;
         }
         else
         {
             m_SceneWindowIsFocused = false;
+        }
+
+        Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+        if (selectedEntity && m_GyzmoType != -1)
+        {
+            ImGuizmo::SetOrthographic(false);
+            ImGuizmo::SetDrawlist();
+
+            float windowWidth = (float)ImGui::GetWindowWidth();
+            float windowHeight = (float)ImGui::GetWindowHeight();
+            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+
+            //Runtime Camera
+            //auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
+            //auto& cc = cameraEntity.GetComponent<CameraComponent>();
+            //const glm::mat4& cameraProjection = cc.Camera.GetProjection();
+            //glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
+
+            auto& tc = selectedEntity.GetComponent<TransformComponent>();
+            glm::mat4 transform = tc.GetTransform();
+
+            const glm::mat4& cameraProjection = m_EditorCamera.GetProjection();
+            glm::mat4 cameraView = m_EditorCamera.GetViewMatrix();
+
+            ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
+                (ImGuizmo::OPERATION)m_GyzmoType, ImGuizmo::LOCAL, glm::value_ptr(transform));
+
+            if (ImGuizmo::IsUsing())
+            {
+                glm::vec3 position, rotation, scale;
+                DecomposeTransform(transform, position, rotation, scale);
+
+                glm::vec3 deltaRotation = rotation - tc.Rotation;
+                tc.Position = position;
+                tc.Rotation = tc.Rotation + deltaRotation;
+                tc.Scale = scale;
+            }
         }
 
         ImGui::End();
@@ -178,7 +247,7 @@ namespace RealEngine {
         
         Renderer::Clear();
 
-        m_ActiveScene->OnRender();
+        m_ActiveScene->OnRenderEditor(m_EditorCamera);
 
         m_FrameBuffer->Unbind();
 

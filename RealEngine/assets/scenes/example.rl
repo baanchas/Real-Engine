@@ -2,8 +2,8 @@ Entity: 3
 	Tag Component:
 		Tag: Green Square
 	Transform Component:
-		Position: [ 0, 0.5, -0.353 ]
-		Rotation: [ 90, 0, 45 ]
+		Position: [ 0, 0.5, 0 ]
+		Rotation: [ 1.57079637, 0.785398185, 0 ]
 		Scale: [ 1, 1, 1 ]
 	Sprite Renderer Component:
 		Color: [ 0.172414, 0.602804, 0.0591536, 1 ]
@@ -11,8 +11,8 @@ Entity: 2
 	Tag Component:
 		Tag: Blue 
 	Transform Component:
-		Position: [ 0.353, 0, 0 ]
-		Rotation: [ 0, 45, 0 ]
+		Position: [ 0.351999998, 0, 0.349999994 ]
+		Rotation: [ 0, 0.785398185, 0]
 		Scale: [ 1, 1, 1 ]
 	Sprite Renderer Component:
 		Color: [ 0.251076, 0.17198, 0.836449, 1 ]
@@ -20,8 +20,8 @@ Entity: 1
 	Tag Component:
 		Tag: Red Square
 	Transform Component:
-		Position: [ -0.355, 0, 0 ]
-		Rotation: [ 0, -45, 0 ]
+		Position: [ -0.351999998, 0, 0.349999994 ]
+		Rotation: [ 0, -0.785398185, 0 ]
 		Scale: [ 1, 1, 1 ]
 	Sprite Renderer Component:
 		Color: [ 0.85514, 0.103896, 0.103896, 1 ]
@@ -29,8 +29,8 @@ Entity: 0
 	Tag Component:
 		Tag: Camera 1
 	Transform Component:
-		Position: [ 0, 0.8, 1.7 ]
-		Rotation: [ -25, 0, 0 ]
+		Position: [ 0, 1.70000005, 4]
+		Rotation: [ -0.404916406, 0, 0]
 		Scale: [ 1, 1, 1 ]
 	Camera Component:
 		Projection Type: 0

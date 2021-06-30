@@ -2,9 +2,40 @@
 
 namespace RealEngine {
 
+	enum class FrameBufferTextureFormat
+	{
+		None = 0,
+
+		RGBA8,
+
+		DEPTH24STENCIL8,
+
+		Depth = DEPTH24STENCIL8
+	};
+	
+	struct FrameBufferTextureSpecification
+	{
+		FrameBufferTextureSpecification() = default;
+		FrameBufferTextureSpecification(FrameBufferTextureFormat format)
+			: TextureFormat(format) {}
+
+
+		FrameBufferTextureFormat TextureFormat = FrameBufferTextureFormat::None;
+	};
+
+	struct FrameBufferAttachmentSpecification
+	{
+		FrameBufferAttachmentSpecification() = default;
+		FrameBufferAttachmentSpecification(const std::initializer_list<FrameBufferTextureSpecification> attachments)
+			: Attachments(attachments) {}
+
+		std::vector<FrameBufferTextureSpecification> Attachments;
+	};
+
 	struct FrameBufferSpecification
 	{
 		uint32_t m_Width, m_Height;
+		FrameBufferAttachmentSpecification Attachments;
 		uint32_t m_Samples = 1;
 
 		bool m_SwapChainTarget = false;
@@ -22,15 +53,19 @@ namespace RealEngine {
 		void Bind();
 		void Unbind();
 
-		inline unsigned int GetColorAttachmentID() const { return m_ColorAttachment; }
+		inline unsigned int GetColorAttachmentID(uint32_t index = 0) const { ENGINE_ASSERT(index < m_ColorAttachments.size(), "Greater than {0}", m_ColorAttachments.size()); return m_ColorAttachments[index]; }
 
 		inline FrameBufferSpecification GetSpecification() const { return m_FrameBufferSpecification; }
 	private:
 		FrameBufferSpecification m_FrameBufferSpecification;
 
 		uint32_t m_RendererID = 0;
-		uint32_t m_ColorAttachment = 0, m_DepthAttachment = 0;
+		
+		std::vector<FrameBufferTextureSpecification> m_ColorAttachmentSpecs;
+		FrameBufferTextureSpecification m_DepthAttachmentSpec = FrameBufferTextureFormat::None;
 
+		std::vector<uint32_t> m_ColorAttachments;
+		uint32_t m_DepthAttachment;
 	};
 
 }

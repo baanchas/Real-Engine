@@ -2,6 +2,7 @@
 #include "ImGuiLayer.h"
 
 #include "Application.h"
+#include "ImGuizmo.h"
 
 namespace RealEngine {
 
@@ -35,6 +36,7 @@ namespace RealEngine {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
 	}
 
 	void ImGuiLayer::End()

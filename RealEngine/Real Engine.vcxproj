@@ -57,7 +57,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)RealEngine\libs\entt\include;$(SolutionDir)\RealEngine\src\Engine\Graphics\Platform\;$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\spdlog\include\;$(SolutionDIr)RealEngine\libs\glew\include;$(SolutionDir)RealEngine\libs\GLFW\include\;$(SolutionDir)RealEngine\src\;$(SolutionDir)RealEngine\src\Engine;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RealEngine\libs\imgui\;$(SolutionDir)RealEngine\libs\entt\include;$(SolutionDir)\RealEngine\src\Engine\Graphics\Platform\;$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\spdlog\include\;$(SolutionDIr)RealEngine\libs\glew\include;$(SolutionDir)RealEngine\libs\GLFW\include\;$(SolutionDir)RealEngine\src\;$(SolutionDir)RealEngine\src\Engine;$(SolutionDir)RealEngine\libs\ImGuizmo</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>repch.h</PrecompiledHeaderFile>
       <DisableSpecificWarnings>26495;</DisableSpecificWarnings>
@@ -66,7 +66,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)RealEngine\libs\glew\lib\x64\;$(SolutionDIr)RealEngine\libs\GLFW\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)RealEngine\libs\ImGuizmo\;$(SolutionDir)RealEngine\libs\glew\lib\x64\;$(SolutionDIr)RealEngine\libs\GLFW\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -93,7 +93,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="libs\ImGuizmo\ImGuizmo.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="src\Engine\Editor\SceneHierarchyPanel.cpp" />
+    <ClCompile Include="src\Engine\Renderer\EditorCamera.cpp" />
     <ClCompile Include="src\Engine\Renderer\SceneCamera.cpp" />
     <ClCompile Include="src\Engine\Scene\Entity.cpp" />
     <ClCompile Include="src\Engine\Scene\Scene.cpp" />
@@ -131,7 +135,10 @@
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="libs\ImGuizmo\ImGuizmo.h" />
     <ClInclude Include="src\Engine\Editor\SceneHierarchyPanel.h" />
+    <ClInclude Include="src\Engine\Math\Math.h" />
+    <ClInclude Include="src\Engine\Renderer\EditorCamera.h" />
     <ClInclude Include="src\Engine\Scene\CameraController.h" />
     <ClInclude Include="libs\entt\include\entt.hpp" />
     <ClInclude Include="src\Engine\Renderer\SceneCamera.h" />
