@@ -41,8 +41,16 @@ namespace RealEngine {
 		{
 			const auto& element = elements[i];
 			glEnableVertexAttribArray(i);
-			glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.GetStride(), (const void*)offset);
-			offset += element.count * VertexBufferElement::GetSize(element.type);
+			if (elements[i].type == GL_INT)
+			{
+				glVertexAttribIPointer(i, element.count, element.type, layout.GetStride(), (const void*)offset);
+				offset += element.count * VertexBufferElement::GetSize(element.type);
+			}
+			else
+			{
+				glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.GetStride(), (const void*)offset);
+				offset += element.count * VertexBufferElement::GetSize(element.type);
+			}
 		}
 	}
 

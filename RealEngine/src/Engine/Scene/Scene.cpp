@@ -63,7 +63,7 @@ namespace RealEngine {
 				auto transform = m_Registry.get<TransformComponent>(entity);
 				auto sprite = m_Registry.get<SpriteRendererComponent>(entity);
 
-				Renderer::DrawQuad(transform.GetTransform(), sprite);
+				Renderer::DrawQuad(transform.GetTransform(), sprite, int(entity));
 			}
 		}
 

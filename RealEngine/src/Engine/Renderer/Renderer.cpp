@@ -11,7 +11,8 @@ namespace RealEngine {
     {
         m_SceneData->ViewProjectionMatrix = camera.GetProjection() * glm::inverse(transform);
 
-        s_Data.QuadIndexCount = 0;
+        s_Data.QuadIndexCount = 0;  
+        s_Data.m_EntityID = 0;
 
         s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
     }
@@ -21,15 +22,17 @@ namespace RealEngine {
         m_SceneData->ViewProjectionMatrix = camera.GetViewProjection();
 
         s_Data.QuadIndexCount = 0;
+        s_Data.m_EntityID = 0;
 
         s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
     }
 
     void Renderer::BeginScene(OrthographicCamera& camera)
 	{
-        s_Data.QuadIndexCount = 0;
-
 		m_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+        
+        s_Data.QuadIndexCount = 0;
+        s_Data.m_EntityID = 0;
 
         s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
 	}
@@ -63,10 +66,12 @@ namespace RealEngine {
     void Renderer::Init()
     {
         
+        glEnable(GL_LINE_SMOOTH);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        
+
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_MULTISAMPLE);
 
         std::string vertexSrc = R"(
 			#version 330 core
@@ -76,6 +81,7 @@ namespace RealEngine {
 			layout(location = 2) in vec2 a_TexCoord;
 			layout(location = 3) in float a_TexID;
             layout(location = 4) in float a_TilingFactor;
+            layout(location = 5) in int a_EntityID;
 
 			uniform mat4 u_ViewProjection;
             
@@ -83,15 +89,15 @@ namespace RealEngine {
             out vec2 v_TexCoord;
             out float v_TexID;
             out float v_TilingFactor;
-
+            out flat int v_EntityID;
 			void main()
 			{
                 v_Color = a_Color;
                 v_TexCoord = a_TexCoord;
                 v_TexID = a_TexID;
                 v_TilingFactor = a_TilingFactor;
+                v_EntityID = a_EntityID;        
 				gl_Position = u_ViewProjection * vec4(a_Position, 1.0f);
-
             }
 		)";
 
@@ -99,15 +105,15 @@ namespace RealEngine {
 			#version 330 core
 			
 			layout(location = 0) out vec4 color;
-			layout(location = 1) out vec4 color2;
+			layout(location = 1) out int color2;
             
             in vec4 v_Color;
             in vec2 v_TexCoord;
             in float v_TexID;
             in float v_TilingFactor;          
+            in flat int v_EntityID;
 
             uniform sampler2D u_Texture[32];
-
 			void main()
 			{
               	vec4 texColor = v_Color;
@@ -147,10 +153,10 @@ namespace RealEngine {
 		            case 31: texColor *= texture(u_Texture[31], v_TexCoord * v_TilingFactor); break;
 	            }
 	            color = texColor;
-
-                color2 = vec4(1.0, 1.0, 0.0, 1.0);
+                color2 = v_EntityID;
 			}
 		)";
+
 
         s_Data.VertexArray.Create();
         s_Data.Shader.Create(vertexSrc, fragmentSrc);
@@ -187,6 +193,7 @@ namespace RealEngine {
         m_Layout.Push<float>(2);
         m_Layout.Push<float>(1);
         m_Layout.Push<float>(1);
+        m_Layout.Push<int>(1);
         s_Data.VertexArray.Addbuffer(s_Data.VertexBuffer, m_Layout);
 
         s_Data.QuadVertexBufferBase = new Vertex[s_Data.MaxVertices];
@@ -218,6 +225,7 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
         s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[1];
@@ -225,6 +233,7 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f };
         s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[2];
@@ -232,6 +241,7 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[3];
@@ -239,6 +249,45 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
+        s_Data.QuadVertexBufferPtr++;
+
+        s_Data.m_EntityID++;
+        s_Data.QuadIndexCount += 6;
+    }
+
+    void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID)
+    {
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[0];
+        s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
+        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
+        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.QuadVertexBufferPtr->entityID = entityID;
+        s_Data.QuadVertexBufferPtr++;
+
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[1];
+        s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f };
+        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
+        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.QuadVertexBufferPtr->entityID = entityID;
+        s_Data.QuadVertexBufferPtr++;
+
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[2];
+        s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 1.0f };
+        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
+        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.QuadVertexBufferPtr->entityID = entityID;
+        s_Data.QuadVertexBufferPtr++;
+
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[3];
+        s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
+        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
+        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.QuadVertexBufferPtr->entityID = entityID;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadIndexCount += 6;
@@ -270,6 +319,7 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
         s_Data.QuadVertexBufferPtr->TexId = textureIndex;
         s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[1];
@@ -277,6 +327,7 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f };
         s_Data.QuadVertexBufferPtr->TexId = textureIndex;
         s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[2];
@@ -284,6 +335,7 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = textureIndex;
         s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[3];
@@ -291,8 +343,10 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = textureIndex;
         s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
         s_Data.QuadVertexBufferPtr++;
       
+        s_Data.m_EntityID++;
         s_Data.QuadIndexCount += 6;
     }
 
@@ -313,6 +367,7 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
         s_Data.QuadVertexBufferPtr->TexId = 32.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[1];
@@ -320,6 +375,7 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f };
         s_Data.QuadVertexBufferPtr->TexId = 32.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[2];
@@ -327,6 +383,7 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = 32.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[3];
@@ -334,9 +391,11 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = 32.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
 
         s_Data.QuadVertexBufferPtr++;
 
+        s_Data.m_EntityID++;
         s_Data.QuadIndexCount += 6;
     }
 
@@ -370,6 +429,7 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
         s_Data.QuadVertexBufferPtr->TexId = textureIndex;
         s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[1];
@@ -377,6 +437,7 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f };
         s_Data.QuadVertexBufferPtr->TexId = textureIndex;
         s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[2];
@@ -384,6 +445,7 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = textureIndex;
         s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[3];
@@ -391,10 +453,10 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = textureIndex;
         s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
-
-        //s_Data.TextureIndex++;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
         s_Data.QuadVertexBufferPtr++;
 
+        s_Data.m_EntityID++;
         s_Data.QuadIndexCount += 6;
     }
     

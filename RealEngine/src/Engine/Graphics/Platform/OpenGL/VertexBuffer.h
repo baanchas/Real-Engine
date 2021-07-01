@@ -9,6 +9,7 @@ namespace RealEngine {
 		glm::vec2 TexCoord;
 		float TexId;
 		float TilingFactor;
+		int entityID;
 	};
 
 	class VertexBuffer

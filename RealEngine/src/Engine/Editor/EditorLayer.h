@@ -48,7 +48,10 @@ namespace RealEngine {
 
 		EditorCamera m_EditorCamera;
 
+		Entity m_HoveredEntity;
+
 		glm::vec2 m_ViewPortSize;
+		glm::vec2 m_ViewPortBounds[2];
 
 		bool m_SceneWindowIsFocused = false;
 

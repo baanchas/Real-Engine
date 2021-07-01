@@ -15,6 +15,15 @@ namespace RealEngine {
 		return false;
 	}
 
+	static GLenum RLTextureFormatToGL(FrameBufferTextureFormat format)
+	{
+		switch (format)
+		{
+		case FrameBufferTextureFormat::RGBA8: return GL_RGBA8;
+		case FrameBufferTextureFormat::RED_INTEGER: return GL_RED_INTEGER;
+		}
+	}
+
 	static GLenum TextureTarget(bool isMultiSample)
 	{
 		return isMultiSample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
@@ -30,7 +39,7 @@ namespace RealEngine {
 		glBindTexture(TextureTarget(isMultiSample), id);
 	}
 
-	static void AttachColorTexture(uint32_t id, int samples, GLenum format, uint32_t width, uint32_t height, int index)
+	static void AttachColorTexture(uint32_t id, int samples, GLenum internalFormat, GLenum format, uint32_t width, uint32_t height, int index)
 	{
 		bool isMultiSample = samples > 1;
 		if (isMultiSample)
@@ -39,7 +48,7 @@ namespace RealEngine {
 		}
 		else
 		{
-			glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -127,7 +136,10 @@ namespace RealEngine {
 				switch (m_ColorAttachmentSpecs[i].TextureFormat)
 				{
 				case FrameBufferTextureFormat::RGBA8:
-					AttachColorTexture(m_ColorAttachments[i], m_FrameBufferSpecification.m_Samples, GL_RGBA8, m_FrameBufferSpecification.m_Width, m_FrameBufferSpecification.m_Height, i);
+					AttachColorTexture(m_ColorAttachments[i], m_FrameBufferSpecification.m_Samples, GL_RGBA8, GL_RGBA, m_FrameBufferSpecification.m_Width, m_FrameBufferSpecification.m_Height, i);
+					break;
+				case FrameBufferTextureFormat::RED_INTEGER:
+					AttachColorTexture(m_ColorAttachments[i], m_FrameBufferSpecification.m_Samples, GL_R32I, GL_RED_INTEGER, m_FrameBufferSpecification.m_Width, m_FrameBufferSpecification.m_Height, i);
 					break;
 				}
 			}
@@ -169,13 +181,30 @@ namespace RealEngine {
 		Create();
 	}
 
+	int FrameBuffer::ReadPixels(uint32_t attachmentIndex, int x, int y)
+	{
+		glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex);
+		int pixelData;
+		glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixelData);;
+
+		return pixelData;
+	}
+
+	void FrameBuffer::ClearAttachment(uint32_t attachmentIndex, int value)
+	{
+		auto& spec = m_ColorAttachmentSpecs[attachmentIndex];
+		spec.TextureFormat;
+
+		glClearTexImage(m_ColorAttachments[attachmentIndex], 0, RLTextureFormatToGL(spec.TextureFormat), GL_INT, &value);
+	}
+
 	void FrameBuffer::Bind()
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 		glViewport(0, 0, m_FrameBufferSpecification.m_Width, m_FrameBufferSpecification.m_Height);
 	}
 
-	void FrameBuffer::Unbind()
+	void FrameBuffer::UnBind()
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}

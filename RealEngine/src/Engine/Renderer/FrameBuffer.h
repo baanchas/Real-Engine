@@ -8,6 +8,8 @@ namespace RealEngine {
 
 		RGBA8,
 
+		RED_INTEGER,
+
 		DEPTH24STENCIL8,
 
 		Depth = DEPTH24STENCIL8
@@ -49,13 +51,18 @@ namespace RealEngine {
 
 		void Create();
 		void Resize(const glm::vec2& size);
+		int ReadPixels(uint32_t attachmentIndex, int x, int y);
+
+		void ClearAttachment(uint32_t attachmentIndex, int value);
 
 		void Bind();
-		void Unbind();
+		void UnBind();
 
 		inline unsigned int GetColorAttachmentID(uint32_t index = 0) const { ENGINE_ASSERT(index < m_ColorAttachments.size(), "Greater than {0}", m_ColorAttachments.size()); return m_ColorAttachments[index]; }
 
 		inline FrameBufferSpecification GetSpecification() const { return m_FrameBufferSpecification; }
+
+
 	private:
 		FrameBufferSpecification m_FrameBufferSpecification;
 

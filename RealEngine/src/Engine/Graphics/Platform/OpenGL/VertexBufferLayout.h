@@ -3,6 +3,14 @@
 
 namespace RealEngine {
 
+	enum class VertexBufferElementType
+	{
+		FLOAT = 0,
+		INT,
+		UNSIGNED_INT,
+		UNSIGNED_BYTE
+	};
+
 	struct VertexBufferElement
 	{
 		unsigned int type;
@@ -14,6 +22,7 @@ namespace RealEngine {
 			switch (type)
 			{
 			case GL_FLOAT:			return 4;
+			case GL_INT:			return 4;
 			case GL_UNSIGNED_INT:	return 4;
 			case GL_UNSIGNED_BYTE:	return 1;			
 			}
@@ -45,6 +54,13 @@ namespace RealEngine {
 		{
 			m_Elements.push_back({ GL_UNSIGNED_INT, count, GL_FALSE });
 			m_Stride += VertexBufferElement::GetSize(GL_UNSIGNED_INT) * count;
+		}
+
+		template<>
+		void Push<int>(unsigned int count)
+		{
+			m_Elements.push_back({ GL_INT, count, GL_FALSE });
+			m_Stride += VertexBufferElement::GetSize(GL_INT) * count;
 		}
 
 		template<>

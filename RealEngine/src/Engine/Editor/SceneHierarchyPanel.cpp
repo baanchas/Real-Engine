@@ -13,7 +13,7 @@ namespace RealEngine {
 	void SceneHierarchyPanel::SetContext(Scene* scene)
 	{
 		m_Context = scene;
-		m_SelectedItem = { entt::null, m_Context };
+		m_SelectedEntity = { entt::null, m_Context };
 	}
 
 	void SceneHierarchyPanel::OnImGuiRender()
@@ -26,19 +26,19 @@ namespace RealEngine {
 
 			auto& tc = entity.GetComponent<TagComponent>().Tag;
 
-			ImGuiTreeNodeFlags flags = ((m_SelectedItem == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+			ImGuiTreeNodeFlags flags = ((m_SelectedEntity == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
 			bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tc.c_str());
 			if (ImGui::IsItemClicked())
 			{
-				m_SelectedItem = entity;
+				m_SelectedEntity = entity;
 			}
 
 			if (ImGui::BeginPopupContextItem(0, 1))
 			{
 				if (ImGui::MenuItem("Delete Entity"))
 				{
-					if (m_SelectedItem == entity)
-						m_SelectedItem = { entt::null, m_Context };
+					if (m_SelectedEntity == entity)
+						m_SelectedEntity = { entt::null, m_Context };
 					m_Context->m_Registry.destroy(entity);
 				}
 				ImGui::EndPopup();
@@ -62,16 +62,16 @@ namespace RealEngine {
 		
 		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
 		{
-			m_SelectedItem = {entt::null, m_Context };
+			m_SelectedEntity = {entt::null, m_Context };
 		}
 
 		ImGui::End();
 
 		ImGui::Begin("Properties Panel");
 
-		if (m_SelectedItem)
+		if (m_SelectedEntity)
 		{
-			DrawComponents(m_SelectedItem);
+			DrawComponents(m_SelectedEntity);
 
 			if (ImGui::Button("Add Component"))
 			{
@@ -82,13 +82,13 @@ namespace RealEngine {
 			{
 				if (ImGui::MenuItem("Camera"))
 				{
-					m_SelectedItem.AddComponent<CameraComponent>();
+					m_SelectedEntity.AddComponent<CameraComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 	
 				if (ImGui::MenuItem("Sprite Renderer Component"))
 				{
-					m_SelectedItem.AddComponent<SpriteRendererComponent>();
+					m_SelectedEntity.AddComponent<SpriteRendererComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 

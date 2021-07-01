@@ -90,7 +90,7 @@ namespace RealEngine {
 		{
 			for (Layer* layer : m_LayerStack)
 			{
-				layer->OnImGuiRender();
+				//layer->OnImGuiRender();
 				layer->OnRender();
 			}
 		}

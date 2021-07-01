@@ -18,7 +18,7 @@ namespace RealEngine {
         Renderer::Init();
         
         FrameBufferSpecification FrameBufferSpec;
-        FrameBufferSpec.Attachments = { FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::Depth };
+        FrameBufferSpec.Attachments = { FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::RED_INTEGER, FrameBufferTextureFormat::Depth };
         FrameBufferSpec.m_Width = Application::Get().GetWindow().GetWidth();
         FrameBufferSpec.m_Height = Application::Get().GetWindow().GetHeight();
         m_FrameBuffer = new FrameBuffer(FrameBufferSpec);
@@ -43,7 +43,6 @@ namespace RealEngine {
 
         m_ActiveScene->OnViewportResize(m_ViewPortSize.x, m_ViewPortSize.y);
 
-
         if (m_SceneWindowIsFocused)
         {
             m_EditorCamera.OnUpdate(ts);
@@ -58,6 +57,21 @@ namespace RealEngine {
         if (m_SceneWindowIsFocused)
         {
             m_EditorCamera.OnEvent(event);
+        }
+
+        if (event.Type == EventType::MouseButtonPressed)
+        {
+            if (event.MouseButtonPressed.Button == KeyCodes::Mouse::MOUSE_LEFT)
+            {
+                if (m_HoveredEntity && !ImGuizmo::IsOver() && !Input::IsKeyPressed(KeyCodes::LEFT_ALT))
+                {
+                    m_SceneHierarchyPanel.SetSelectedEntity(m_HoveredEntity);
+                }
+                else
+                {
+                    m_SceneHierarchyPanel.SetSelectedEntity(m_HoveredEntity);
+                }
+            }
         }
 
         if (event.Type == EventType::KeyPressed)
@@ -180,6 +194,8 @@ namespace RealEngine {
         ImGui::Begin("Scene");
         ImGui::PopStyleVar();
 
+        auto viewPortOffset = ImGui::GetCursorPos();
+
         ImVec2 AvailableContentSize = ImGui::GetContentRegionAvail();
         if (m_ViewPortSize != *((glm::vec2*)&AvailableContentSize))
         {
@@ -189,6 +205,35 @@ namespace RealEngine {
         m_EditorCamera.SetViewportSize(m_ViewPortSize.x, m_ViewPortSize.y);
         uint32_t TextureID = m_FrameBuffer->GetColorAttachmentID(0);
         ImGui::Image((void*)TextureID, ImVec2{ m_ViewPortSize.x, m_ViewPortSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+        auto windowSize = ImGui::GetWindowContentRegionMax();
+        ImVec2 minBound = ImGui::GetWindowPos();
+        minBound.x += viewPortOffset.x;
+        minBound.y += viewPortOffset.y;
+
+        ImVec2 maxBound = { minBound.x + windowSize.x, minBound.y + windowSize.y };
+        m_ViewPortBounds[0] = { minBound.x, minBound.y };
+        m_ViewPortBounds[1] = { maxBound.x, maxBound.y };
+
+        auto [mouseX, mouseY] = ImGui::GetMousePos();
+
+        mouseX -= m_ViewPortBounds[0].x;
+        mouseY -= m_ViewPortBounds[0].y;
+        glm::vec2 viewportSize = m_ViewPortBounds[1] - m_ViewPortBounds[0];
+        mouseY = viewportSize.y - mouseY - 22;
+        int mX = (int)mouseX;
+        int mY = (int)mouseY;
+
+        if (mX >= 0 && mY >= 0 && mX < (int)viewportSize.x && mY < (int)viewportSize.y)
+        {
+            int pixelData = m_FrameBuffer->ReadPixels(1, mX, mY);
+            m_HoveredEntity = Entity{ (entt::entity)pixelData, m_ActiveScene };
+            ENGINE_INFO(pixelData);
+        }
+        else 
+        {
+            m_HoveredEntity = Entity{ entt::null, m_ActiveScene };
+        }
 
         if (ImGui::IsWindowHovered())
         {
@@ -200,7 +245,7 @@ namespace RealEngine {
         }
 
         Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
-        if (selectedEntity && m_GyzmoType != -1)
+        if (selectedEntity && m_GyzmoType != -1 && !Input::IsKeyPressed(KeyCodes::LEFT_ALT))
         {
             ImGuizmo::SetOrthographic(false);
             ImGuizmo::SetDrawlist();
@@ -236,6 +281,7 @@ namespace RealEngine {
             }
         }
 
+
         ImGui::End();
 
         m_SceneHierarchyPanel.OnImGuiRender();
@@ -247,9 +293,13 @@ namespace RealEngine {
         
         Renderer::Clear();
 
+        m_FrameBuffer->ClearAttachment(1, -1);
+
         m_ActiveScene->OnRenderEditor(m_EditorCamera);
 
-        m_FrameBuffer->Unbind();
+        OnImGuiRender();
+
+        m_FrameBuffer->UnBind();
 
 	}
 

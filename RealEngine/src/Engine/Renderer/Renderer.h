@@ -24,6 +24,7 @@ namespace RealEngine {
 		VertexBuffer VertexBuffer;
 
 		uint32_t QuadIndexCount = 0;
+		int m_EntityID = 0;
 
 		Vertex* QuadVertexBufferBase = nullptr;
 		Vertex* QuadVertexBufferPtr = nullptr;
@@ -56,6 +57,7 @@ namespace RealEngine {
 		static void DrawQuad(glm::vec3& position, glm::vec2& size, float rotation, glm::vec4& color, float tf = 1.0f);
 
 		static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
+		static void DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID);
 		static void DrawQuad(const glm::mat4& transform, Texture2D* texture, float tilingFactor);
 
 		static void DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, Texture2D& texture, float tilingFactor);
