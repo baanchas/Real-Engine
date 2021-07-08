@@ -9,6 +9,11 @@ namespace RealEngine {
     {
         
     }
+  
+    IndexBuffer::~IndexBuffer()
+    {
+        glDeleteBuffers(1, &m_RendererID);
+    }
 
     void IndexBuffer::Create(const unsigned int* data, unsigned int count)
     {
@@ -18,12 +23,13 @@ namespace RealEngine {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 
 
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), nullptr, GL_DYNAMIC_DRAW);
     }
 
-    IndexBuffer::~IndexBuffer()
+    void IndexBuffer::SetData(const void* data, unsigned int count)
     {
-        glDeleteBuffers(1, &m_RendererID);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, count * sizeof(unsigned int), data);
     }
 
     void IndexBuffer::Bind() const

@@ -12,6 +12,7 @@
 #include <stack>
 #include <array>
 #include <fstream>
+#include <sstream>
 
 //----------- OPENGL --------------
 

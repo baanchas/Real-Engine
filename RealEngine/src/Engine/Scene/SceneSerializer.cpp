@@ -18,8 +18,12 @@ namespace RealEngine {
 	void SceneSerializer::Serialize(std::string& filePath)
 	{
 		std::ofstream out(filePath);
-
 		if (out.is_open())
+		{
+			out << "Scene: " << m_Scene->GetTitle() << std::endl;
+		}
+
+		if (out.is_open(), std::ios::app)
 		{
 			m_Scene->m_Registry.each([&](auto entityId)
 			{
@@ -32,6 +36,8 @@ namespace RealEngine {
 		}
 
 		out.close();
+
+		ENGINE_INFO("Scene saved at {0}", filePath);
 	}
 
 	void SceneSerializer::Deserialize(std::string& filePath)
@@ -47,6 +53,14 @@ namespace RealEngine {
 		{
 			while (getline(in, line))
 			{
+
+				std::string Scene = "Scene: ";
+				size_t foundScene = line.find(Scene);
+				if (foundScene != std::string::npos)
+				{
+					m_Scene->SetTitle(line.substr(foundScene + Scene.length(), line.length()));
+				}
+
 				size_t foundEntity = line.find("Entity:");
 				if (foundEntity != std::string::npos)
 				{
@@ -282,6 +296,8 @@ namespace RealEngine {
 		}
 
 		in.close();
+
+		ENGINE_INFO("Scene {0} is loaded!", filePath);
 	}
 
 	void SceneSerializer::SerializeEntity(Entity& entity, std::string& filePath)
@@ -333,6 +349,7 @@ namespace RealEngine {
 			}
 		}
 
+		out.close();
 		ENGINE_INFO("Serialized");
 
 	}

@@ -11,6 +11,7 @@ namespace RealEngine {
     {
         m_SceneData->ViewProjectionMatrix = camera.GetProjection() * glm::inverse(transform);
 
+        s_Data.IndicesOffset = 0;
         s_Data.QuadIndexCount = 0;  
         s_Data.m_EntityID = 0;
 
@@ -21,6 +22,8 @@ namespace RealEngine {
     {
         m_SceneData->ViewProjectionMatrix = camera.GetViewProjection();
 
+        s_Data.QuadIndicesPtr = s_Data.QuadIndices;
+        s_Data.IndicesOffset = 0;
         s_Data.QuadIndexCount = 0;
         s_Data.m_EntityID = 0;
 
@@ -31,6 +34,7 @@ namespace RealEngine {
 	{
 		m_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
         
+        s_Data.IndicesOffset = 0;
         s_Data.QuadIndexCount = 0;
         s_Data.m_EntityID = 0;
 
@@ -49,13 +53,13 @@ namespace RealEngine {
         s_Data.Shader.SetUniformMat4f("u_ViewProjection", m_SceneData->ViewProjectionMatrix);
 
         uint32_t dataSize = (uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase;
-
+        ENGINE_INFO(s_Data.IndicesOffset);
+        ENGINE_INFO(s_Data.QuadIndexCount);
+        s_Data.IndexBuffer.SetData((void*)s_Data.QuadIndicesPtr, s_Data.QuadIndexCount);
         s_Data.IndexBuffer.Bind();
         s_Data.VertexBuffer.SetData((void*)s_Data.QuadVertexBufferBase, dataSize);
 
         glDrawElements(GL_TRIANGLES, s_Data.QuadIndexCount, GL_UNSIGNED_INT, nullptr);
-        glBindTexture(GL_TEXTURE_2D, 0);
-
 	}
 
     void Renderer::ShutDown()
@@ -73,120 +77,18 @@ namespace RealEngine {
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_MULTISAMPLE);
 
-        std::string vertexSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec4 a_Color;
-			layout(location = 2) in vec2 a_TexCoord;
-			layout(location = 3) in float a_TexID;
-            layout(location = 4) in float a_TilingFactor;
-            layout(location = 5) in int a_EntityID;
-
-			uniform mat4 u_ViewProjection;
-            
-            out vec4 v_Color;
-            out vec2 v_TexCoord;
-            out float v_TexID;
-            out float v_TilingFactor;
-            out flat int v_EntityID;
-			void main()
-			{
-                v_Color = a_Color;
-                v_TexCoord = a_TexCoord;
-                v_TexID = a_TexID;
-                v_TilingFactor = a_TilingFactor;
-                v_EntityID = a_EntityID;        
-				gl_Position = u_ViewProjection * vec4(a_Position, 1.0f);
-            }
-		)";
-
-        std::string fragmentSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) out vec4 color;
-			layout(location = 1) out int color2;
-            
-            in vec4 v_Color;
-            in vec2 v_TexCoord;
-            in float v_TexID;
-            in float v_TilingFactor;          
-            in flat int v_EntityID;
-
-            uniform sampler2D u_Texture[32];
-			void main()
-			{
-              	vec4 texColor = v_Color;
-	            switch(int(v_TexID))
-	            {
-		            //case  0: texColor *= texture( u_Texture[0], v_TexCoord * v_TilingFactor); break;
-		            case  1: texColor *= texture( u_Texture[1], v_TexCoord * v_TilingFactor); break;
-		            case  2: texColor *= texture( u_Texture[2], v_TexCoord * v_TilingFactor); break;
-		            case  3: texColor *= texture( u_Texture[3], v_TexCoord * v_TilingFactor); break;
-		            case  4: texColor *= texture( u_Texture[4], v_TexCoord * v_TilingFactor); break;
-		            case  5: texColor *= texture( u_Texture[5], v_TexCoord * v_TilingFactor); break;
-		            case  6: texColor *= texture( u_Texture[6], v_TexCoord * v_TilingFactor); break;
-		            case  7: texColor *= texture( u_Texture[7], v_TexCoord * v_TilingFactor); break;
-		            case  8: texColor *= texture( u_Texture[8], v_TexCoord * v_TilingFactor); break;
-		            case  9: texColor *= texture( u_Texture[9], v_TexCoord * v_TilingFactor); break;
-		            case 10: texColor *= texture(u_Texture[10], v_TexCoord * v_TilingFactor); break;
-		            case 11: texColor *= texture(u_Texture[11], v_TexCoord * v_TilingFactor); break;
-		            case 12: texColor *= texture(u_Texture[12], v_TexCoord * v_TilingFactor); break;
-		            case 13: texColor *= texture(u_Texture[13], v_TexCoord * v_TilingFactor); break;
-		            case 14: texColor *= texture(u_Texture[14], v_TexCoord * v_TilingFactor); break;
-		            case 15: texColor *= texture(u_Texture[15], v_TexCoord * v_TilingFactor); break;
-		            case 16: texColor *= texture(u_Texture[16], v_TexCoord * v_TilingFactor); break;
-		            case 17: texColor *= texture(u_Texture[17], v_TexCoord * v_TilingFactor); break;
-		            case 18: texColor *= texture(u_Texture[18], v_TexCoord * v_TilingFactor); break;
-		            case 19: texColor *= texture(u_Texture[19], v_TexCoord * v_TilingFactor); break;
-		            case 20: texColor *= texture(u_Texture[20], v_TexCoord * v_TilingFactor); break;
-		            case 21: texColor *= texture(u_Texture[21], v_TexCoord * v_TilingFactor); break;
-		            case 22: texColor *= texture(u_Texture[22], v_TexCoord * v_TilingFactor); break;
-		            case 23: texColor *= texture(u_Texture[23], v_TexCoord * v_TilingFactor); break;
-		            case 24: texColor *= texture(u_Texture[24], v_TexCoord * v_TilingFactor); break;
-		            case 25: texColor *= texture(u_Texture[25], v_TexCoord * v_TilingFactor); break;
-		            case 26: texColor *= texture(u_Texture[26], v_TexCoord * v_TilingFactor); break;
-		            case 27: texColor *= texture(u_Texture[27], v_TexCoord * v_TilingFactor); break;
-		            case 28: texColor *= texture(u_Texture[28], v_TexCoord * v_TilingFactor); break;
-		            case 29: texColor *= texture(u_Texture[29], v_TexCoord * v_TilingFactor); break;
-		            case 30: texColor *= texture(u_Texture[30], v_TexCoord * v_TilingFactor); break;
-		            case 31: texColor *= texture(u_Texture[31], v_TexCoord * v_TilingFactor); break;
-	            }
-	            color = texColor;
-                color2 = v_EntityID;
-			}
-		)";
-
-
         s_Data.VertexArray.Create();
-        s_Data.Shader.Create(vertexSrc, fragmentSrc);
+        s_Data.Shader.Create("assets/shaders/Vertex.Shader", "assets/shaders/Fragment.Shader");
         s_Data.VertexBuffer.Create(sizeof(Vertex) * s_Data.MaxVertices);
 
         VertexBufferLayout m_Layout;
 
-        uint32_t* quadIndices = new uint32_t[s_Data.MaxIndices];
+        s_Data.QuadIndices = new uint32_t[s_Data.MaxIndices];
 
-        uint32_t offset = 0;
-        for (uint32_t i = 0; i < s_Data.MaxIndices; i += 6)
-        {
-            quadIndices[i + 0] = offset + 0;
-            quadIndices[i + 1] = offset + 1;
-            quadIndices[i + 2] = offset + 2;
-
-            quadIndices[i + 3] = offset + 2;
-            quadIndices[i + 4] = offset + 3;
-            quadIndices[i + 5] = offset + 0;
-
-            offset += 4;
-        }
-
-        s_Data.IndexBuffer.Create(quadIndices, s_Data.MaxIndices);
-        delete[] quadIndices;
-
+        s_Data.IndexBuffer.Create(s_Data.QuadIndices, s_Data.MaxIndices);
 
         s_Data.Shader.Bind();
         s_Data.VertexBuffer.Bind();
-        s_Data.IndexBuffer.Bind();
 
         m_Layout.Push<float>(3);
         m_Layout.Push<float>(4);
@@ -215,45 +117,6 @@ namespace RealEngine {
         s_Data.QuadVertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f};
         s_Data.QuadVertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f};
         s_Data.QuadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f};
-    }
-
-    void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
-    {
-       
-        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[0];
-        s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
-        s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
-        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
-        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
-        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
-        s_Data.QuadVertexBufferPtr++;
-
-        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[1];
-        s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
-        s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f };
-        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
-        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
-        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
-        s_Data.QuadVertexBufferPtr++;
-
-        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[2];
-        s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
-        s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 1.0f };
-        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
-        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
-        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
-        s_Data.QuadVertexBufferPtr++;
-
-        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[3];
-        s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
-        s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
-        s_Data.QuadVertexBufferPtr->TexId = 0.0f;
-        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
-        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
-        s_Data.QuadVertexBufferPtr++;
-
-        s_Data.m_EntityID++;
-        s_Data.QuadIndexCount += 6;
     }
 
     void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID)
@@ -290,6 +153,17 @@ namespace RealEngine {
         s_Data.QuadVertexBufferPtr->entityID = entityID;
         s_Data.QuadVertexBufferPtr++;
 
+        s_Data.QuadIndicesPtr[s_Data.QuadIndexCount + 0] = s_Data.IndicesOffset + 0;
+        s_Data.QuadIndicesPtr[s_Data.QuadIndexCount + 1] = s_Data.IndicesOffset + 1;
+        s_Data.QuadIndicesPtr[s_Data.QuadIndexCount + 2] = s_Data.IndicesOffset + 2;
+
+        s_Data.QuadIndicesPtr[s_Data.QuadIndexCount + 3] = s_Data.IndicesOffset + 3;
+        s_Data.QuadIndicesPtr[s_Data.QuadIndexCount + 4] = s_Data.IndicesOffset + 2;
+        s_Data.QuadIndicesPtr[s_Data.QuadIndexCount + 5] = s_Data.IndicesOffset + 0;
+
+
+        //s_Data.IndicesIndex += 6;
+        s_Data.IndicesOffset += 4;
         s_Data.QuadIndexCount += 6;
     }
 
@@ -350,53 +224,26 @@ namespace RealEngine {
         s_Data.QuadIndexCount += 6;
     }
 
-    void Renderer::DrawQuad(glm::vec3& position, glm::vec2& size, float rotation, glm::vec4& color, float tf)
+    void Renderer::DrawQuad(const glm::vec3& position, const glm::vec2& size, const float rotation, const  glm::vec4& color, const int entityID, float tf)
     {
-        DrawQuad(position.x, position.y, position.z, size.x, size.y, rotation, color.x, color.y, color.z, color.w);
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, position.z)) *
+            glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f }) *
+            glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+
+        DrawQuad(transform, color, entityID);
     }
 
-    void Renderer::DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, float rotation, float r, float g, float b, float t, float tf)
+    void Renderer::DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, float rotation, float r, float g, float b, float t, int entityID, float tf)
     {
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, posZ)) *
             glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f }) *
             glm::scale(glm::mat4(1.0f), { sizeX, sizeY, 1.0f });
 
+        glm::vec4 color = { r, g, b, t };
 
-        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[0];
-        s_Data.QuadVertexBufferPtr->Color = { r, g, b, t };
-        s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
-        s_Data.QuadVertexBufferPtr->TexId = 32.0f;
-        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
-        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
-        s_Data.QuadVertexBufferPtr++;
+        DrawQuad(transform, color, entityID);
 
-        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[1];
-        s_Data.QuadVertexBufferPtr->Color = { r, g, b, t };
-        s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f };
-        s_Data.QuadVertexBufferPtr->TexId = 32.0f;
-        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
-        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
-        s_Data.QuadVertexBufferPtr++;
-
-        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[2];
-        s_Data.QuadVertexBufferPtr->Color = { r, g, b, t };
-        s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 1.0f };
-        s_Data.QuadVertexBufferPtr->TexId = 32.0f;
-        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
-        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
-        s_Data.QuadVertexBufferPtr++;
-
-        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[3];
-        s_Data.QuadVertexBufferPtr->Color = { r, g, b, t };
-        s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
-        s_Data.QuadVertexBufferPtr->TexId = 32.0f;
-        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
-        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
-
-        s_Data.QuadVertexBufferPtr++;
-
-        s_Data.m_EntityID++;
-        s_Data.QuadIndexCount += 6;
+      
     }
 
     void Renderer::DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, Texture2D& texture, float tilingFactor)
@@ -485,10 +332,71 @@ namespace RealEngine {
 
     }
 
+    void Renderer::DrawTriangle(const glm::vec3& position, const glm::vec2& size, const float rotation, const glm::vec4& color, float tf)
+    {
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, position.z)) *
+            glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f }) *
+            glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+
+
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[0];
+        s_Data.QuadVertexBufferPtr->Color = { color.r, color.g, color.b, color.t };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
+        s_Data.QuadVertexBufferPtr->TexId = 32.0f;
+        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
+        s_Data.QuadVertexBufferPtr++;
+
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[1];
+        s_Data.QuadVertexBufferPtr->Color = { color.r, color.g, color.b, color.t };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f };
+        s_Data.QuadVertexBufferPtr->TexId = 32.0f;
+        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
+        s_Data.QuadVertexBufferPtr++;
+
+        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[2];
+        s_Data.QuadVertexBufferPtr->Color = { color.r, color.g, color.b, color.t };
+        s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 1.0f };
+        s_Data.QuadVertexBufferPtr->TexId = 32.0f;
+        s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
+        s_Data.QuadVertexBufferPtr++;
+
+
+        s_Data.QuadIndicesPtr[s_Data.QuadIndexCount + 0] = s_Data.IndicesOffset + 0;
+        s_Data.QuadIndicesPtr[s_Data.QuadIndexCount + 1] = s_Data.IndicesOffset + 1;
+        s_Data.QuadIndicesPtr[s_Data.QuadIndexCount + 2] = s_Data.IndicesOffset + 2;
+
+        s_Data.IndicesOffset += 3;
+        s_Data.QuadIndexCount += 3;
+    }
+
+
+
+    void Renderer::DrawModel(std::vector<glm::vec3>& vertices, std::vector<uint32_t>& indices)
+    {
+        for (auto& vertex : vertices)
+        {
+            s_Data.QuadVertexBufferPtr->Position = vertex;
+            s_Data.QuadVertexBufferPtr->Color = { 0.5f, 0.5f, 0.5f, 1.0f };
+            s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f};
+            s_Data.QuadVertexBufferPtr->TexId = 32.0f;
+            s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+            s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
+            s_Data.QuadVertexBufferPtr++;
+        }
+        for (auto& index : indices)
+        {
+            s_Data.QuadIndicesPtr[s_Data.QuadIndexCount] = s_Data.IndicesOffset + index - 1;
+            s_Data.QuadIndexCount += 1;
+        }
+   
+    }
+
     void Renderer::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
     {
         glViewport(x, y, width, height);
     }
-
    
 }

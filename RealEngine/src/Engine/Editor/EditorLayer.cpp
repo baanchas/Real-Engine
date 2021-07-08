@@ -4,7 +4,7 @@
 #include "Scene/CameraController.h"
 #include "Uilities/OpenGL/OpenGLFileDialogs.h"
 #include "Math/Math.h"
-
+#include <spdlog/spdlog.h>
 
 #include <ImGuizmo.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -28,7 +28,9 @@ namespace RealEngine {
         SpriteCheckerBoard.LoadFromFile("res/sprites/checkerboard.png");
                 
         m_ActiveScene = new Scene();
+        m_ActiveScene->SetTitle("Example");
         m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+
 	}
 
 	EditorLayer::~EditorLayer()
@@ -57,6 +59,7 @@ namespace RealEngine {
         if (m_SceneWindowIsFocused)
         {
             m_EditorCamera.OnEvent(event);
+
         }
 
         if (event.Type == EventType::MouseButtonPressed)
@@ -64,10 +67,6 @@ namespace RealEngine {
             if (event.MouseButtonPressed.Button == KeyCodes::Mouse::MOUSE_LEFT)
             {
                 if (m_HoveredEntity && !ImGuizmo::IsOver() && !Input::IsKeyPressed(KeyCodes::LEFT_ALT))
-                {
-                    m_SceneHierarchyPanel.SetSelectedEntity(m_HoveredEntity);
-                }
-                else
                 {
                     m_SceneHierarchyPanel.SetSelectedEntity(m_HoveredEntity);
                 }
@@ -228,7 +227,6 @@ namespace RealEngine {
         {
             int pixelData = m_FrameBuffer->ReadPixels(1, mX, mY);
             m_HoveredEntity = Entity{ (entt::entity)pixelData, m_ActiveScene };
-            ENGINE_INFO(pixelData);
         }
         else 
         {
@@ -254,11 +252,11 @@ namespace RealEngine {
             float windowHeight = (float)ImGui::GetWindowHeight();
             ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
 
-            //Runtime Camera
-            //auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
-            //auto& cc = cameraEntity.GetComponent<CameraComponent>();
-            //const glm::mat4& cameraProjection = cc.Camera.GetProjection();
-            //glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
+            /*Runtime Camera
+            auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
+            auto& cc = cameraEntity.GetComponent<CameraComponent>();
+            const glm::mat4& cameraProjection = cc.Camera.GetProjection();
+            glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());*/
 
             auto& tc = selectedEntity.GetComponent<TransformComponent>();
             glm::mat4 transform = tc.GetTransform();
@@ -281,7 +279,6 @@ namespace RealEngine {
             }
         }
 
-
         ImGui::End();
 
         m_SceneHierarchyPanel.OnImGuiRender();
@@ -296,7 +293,8 @@ namespace RealEngine {
         m_FrameBuffer->ClearAttachment(1, -1);
 
         m_ActiveScene->OnRenderEditor(m_EditorCamera);
-
+        //m_ActiveScene->OnRenderRuntime();
+        
         OnImGuiRender();
 
         m_FrameBuffer->UnBind();

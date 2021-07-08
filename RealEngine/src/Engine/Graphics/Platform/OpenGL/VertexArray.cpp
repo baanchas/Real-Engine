@@ -54,17 +54,4 @@ namespace RealEngine {
 		}
 	}
 
-	void VertexArray::AddVertexBuffer(VertexBuffer& vb)
-	{
-		Bind();
-		vb.Bind();
-
-		glEnableVertexArrayAttrib(m_RendererID, 0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex, Position));
-
-		glEnableVertexArrayAttrib(m_RendererID, 1);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex, Color));
-
-		//glCreateBuffers(1, &vb);
-	}
 }

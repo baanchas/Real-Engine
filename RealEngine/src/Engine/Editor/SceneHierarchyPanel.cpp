@@ -37,8 +37,11 @@ namespace RealEngine {
 			{
 				if (ImGui::MenuItem("Delete Entity"))
 				{
+					ENGINE_WARNING("[{0}]::Entity with id {1} has been destroyed!", m_Context->GetTitle(), m_SelectedEntity.Get());
 					if (m_SelectedEntity == entity)
+					{
 						m_SelectedEntity = { entt::null, m_Context };
+					}
 					m_Context->m_Registry.destroy(entity);
 				}
 				ImGui::EndPopup();
@@ -56,15 +59,15 @@ namespace RealEngine {
 			{
 				m_Context->CreateEntity("Empty Entity");
 			}
-
+			
 			ImGui::EndPopup();
 		}
-		
+					
 		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
 		{
 			m_SelectedEntity = {entt::null, m_Context };
 		}
-
+				
 		ImGui::End();
 
 		ImGui::Begin("Properties Panel");

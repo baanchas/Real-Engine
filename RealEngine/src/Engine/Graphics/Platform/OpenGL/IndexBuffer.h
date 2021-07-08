@@ -11,7 +11,7 @@ namespace RealEngine {
 		~IndexBuffer();
 
 		void Create(const unsigned int* data, unsigned int count);
-
+		void SetData(const void* data, unsigned int size);
 		void Bind() const;
 		void UnBind() const;
 

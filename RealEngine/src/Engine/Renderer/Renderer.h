@@ -12,7 +12,7 @@ namespace RealEngine {
 	
 	struct RendererData
 	{
-		const uint32_t MaxQuads = 1000;
+		const uint32_t MaxQuads = 30000;
 		const uint32_t MaxVertices = MaxQuads * 4;
 		const uint32_t MaxIndices = MaxQuads * 6;
 		static const uint32_t MaxTextureSlots = 32;
@@ -23,7 +23,6 @@ namespace RealEngine {
 		IndexBuffer IndexBuffer;
 		VertexBuffer VertexBuffer;
 
-		uint32_t QuadIndexCount = 0;
 		int m_EntityID = 0;
 
 		Vertex* QuadVertexBufferBase = nullptr;
@@ -31,6 +30,15 @@ namespace RealEngine {
 
 		std::array<Texture2D*, MaxTextureSlots> TextureSlots;
 		uint32_t TextureIndex = 1;
+
+
+		uint32_t QuadIndexCount = 0;
+
+		uint32_t* QuadIndices = nullptr;
+		uint32_t* QuadIndicesPtr = nullptr;
+
+		int IndicesOffset = 0;
+		int IndicesIndex = 0;
 
 		glm::vec4 QuadVertexPositions[4];
 	};
@@ -53,15 +61,18 @@ namespace RealEngine {
 		
 		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 
-		static void DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, float rotation, float r, float g, float b, float t, float tf = 1.0f);
-		static void DrawQuad(glm::vec3& position, glm::vec2& size, float rotation, glm::vec4& color, float tf = 1.0f);
-
-		static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
 		static void DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID);
-		static void DrawQuad(const glm::mat4& transform, Texture2D* texture, float tilingFactor);
+		static void DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, float rotation, float r, float g, float b, float t, int entityID, float tf = 1.0f);
+		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const float rotation, const glm::vec4& color, const int entityID, float tf = 1.0f);
 
+
+		static void DrawQuad(const glm::mat4& transform, Texture2D* texture, float tilingFactor);
 		static void DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, Texture2D& texture, float tilingFactor);
 		static void DrawQuad(glm::vec3& position, glm::vec2& size, Texture2D& texture, float tilingFactor);
+
+		static void DrawTriangle(const glm::vec3& position, const glm::vec2& size, const float rotation, const glm::vec4& color, float tf = 1.0f);
+
+		static void DrawModel(std::vector<glm::vec3>& vertices, std::vector<uint32_t>& indices);
 
 	private:
 		glm::mat4 ViewProjectionMatrix = glm::mat4(1.0f);

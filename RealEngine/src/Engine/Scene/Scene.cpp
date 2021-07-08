@@ -3,15 +3,16 @@
 
 namespace RealEngine {
 
-	//class Entity;
-
 	Scene::Scene()
 	{
-		
+		auto [vet, ind] = ObjectLoader::LoadObjectFromOBJ("assets/models/axe.obj");
+		vertices = vet;
+		indices = ind;
 	}
 
 	Scene::~Scene()
 	{
+		delete temp;
 	}
 
 	void Scene::OnUpdate(float ts)
@@ -77,6 +78,7 @@ namespace RealEngine {
 				Renderer::DrawQuad(transform.GetTransform(), sprite, 1.0f);
 			}
 		}
+		Renderer::DrawModel(vertices, indices);
 
 		Renderer::EndScene();
 	}
@@ -118,7 +120,7 @@ namespace RealEngine {
 					auto transform = m_Registry.get<TransformComponent>(entity);
 					auto sprite = m_Registry.get<SpriteRendererComponent>(entity);
 
-					Renderer::DrawQuad(transform.GetTransform(), sprite);
+					Renderer::DrawQuad(transform.GetTransform(), sprite, int(entity));
 				}
 			}
 
@@ -173,19 +175,19 @@ namespace RealEngine {
 	Entity Scene::CreateEntity()
 	{
 		Entity entity = { m_Registry.create(), this };
+		ENGINE_INFO("[{0}]::New Entity has been created with id {0}", m_Title, entity.Get());
 		entity.AddComponent<TagComponent>();
 		entity.AddComponent<TransformComponent>();
-
 		return entity;
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
 	{
 		Entity entity = { m_Registry.create(), this };
+		ENGINE_INFO("[{0}]::New Entity has been created with id {0}", m_Title, entity.Get());
 		auto& tc = entity.AddComponent<TagComponent>();
 		tc.Tag = name;
 		entity.AddComponent<TransformComponent>();
-
 		return entity;
 	}
 
@@ -198,24 +200,28 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentAdded<TagComponent>(Entity entity, TagComponent& component)
 	{
+		ENGINE_INFO("[{0}]::Tag Component added to entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 
 	template<>
 	bool Scene::OnComponentAdded<TransformComponent>(Entity entity, TransformComponent& component)
 	{
+		ENGINE_INFO("[{0}]::Transform Component added to entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 
 	template<>
 	bool Scene::OnComponentAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component)
 	{
+		ENGINE_INFO("[{0}]::Sprite Component added to entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 
 	template<>
 	bool Scene::OnComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& component)
 	{
+		ENGINE_INFO("[{0}]::Native Script Component added to entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 
@@ -223,6 +229,49 @@ namespace RealEngine {
 	bool Scene::OnComponentAdded<CameraComponent>(Entity entity, CameraComponent& component)
 	{
 		component.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
+		ENGINE_INFO("[{0}]::Camera Component added to entity with id {1}", m_Title, entity.Get());
+		return true;
+	}
+
+
+	template<typename T>
+	bool Scene::OnComponentDeleted(Entity entity, T& component)
+	{
+		static_assert(false);
+	}
+
+	template<>
+	bool Scene::OnComponentDeleted<TagComponent>(Entity entity, TagComponent& component)
+	{
+		ENGINE_INFO("[{0}]::Tag Component has been deleted from entity with id {1}", m_Title, entity.Get());
+		return true;
+	}
+
+	template<>
+	bool Scene::OnComponentDeleted<TransformComponent>(Entity entity, TransformComponent& component)
+	{
+		ENGINE_INFO("[{0}]::Transform Component has been deleted from entity with id {1}", m_Title, entity.Get());
+		return true;
+	}
+
+	template<>
+	bool Scene::OnComponentDeleted<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component)
+	{
+		ENGINE_INFO("[{0}]::Sprite Component has been deleted from entity with id {1}", m_Title, entity.Get());
+		return true;
+	}
+
+	template<>
+	bool Scene::OnComponentDeleted<NativeScriptComponent>(Entity entity, NativeScriptComponent& component)
+	{
+		ENGINE_INFO("[{0}]::Native Script Component has been deleted from entity with id {1}", m_Title, entity.Get());
+		return true;
+	}
+
+	template<>
+	bool Scene::OnComponentDeleted<CameraComponent>(Entity entity, CameraComponent& component)
+	{
+		ENGINE_INFO("[{0}]::Camera Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 }

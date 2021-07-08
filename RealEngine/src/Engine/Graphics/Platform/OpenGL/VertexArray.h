@@ -17,7 +17,6 @@ namespace RealEngine {
 		void UnBind() const;
 
 		void Addbuffer(VertexBuffer& vb, const VertexBufferLayout& layout);
-		void AddVertexBuffer(VertexBuffer& vb);
 	private:
 		unsigned int m_RendererID;
 	};

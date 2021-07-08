@@ -39,7 +39,11 @@ namespace RealEngine {
 		void RemoveComponent()
 		{
 			if (!HasComponent<T>())
+			{
 				ENGINE_ERROR("Entity does not have such component!");
+			}
+			T& component = m_Scene->m_Registry.get<T>(m_EntityId);
+			m_Scene->OnComponentDeleted<T>(*this, component);
 			m_Scene->m_Registry.remove<T>(m_EntityId);
 		}
 

@@ -10,6 +10,7 @@ namespace RealEngine {
 		Shader(const std::string& vertexSrc, const std::string& fragmentSrc);
 		~Shader();
 
+
 		void Create(const std::string& vertexSrc, const std::string& fragmentSrc);
 
 		void Bind() const;
@@ -27,6 +28,9 @@ namespace RealEngine {
 	private:
 		uint32_t m_RendererID;
 		int m_UniformLocation;
+
+		std::string m_VertexShader;
+		std::string m_FragmentShader;
 	};
 
 }

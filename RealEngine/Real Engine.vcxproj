@@ -97,6 +97,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Engine\Editor\SceneHierarchyPanel.cpp" />
+    <ClCompile Include="src\Engine\Models\ObjectLoader.cpp" />
     <ClCompile Include="src\Engine\Renderer\EditorCamera.cpp" />
     <ClCompile Include="src\Engine\Renderer\SceneCamera.cpp" />
     <ClCompile Include="src\Engine\Scene\Entity.cpp" />
@@ -138,6 +139,7 @@
     <ClInclude Include="libs\ImGuizmo\ImGuizmo.h" />
     <ClInclude Include="src\Engine\Editor\SceneHierarchyPanel.h" />
     <ClInclude Include="src\Engine\Math\Math.h" />
+    <ClInclude Include="src\Engine\Models\ObjectLoader.h" />
     <ClInclude Include="src\Engine\Renderer\EditorCamera.h" />
     <ClInclude Include="src\Engine\Scene\CameraController.h" />
     <ClInclude Include="libs\entt\include\entt.hpp" />
@@ -171,6 +173,10 @@
     <ClInclude Include="src\repch.h" />
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\VertexArray.h" />
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\VertexBuffer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\Fragment.shader" />
+    <None Include="assets\shaders\Vertex.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

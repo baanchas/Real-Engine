@@ -9,7 +9,7 @@ namespace RealEngine {
 	public:
 		static void InitLog()
 		{
-			spdlog::set_pattern("%^[%T] %v%$");
+			spdlog::set_pattern("[%T]%^ %v%$");
 		}
 	private:
 	};
@@ -18,6 +18,7 @@ namespace RealEngine {
 
 
 #define ENGINE_INFO(...)	spdlog::info(__VA_ARGS__);
+#define ENGINE_TRACE(...)	spdlog::trace(__VA_ARGS__);
 #define ENGINE_WARNING(...)	spdlog::warn(__VA_ARGS__);
 #define ENGINE_ERROR(...)	spdlog::error(__VA_ARGS__);
 
