@@ -50,6 +50,12 @@ namespace RealEngine {
 
 		Entity m_HoveredEntity;
 
+		Entity model;
+		Entity model2;
+
+		std::vector<Vertex> verticesAxe;
+		std::vector<glm::uint32_t> indicesAxe;
+
 		glm::vec2 m_ViewPortSize;
 		glm::vec2 m_ViewPortBounds[2];
 

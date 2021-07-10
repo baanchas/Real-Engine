@@ -5,9 +5,13 @@ namespace RealEngine {
 
 	Scene::Scene()
 	{
-		auto [vet, ind] = ObjectLoader::LoadObjectFromOBJ("assets/models/axe.obj");
-		vertices = vet;
-		indices = ind;
+		/*auto [vet, ind] = ObjectLoader::LoadObjectFromOBJ("assets/models/axe");
+		verticesAxe = vet;
+		indicesAxe = ind;
+
+		auto [vetCone, indCone] = ObjectLoader::LoadObjectFromOBJ("assets/models/cone");
+		verticesCone = vetCone;
+		indicesCone = indCone;*/
 	}
 
 	Scene::~Scene()
@@ -55,6 +59,7 @@ namespace RealEngine {
 
 		auto TCView = m_Registry.view<SpriteRendererComponent>();
 		auto TRCView = m_Registry.view<TextureRendererComponent>();
+		auto MCView = m_Registry.view<ModelComponent>();
 
 		for (auto entity : TCView)
 		{
@@ -78,7 +83,19 @@ namespace RealEngine {
 				Renderer::DrawQuad(transform.GetTransform(), sprite, 1.0f);
 			}
 		}
-		Renderer::DrawModel(vertices, indices);
+
+		for (auto entity : MCView)
+		{
+			if (m_Registry.has<ModelComponent>(entity))
+			{
+				auto& model = m_Registry.get<ModelComponent>(entity);
+				auto& transform = m_Registry.get<TransformComponent>(entity);
+
+				Renderer::DrawModel(transform.GetTransform(), model.Vertices, model.Indices, (int)entity);
+			}
+		}
+		//Renderer::DrawModel(verticesCone, indicesCone);
+		//Renderer::DrawModel(verticesAxe, indicesAxe);
 
 		Renderer::EndScene();
 	}
@@ -233,6 +250,12 @@ namespace RealEngine {
 		return true;
 	}
 
+	template<>
+	bool Scene::OnComponentAdded<ModelComponent>(Entity entity, ModelComponent& component)
+	{
+		return true;
+	}
+
 
 	template<typename T>
 	bool Scene::OnComponentDeleted(Entity entity, T& component)
@@ -272,6 +295,13 @@ namespace RealEngine {
 	bool Scene::OnComponentDeleted<CameraComponent>(Entity entity, CameraComponent& component)
 	{
 		ENGINE_INFO("[{0}]::Camera Component has been deleted from entity with id {1}", m_Title, entity.Get());
+		return true;
+	}
+
+	template<>
+	bool Scene::OnComponentDeleted<ModelComponent>(Entity entity, ModelComponent& component)
+	{
+		ENGINE_INFO("[{0}]::ModelComponent has been deleted from entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 }

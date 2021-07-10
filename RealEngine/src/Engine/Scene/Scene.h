@@ -40,8 +40,11 @@ namespace RealEngine {
 	private:
 		std::string m_Title = "Untitled";
 
-		std::vector<glm::vec3> vertices;
-		std::vector<glm::uint32_t> indices;
+		std::vector<Vertex> verticesAxe;
+		std::vector<glm::uint32_t> indicesAxe;
+
+		std::vector<Vertex> verticesCone;
+		std::vector<glm::uint32_t> indicesCone;
 
 		entt::registry m_Registry;
 

@@ -10,6 +10,7 @@ namespace RealEngine {
 		float TexId;
 		float TilingFactor;
 		int entityID;
+		glm::mat4 Matrix;
 	};
 
 	class VertexBuffer

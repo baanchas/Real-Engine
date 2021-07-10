@@ -58,7 +58,8 @@ namespace RealEngine {
 		static void ShutDown();
 
 		static void Clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); };
-		
+		static void SetClearColor(float r, float g, float b, float a) { glClearColor(r, g, b, a); };
+
 		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 
 		static void DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID);
@@ -72,7 +73,7 @@ namespace RealEngine {
 
 		static void DrawTriangle(const glm::vec3& position, const glm::vec2& size, const float rotation, const glm::vec4& color, float tf = 1.0f);
 
-		static void DrawModel(std::vector<glm::vec3>& vertices, std::vector<uint32_t>& indices);
+		static void DrawModel(const glm::mat4& transform, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, int entityID);
 
 	private:
 		glm::mat4 ViewProjectionMatrix = glm::mat4(1.0f);

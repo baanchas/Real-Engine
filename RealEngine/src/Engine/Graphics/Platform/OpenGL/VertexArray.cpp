@@ -41,14 +41,14 @@ namespace RealEngine {
 		{
 			const auto& element = elements[i];
 			glEnableVertexAttribArray(i);
-			if (elements[i].type == GL_INT)
+			if (elements[i].type == VertexBufferElementType::INT)
 			{
-				glVertexAttribIPointer(i, element.count, element.type, layout.GetStride(), (const void*)offset);
+				glVertexAttribIPointer(i, element.count, VertexBufferElementTypeToOpenGLBaseType(element.type), layout.GetStride(), (const void*)offset);
 				offset += element.count * VertexBufferElement::GetSize(element.type);
 			}
 			else
 			{
-				glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.GetStride(), (const void*)offset);
+				glVertexAttribPointer(i, element.count, VertexBufferElementTypeToOpenGLBaseType(element.type), element.normalized, layout.GetStride(), (const void*)offset);
 				offset += element.count * VertexBufferElement::GetSize(element.type);
 			}
 		}

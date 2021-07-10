@@ -31,6 +31,19 @@ namespace RealEngine {
         m_ActiveScene->SetTitle("Example");
         m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
+        model = m_ActiveScene->CreateEntity("3D Object");
+        model.AddComponent<ModelComponent>();
+        auto& mc = model.GetComponent<ModelComponent>();
+        auto [vet, ind] = ObjectLoader::LoadObjectFromOBJ("assets/models/cone");
+        mc.Vertices = vet;
+        mc.Indices = ind;
+
+        model = m_ActiveScene->CreateEntity("3D Object AXE");
+        model.AddComponent<ModelComponent>();
+        auto& mcomp = model.GetComponent<ModelComponent>();
+        auto [vet1, ind1] = ObjectLoader::LoadObjectFromOBJ("assets/models/sphere");
+        mcomp.Vertices = vet1;
+        mcomp.Indices = ind1;
 	}
 
 	EditorLayer::~EditorLayer()
@@ -288,14 +301,21 @@ namespace RealEngine {
     {
         m_FrameBuffer->Bind();
         
+        Renderer::SetClearColor(0.1f, 0.1f, 0.1f, 0.7f);
         Renderer::Clear();
 
         m_FrameBuffer->ClearAttachment(1, -1);
 
+        //Renderer::BeginScene(m_EditorCamera);
+
         m_ActiveScene->OnRenderEditor(m_EditorCamera);
-        //m_ActiveScene->OnRenderRuntime();
         
+        ImGui::ShowDemoWindow();
+
+        //Renderer::EndScene();
+
         OnImGuiRender();
+
 
         m_FrameBuffer->UnBind();
 

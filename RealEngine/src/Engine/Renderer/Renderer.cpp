@@ -53,8 +53,8 @@ namespace RealEngine {
         s_Data.Shader.SetUniformMat4f("u_ViewProjection", m_SceneData->ViewProjectionMatrix);
 
         uint32_t dataSize = (uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase;
-        ENGINE_INFO(s_Data.IndicesOffset);
-        ENGINE_INFO(s_Data.QuadIndexCount);
+      
+        
         s_Data.IndexBuffer.SetData((void*)s_Data.QuadIndicesPtr, s_Data.QuadIndexCount);
         s_Data.IndexBuffer.Bind();
         s_Data.VertexBuffer.SetData((void*)s_Data.QuadVertexBufferBase, dataSize);
@@ -70,12 +70,12 @@ namespace RealEngine {
     void Renderer::Init()
     {
         
-        glEnable(GL_LINE_SMOOTH);
+        //glEnable(GL_LINE_SMOOTH);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         glEnable(GL_DEPTH_TEST);
-        glEnable(GL_MULTISAMPLE);
+       //glEnable(GL_MULTISAMPLE);
 
         s_Data.VertexArray.Create();
         s_Data.Shader.Create("assets/shaders/Vertex.Shader", "assets/shaders/Fragment.Shader");
@@ -96,6 +96,10 @@ namespace RealEngine {
         m_Layout.Push<float>(1);
         m_Layout.Push<float>(1);
         m_Layout.Push<int>(1);
+        m_Layout.Push<float>(4);
+        m_Layout.Push<float>(4);
+        m_Layout.Push<float>(4);
+        m_Layout.Push<float>(4);
         s_Data.VertexArray.Addbuffer(s_Data.VertexBuffer, m_Layout);
 
         s_Data.QuadVertexBufferBase = new Vertex[s_Data.MaxVertices];
@@ -121,36 +125,40 @@ namespace RealEngine {
 
     void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID)
     {
-        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[0];
+        s_Data.QuadVertexBufferPtr->Position = s_Data.QuadVertexPositions[0];
         s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
         s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
         s_Data.QuadVertexBufferPtr->entityID = entityID;
+        s_Data.QuadVertexBufferPtr->Matrix = transform;
         s_Data.QuadVertexBufferPtr++;
 
-        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[1];
+        s_Data.QuadVertexBufferPtr->Position = s_Data.QuadVertexPositions[1];
         s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f };
         s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
         s_Data.QuadVertexBufferPtr->entityID = entityID;
+        s_Data.QuadVertexBufferPtr->Matrix = transform;
         s_Data.QuadVertexBufferPtr++;
 
-        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[2];
+        s_Data.QuadVertexBufferPtr->Position = s_Data.QuadVertexPositions[2];
         s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
         s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
         s_Data.QuadVertexBufferPtr->entityID = entityID;
+        s_Data.QuadVertexBufferPtr->Matrix = transform;
         s_Data.QuadVertexBufferPtr++;
 
-        s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[3];
+        s_Data.QuadVertexBufferPtr->Position = s_Data.QuadVertexPositions[3];
         s_Data.QuadVertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
         s_Data.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
         s_Data.QuadVertexBufferPtr->TexId = 0.0f;
         s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
         s_Data.QuadVertexBufferPtr->entityID = entityID;
+        s_Data.QuadVertexBufferPtr->Matrix = transform;
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadIndicesPtr[s_Data.QuadIndexCount + 0] = s_Data.IndicesOffset + 0;
@@ -372,26 +380,27 @@ namespace RealEngine {
         s_Data.QuadIndexCount += 3;
     }
 
-
-
-    void Renderer::DrawModel(std::vector<glm::vec3>& vertices, std::vector<uint32_t>& indices)
+    void Renderer::DrawModel(const glm::mat4& transform, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, int entityID)
     {
-        for (auto& vertex : vertices)
-        {
-            s_Data.QuadVertexBufferPtr->Position = vertex;
-            s_Data.QuadVertexBufferPtr->Color = { 0.5f, 0.5f, 0.5f, 1.0f };
-            s_Data.QuadVertexBufferPtr->TexCoord = { 1.0f, 0.0f};
-            s_Data.QuadVertexBufferPtr->TexId = 32.0f;
-            s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
-            s_Data.QuadVertexBufferPtr->entityID = s_Data.m_EntityID;
-            s_Data.QuadVertexBufferPtr++;
-        }
         for (auto& index : indices)
         {
-            s_Data.QuadIndicesPtr[s_Data.QuadIndexCount] = s_Data.IndicesOffset + index - 1;
+            s_Data.QuadIndicesPtr[s_Data.QuadIndexCount] = s_Data.IndicesOffset + index;
             s_Data.QuadIndexCount += 1;
         }
-   
+        for (auto& vertex : vertices)
+        {
+            s_Data.QuadVertexBufferPtr->Position = vertex.Position;
+            s_Data.QuadVertexBufferPtr->Color = vertex.Color;
+            s_Data.QuadVertexBufferPtr->TexCoord = vertex.TexCoord;
+            s_Data.QuadVertexBufferPtr->TexId = 32.0f;
+            s_Data.QuadVertexBufferPtr->TilingFactor = 1.0f;
+            s_Data.QuadVertexBufferPtr->entityID = entityID;
+            s_Data.QuadVertexBufferPtr->Matrix = transform;
+            s_Data.QuadVertexBufferPtr++;
+            s_Data.IndicesOffset++;
+        }
+
+
     }
 
     void Renderer::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)

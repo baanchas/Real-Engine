@@ -3,6 +3,7 @@
 #include "glm/glm.hpp"
 
 #include "OpenGL/Texture2D.h"
+#include "OpenGL/VertexBuffer.h"
 #include "Renderer/SceneCamera.h"
 #include "Entity.h"
 #include <glm/gtc/matrix_transform.hpp>
@@ -112,5 +113,17 @@ namespace RealEngine{
 			OnUpdateFunction = [](ScriptableEntity* instance, float ts) { ((T*)instance)->OnUpdate(ts); };
 			OnEventFunction = [](ScriptableEntity* instance, Event event) { ((T*)instance)->OnEvent(event); };
 		}
+	};
+
+	struct ModelComponent
+	{
+		std::vector<Vertex> Vertices;
+		std::vector<uint32_t> Indices;
+
+		ModelComponent() = default;
+		ModelComponent(const ModelComponent&) = default;
+		ModelComponent(std::vector<Vertex> vertices, std::vector<uint32_t> indices)
+			: Vertices(vertices), Indices(indices) {}
+
 	};
 }
