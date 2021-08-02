@@ -333,6 +333,25 @@ namespace RealEngine {
 				out << "\t" << "\t" << "Color: " << "[ " << sc.Color.x << ", " << sc.Color.y << ", " << sc.Color.z << ", " << sc.Color.w << " ]" << std::endl;
 			}
 
+			if (entity.HasComponent<ModelComponent>())
+			{
+				auto& mc = entity.GetComponent<ModelComponent>();
+				out << "\t" << "Model Component:" << std::endl;
+				for (auto element : mc.Vertices)
+				{
+					out << "\t" << "Vertex:" << std::endl;
+					out << "\t" << "\t" << "VertexPosition: " << "[ " << element.Position.x << ", " << element.Position.y << ", " << element.Position.z << " ]" << std::endl;
+					out << "\t" << "\t" << "VertexColor: " << "[ " << element.Color.r << ", " << element.Color.g << ", " << element.Color.b << ", " << element.Color.w << " ]" << std::endl;
+					out << "\t" << "\t" << "VertexTextureCoordinate: " << "[ " << element.TexCoord.x << ", " << element.TexCoord.y << " ]" << std::endl;
+					out << "\t" << "\t" << "VertexNormal: " << "[ " << element.Normal.x << ", " << element.Normal.y << ", " << element.Normal.z << " ]" << std::endl;
+					out << "\t" << "\t" << "TexID: " << element.TexId << std::endl;
+					out << "\t" << "\t" << "TilingFactor: " << element.TilingFactor << std::endl;
+					out << "\t" << "\t" << "EntityID: " << element.entityID << std::endl;
+					out << "\t" << "\t" << "TransformMatrix: " << "[ " << element.Matrix[0][0] << " " << element.Matrix[0][1] << " " << element.Matrix[0][2] << " " << element.Matrix[0][3] << " " << element.Matrix[1][0] << " " << element.Matrix[1][1] << " " << element.Matrix[1][2] << " " << element.Matrix[1][3] << " " << element.Matrix[2][0] << " " << element.Matrix[2][1] << " " << element.Matrix[2][2] << " " << element.Matrix[2][3] << " " << element.Matrix[3][0] << " " << element.Matrix[3][1] << " " << element.Matrix[3][2] << " " << element.Matrix[3][3] << " ]" << std::endl;
+
+				}
+			}
+
 			if (entity.HasComponent<CameraComponent>())
 			{
 				auto& cc = entity.GetComponent<CameraComponent>();

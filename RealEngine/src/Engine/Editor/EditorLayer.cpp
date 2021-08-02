@@ -4,6 +4,7 @@
 #include "Scene/CameraController.h"
 #include "Uilities/OpenGL/OpenGLFileDialogs.h"
 #include "Math/Math.h"
+#include "Models/Mesh.h"
 #include <spdlog/spdlog.h>
 
 #include <ImGuizmo.h>
@@ -25,25 +26,43 @@ namespace RealEngine {
 
         m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 
-        SpriteCheckerBoard.LoadFromFile("res/sprites/checkerboard.png");
+        SpriteCheckerBoard.LoadFromFile("res/sprites/Checkerboard.png");
                 
         m_ActiveScene = new Scene();
         m_ActiveScene->SetTitle("Example");
         m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
-        model = m_ActiveScene->CreateEntity("3D Object");
-        model.AddComponent<ModelComponent>();
-        auto& mc = model.GetComponent<ModelComponent>();
-        auto [vet, ind] = ObjectLoader::LoadObjectFromOBJ("assets/models/cone");
-        mc.Vertices = vet;
-        mc.Indices = ind;
+        ModelLoader::LoadObjectFromFBX("assets/models/plane.fbx", mesh);
+        model5 = m_ActiveScene->CreateEntity("3D Object");
+        model5.AddComponent<MeshComponent>();
+        auto& meshcomp = model5.GetComponent<MeshComponent>();
+        meshcomp.Mesh = mesh;
 
-        model = m_ActiveScene->CreateEntity("3D Object AXE");
-        model.AddComponent<ModelComponent>();
-        auto& mcomp = model.GetComponent<ModelComponent>();
-        auto [vet1, ind1] = ObjectLoader::LoadObjectFromOBJ("assets/models/sphere");
-        mcomp.Vertices = vet1;
-        mcomp.Indices = ind1;
+        ModelLoader::LoadObjectFromOBJ("assets/models/plane", mesh2);
+        model = m_ActiveScene->CreateEntity("3D Object");
+        model.AddComponent<MeshComponent>();
+        auto& mc = model.GetComponent<MeshComponent>();
+        mc.Mesh = mesh2;
+
+        model3 = m_ActiveScene->CreateEntity("IMAGE");
+        model3.AddComponent<TextureRendererComponent>();
+        auto& tcomp = model3.GetComponent<TextureRendererComponent>().Texture;
+        tcomp = SpriteCheckerBoard;
+      
+       // model4 = m_ActiveScene->CreateEntity("IMAGE");
+       // model4.AddComponent<SpriteRendererComponent>();
+       // auto& scomp = model4.GetComponent<SpriteRendererComponent>().Color;
+       // scomp = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
+
+       // model2 = m_ActiveScene->CreateEntity("3D Object AXE");
+       // model2.AddComponent<ModelComponent>();
+       // auto& mcomp = model2.GetComponent<ModelComponent>();
+       // auto [vet1, ind1] = ModelLoader::LoadObjectFromOBJ("assets/models/RoundedCube");
+       // mcomp.Vertices = vet1;
+       // mcomp.Indices = ind1;
+
+
+
 	}
 
 	EditorLayer::~EditorLayer()
@@ -301,19 +320,14 @@ namespace RealEngine {
     {
         m_FrameBuffer->Bind();
         
-        Renderer::SetClearColor(0.1f, 0.1f, 0.1f, 0.7f);
         Renderer::Clear();
+
+        //Renderer::BeginScene();
 
         m_FrameBuffer->ClearAttachment(1, -1);
 
-        //Renderer::BeginScene(m_EditorCamera);
-
         m_ActiveScene->OnRenderEditor(m_EditorCamera);
         
-        ImGui::ShowDemoWindow();
-
-        //Renderer::EndScene();
-
         OnImGuiRender();
 
 

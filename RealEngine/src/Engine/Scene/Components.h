@@ -7,6 +7,7 @@
 #include "Renderer/SceneCamera.h"
 #include "Entity.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include "Models/Mesh.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
@@ -68,14 +69,14 @@ namespace RealEngine{
 
 	struct TextureRendererComponent
 	{
-		Texture2D* Texture;
+		Texture2D Texture;
 
 		TextureRendererComponent() = default;
 		TextureRendererComponent(const TextureRendererComponent&) = default;
-		TextureRendererComponent(Texture2D* texture)
+		TextureRendererComponent(Texture2D texture)
 			: Texture(texture) {};
 
-		operator const Texture2D*() { return Texture; }
+		operator const Texture2D() { return Texture; }
 
 	};
 
@@ -124,6 +125,16 @@ namespace RealEngine{
 		ModelComponent(const ModelComponent&) = default;
 		ModelComponent(std::vector<Vertex> vertices, std::vector<uint32_t> indices)
 			: Vertices(vertices), Indices(indices) {}
+
+	};
+
+
+	struct MeshComponent
+	{
+		Mesh Mesh;
+
+		MeshComponent() = default;
+		MeshComponent(const MeshComponent&) = default;
 
 	};
 }

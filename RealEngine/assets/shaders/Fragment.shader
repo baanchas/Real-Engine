@@ -3,19 +3,43 @@
 layout(location = 0) out vec4 color;
 layout(location = 1) out int color2;
 
+uniform vec3 lightPos;
+uniform vec3 viewPos;
+
 in vec4 v_Color;
 in vec2 v_TexCoord;
 in float v_TexID;
 in float v_TilingFactor;
 in flat int v_EntityID;
+in vec3 v_Normal;
+in vec3 FragPos;
 
 uniform sampler2D u_Texture[32];
 void main()
 {
+	float ambientStrength = 0.1f;
+	vec3 ambient = ambientStrength * vec3(1.0f, 1.0f, 1.0f);
+
+	float distance = length(lightPos- FragPos);
+	float attenuation = 1.0 / (1.0f + 0.09f * distance +
+		0.032f * (distance * distance));
+
+	vec3 norm = normalize(v_Normal);
+	vec3 lightDir = normalize(lightPos - FragPos);
+	float diff = max(dot(norm, lightDir), 0.0);
+	vec3 diffuse = diff * vec3(1.0f, 1.0f, 1.0f);
+	
+	float specularStrength = 0.5f;
+	vec3 viewDir = normalize(viewPos - FragPos);
+	vec3 reflectDir = reflect(-lightDir, norm);
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+	vec3 specular = specularStrength * spec * vec3(1.0f, 1.0f, 1.0f);
 	vec4 texColor = v_Color;
+
+
 	switch (int(v_TexID))
 	{
-		//case  0: texColor *= texture( u_Texture[0], v_TexCoord * v_TilingFactor); break;
+	case  0: texColor *= texture(u_Texture[0], v_TexCoord * v_TilingFactor); break;
 	case  1: texColor *= texture(u_Texture[1], v_TexCoord * v_TilingFactor); break;
 	case  2: texColor *= texture(u_Texture[2], v_TexCoord * v_TilingFactor); break;
 	case  3: texColor *= texture(u_Texture[3], v_TexCoord * v_TilingFactor); break;
@@ -48,6 +72,14 @@ void main()
 	case 30: texColor *= texture(u_Texture[30], v_TexCoord * v_TilingFactor); break;
 	case 31: texColor *= texture(u_Texture[31], v_TexCoord * v_TilingFactor); break;
 	}
-	color = texColor;
+
+	//ambient *= attenuation;
+	diffuse *= attenuation;
+	specular *= attenuation;
+
+	vec3 result = (ambient + diffuse + specular) * vec3(texColor[0], texColor[1], texColor[2]);
+	//vec3 result = { ambientStrength * texColor[0], ambientStrength * texColor[1], ambientStrength * texColor[2] };
+	color = vec4(result, 1.0f);
+	//color = texColor;
 	color2 = v_EntityID;
 }

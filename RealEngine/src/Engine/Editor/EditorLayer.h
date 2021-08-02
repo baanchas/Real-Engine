@@ -15,6 +15,7 @@
 #include "Renderer/FrameBuffer.h"
 #include "Renderer/EditorCamera.h"
 #include "Scene/Scene.h"
+//#include "Models/Mesh.h"
 
 namespace RealEngine {
 
@@ -52,6 +53,12 @@ namespace RealEngine {
 
 		Entity model;
 		Entity model2;
+		Entity model4;
+		Entity model3;
+		Entity model5;
+
+		Mesh mesh;
+		Mesh mesh2;
 
 		std::vector<Vertex> verticesAxe;
 		std::vector<glm::uint32_t> indicesAxe;

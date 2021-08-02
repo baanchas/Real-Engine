@@ -160,7 +160,7 @@ namespace RealEngine {
 		if (enabled)
 			glfwSwapInterval(1);
 		else
-			glfwSwapInterval(2);
+			glfwSwapInterval(0);
 
 		m_Properties.VSync = enabled;
 	}

@@ -7,6 +7,7 @@ namespace RealEngine {
 		glm::vec3 Position;
 		glm::vec4 Color;
 		glm::vec2 TexCoord;
+		glm::vec3 Normal;
 		float TexId;
 		float TilingFactor;
 		int entityID;

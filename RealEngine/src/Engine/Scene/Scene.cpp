@@ -5,6 +5,7 @@ namespace RealEngine {
 
 	Scene::Scene()
 	{
+		//mesh.LoadScene("assets/models/plane.fbx");
 		/*auto [vet, ind] = ObjectLoader::LoadObjectFromOBJ("assets/models/axe");
 		verticesAxe = vet;
 		indicesAxe = ind;
@@ -57,17 +58,21 @@ namespace RealEngine {
 	{
 		Renderer::BeginScene(camera);
 
+		Renderer::SetUniform3f("lightPos", glm::vec3{2.0f, 2.0f, 2.0f});
+		Renderer::SetUniform3f("viewPos", glm::vec3{camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z});
+
 		auto TCView = m_Registry.view<SpriteRendererComponent>();
 		auto TRCView = m_Registry.view<TextureRendererComponent>();
 		auto MCView = m_Registry.view<ModelComponent>();
+		auto MeshCView = m_Registry.view<MeshComponent>();
 
 		for (auto entity : TCView)
 		{
 			if (m_Registry.has<SpriteRendererComponent>(entity))
 			{
 
-				auto transform = m_Registry.get<TransformComponent>(entity);
-				auto sprite = m_Registry.get<SpriteRendererComponent>(entity);
+				auto& transform = m_Registry.get<TransformComponent>(entity);
+				auto& sprite = m_Registry.get<SpriteRendererComponent>(entity);
 
 				Renderer::DrawQuad(transform.GetTransform(), sprite, int(entity));
 			}
@@ -77,10 +82,10 @@ namespace RealEngine {
 		{
 			if (m_Registry.has<TextureRendererComponent>(entity))
 			{
-				auto transform = m_Registry.get<TransformComponent>(entity);
-				auto sprite = m_Registry.get<TextureRendererComponent>(entity).Texture;
+				auto& transform = m_Registry.get<TransformComponent>(entity);
+				auto& sprite = m_Registry.get<TextureRendererComponent>(entity).Texture;
 
-				Renderer::DrawQuad(transform.GetTransform(), sprite, 1.0f);
+				Renderer::DrawQuad(transform.GetTransform(), sprite, 1.0f, (int)entity);
 			}
 		}
 
@@ -94,6 +99,21 @@ namespace RealEngine {
 				Renderer::DrawModel(transform.GetTransform(), model.Vertices, model.Indices, (int)entity);
 			}
 		}
+
+		for (auto entity : MeshCView)
+		{
+			if (m_Registry.has<MeshComponent>(entity))
+			{
+				auto& mesh = m_Registry.get<MeshComponent>(entity).Mesh;
+				auto& transform = m_Registry.get<TransformComponent>(entity);
+
+				Renderer::DrawMesh(transform.GetTransform(), mesh, (int)entity);
+			}
+		}
+		glm::mat4 trans(1.0f);
+
+		//Renderer::DrawMesh(trans, mesh, 60);
+		//Renderer::DrawQuad(1.0f, 1.0f, 1.0f, );
 		//Renderer::DrawModel(verticesCone, indicesCone);
 		//Renderer::DrawModel(verticesAxe, indicesAxe);
 
@@ -148,7 +168,7 @@ namespace RealEngine {
 					auto transform = m_Registry.get<TransformComponent>(entity);
 					auto sprite = m_Registry.get<TextureRendererComponent>(entity).Texture;
 
-					Renderer::DrawQuad(transform.GetTransform(), sprite, 1.0f);
+					Renderer::DrawQuad(transform.GetTransform(), sprite, 1.0f, (int)entity);
 				}
 			}
 
@@ -236,6 +256,13 @@ namespace RealEngine {
 	}
 
 	template<>
+	bool Scene::OnComponentAdded<TextureRendererComponent>(Entity entity, TextureRendererComponent& component)
+	{
+		ENGINE_INFO("[{0}]::Texture Component added to entity with id {1}", m_Title, entity.Get());
+		return true;
+	}
+
+	template<>
 	bool Scene::OnComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& component)
 	{
 		ENGINE_INFO("[{0}]::Native Script Component added to entity with id {1}", m_Title, entity.Get());
@@ -252,6 +279,12 @@ namespace RealEngine {
 
 	template<>
 	bool Scene::OnComponentAdded<ModelComponent>(Entity entity, ModelComponent& component)
+	{
+		return true;
+	}
+
+	template<>
+	bool Scene::OnComponentAdded<MeshComponent>(Entity entity, MeshComponent& component)
 	{
 		return true;
 	}

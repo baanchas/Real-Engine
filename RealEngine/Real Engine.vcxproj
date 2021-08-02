@@ -57,7 +57,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)RealEngine\libs\imgui\;$(SolutionDir)RealEngine\libs\entt\include;$(SolutionDir)\RealEngine\src\Engine\Graphics\Platform\;$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\spdlog\include\;$(SolutionDIr)RealEngine\libs\glew\include;$(SolutionDir)RealEngine\libs\GLFW\include\;$(SolutionDir)RealEngine\src\;$(SolutionDir)RealEngine\src\Engine;$(SolutionDir)RealEngine\libs\ImGuizmo</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RealEngine\libs\fbx_sdk\include\;$(SolutionDir)RealEngine\libs\imgui\;$(SolutionDir)RealEngine\libs\entt\include;$(SolutionDir)\RealEngine\src\Engine\Graphics\Platform\;$(SolutionDir)RealEngine\libs\;$(SolutionDir)RealEngine\libs\spdlog\include\;$(SolutionDIr)RealEngine\libs\glew\include;$(SolutionDir)RealEngine\libs\GLFW\include\;$(SolutionDir)RealEngine\src\;$(SolutionDir)RealEngine\src\Engine;$(SolutionDir)RealEngine\libs\ImGuizmo</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>repch.h</PrecompiledHeaderFile>
       <DisableSpecificWarnings>26495;</DisableSpecificWarnings>
@@ -66,8 +66,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)RealEngine\libs\ImGuizmo\;$(SolutionDir)RealEngine\libs\glew\lib\x64\;$(SolutionDIr)RealEngine\libs\GLFW\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)RealEngine\libs\fbx_sdk\lib\x64\debug\;$(SolutionDir)RealEngine\libs\ImGuizmo\;$(SolutionDir)RealEngine\libs\glew\lib\x64\;$(SolutionDIr)RealEngine\libs\GLFW\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -97,6 +97,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Engine\Editor\SceneHierarchyPanel.cpp" />
+    <ClCompile Include="src\Engine\Models\Mesh.cpp" />
     <ClCompile Include="src\Engine\Models\ObjectLoader.cpp" />
     <ClCompile Include="src\Engine\Renderer\EditorCamera.cpp" />
     <ClCompile Include="src\Engine\Renderer\SceneCamera.cpp" />
@@ -139,6 +140,7 @@
     <ClInclude Include="libs\ImGuizmo\ImGuizmo.h" />
     <ClInclude Include="src\Engine\Editor\SceneHierarchyPanel.h" />
     <ClInclude Include="src\Engine\Math\Math.h" />
+    <ClInclude Include="src\Engine\Models\Mesh.h" />
     <ClInclude Include="src\Engine\Models\ObjectLoader.h" />
     <ClInclude Include="src\Engine\Renderer\EditorCamera.h" />
     <ClInclude Include="src\Engine\Scene\CameraController.h" />

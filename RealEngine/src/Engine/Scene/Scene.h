@@ -53,6 +53,8 @@ namespace RealEngine {
 
 		uint32_t* temp;
 
+		Mesh mesh;
+
 		friend class Entity;
 		friend class SceneHierarchyPanel;
 		friend class SceneSerializer;

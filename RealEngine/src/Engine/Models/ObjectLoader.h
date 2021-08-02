@@ -4,12 +4,24 @@
 
 namespace RealEngine {
 
-	class ObjectLoader
+	class ModelLoader
 	{
 	public:
-		static std::pair<std::vector<Vertex>, std::vector<uint32_t>> LoadObjectFromOBJ(const std::string& file_name);
+		// OBJ extension func
+		static void LoadObjectFromOBJ(const std::string& file_name, Mesh& mesh);
+
+		// FBX extension func
+		static void LoadObjectFromFBX(const std::string& path, Mesh& myMesh);
 
 	private:
+		// FBX extension func
+		static bool Initialize(FbxMesh* mesh, Mesh& myMesh);
+		static void LoadNode(FbxNode* node, Mesh& myMesh);
+		static void ProcessControlPoints(const FbxMesh* mesh, std::vector<glm::vec3>& positions);
+		static glm::vec3 ReadNormal(const FbxMesh* mesh, int controlPointIndex, int vertexCounter);
+		static glm::vec2 ReadUV(const FbxMesh* inMesh, int inCtrlPointIndex, int inTextureUVIndex, int inUVLayer);
+
+
 		
 	};
 
