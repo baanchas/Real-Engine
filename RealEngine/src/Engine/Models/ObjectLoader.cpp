@@ -25,7 +25,7 @@ namespace RealEngine {
 		std::string prefix;
 		std::string material;
 		glm::vec3 tempPos;
-		glm::vec3 tempColor = glm::vec3{1.0f, 1.0f, 1.0f};
+		glm::vec3 tempColor = glm::vec3{ 1.0f, 1.0f, 1.0f };
 		glm::vec2 tempTexCoord;
 
 		uint32_t tempFaceVariable = 0;
@@ -172,7 +172,7 @@ namespace RealEngine {
 			mesh.GetVertices()[i].Position = vertexPositions[vertexPositionsIndices[i] - 1];
 			mesh.GetVertices()[i].TexCoord = vertexTexCoords[vertexTexCoordIndicies[i] - 1];
 			mesh.GetVertices()[i].Normal = vertexNormals[vertexNormalsIndices[i] - 1];
-			mesh.GetVertices()[i].Color = vertexColor[i];
+			mesh.GetVertices()[i].Color = vertexColor[vertexPositionsIndices[i] - 1];
 		}
 		ENGINE_INFO("{0} Vertices has been loaded from ""{1}"" file.", vertexPositionsIndices.size(), fileName);
 	}
@@ -297,6 +297,7 @@ namespace RealEngine {
 				vertex.Position = position;
 				vertex.Normal = normal;
 				vertex.TexCoord = uv;
+				vertex.Color = glm::vec4{1.0f, 1.0f, 1.0f, 1.0f};
 
 				myMesh.GetVertices().push_back(vertex);
 			

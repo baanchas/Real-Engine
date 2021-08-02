@@ -32,13 +32,13 @@ namespace RealEngine {
         m_ActiveScene->SetTitle("Example");
         m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
-        ModelLoader::LoadObjectFromFBX("assets/models/plane.fbx", mesh);
+        ModelLoader::LoadObjectFromOBJ("assets/models/sphere", mesh);
         model5 = m_ActiveScene->CreateEntity("3D Object");
         model5.AddComponent<MeshComponent>();
         auto& meshcomp = model5.GetComponent<MeshComponent>();
         meshcomp.Mesh = mesh;
 
-        ModelLoader::LoadObjectFromOBJ("assets/models/plane", mesh2);
+        ModelLoader::LoadObjectFromOBJ("assets/models/roundedcube", mesh2);
         model = m_ActiveScene->CreateEntity("3D Object");
         model.AddComponent<MeshComponent>();
         auto& mc = model.GetComponent<MeshComponent>();
@@ -49,10 +49,10 @@ namespace RealEngine {
         auto& tcomp = model3.GetComponent<TextureRendererComponent>().Texture;
         tcomp = SpriteCheckerBoard;
       
-       // model4 = m_ActiveScene->CreateEntity("IMAGE");
-       // model4.AddComponent<SpriteRendererComponent>();
-       // auto& scomp = model4.GetComponent<SpriteRendererComponent>().Color;
-       // scomp = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
+        model4 = m_ActiveScene->CreateEntity("IMAGE");
+        model4.AddComponent<SpriteRendererComponent>();
+        auto& scomp = model4.GetComponent<SpriteRendererComponent>().Color;
+        scomp = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
 
        // model2 = m_ActiveScene->CreateEntity("3D Object AXE");
        // model2.AddComponent<ModelComponent>();

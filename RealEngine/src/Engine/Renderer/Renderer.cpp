@@ -448,7 +448,7 @@ namespace RealEngine {
         for (auto& vertex : mesh.GetVertices())
         {
             s_Data.VertexBufferPtr->Position = vertex.Position;
-            s_Data.VertexBufferPtr->Color = glm::vec4{1.0f, 1.0f, 1.0f, 1.0f};
+            s_Data.VertexBufferPtr->Color = vertex.Color;
             s_Data.VertexBufferPtr->TexCoord = vertex.TexCoord;
             s_Data.VertexBufferPtr->Normal = vertex.Normal;
             s_Data.VertexBufferPtr->TexId = 32.0f;
