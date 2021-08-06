@@ -5,19 +5,10 @@ namespace RealEngine {
 
 	Scene::Scene()
 	{
-		//mesh.LoadScene("assets/models/plane.fbx");
-		/*auto [vet, ind] = ObjectLoader::LoadObjectFromOBJ("assets/models/axe");
-		verticesAxe = vet;
-		indicesAxe = ind;
-
-		auto [vetCone, indCone] = ObjectLoader::LoadObjectFromOBJ("assets/models/cone");
-		verticesCone = vetCone;
-		indicesCone = indCone;*/
 	}
 
 	Scene::~Scene()
 	{
-		delete temp;
 	}
 
 	void Scene::OnUpdate(float ts)
@@ -58,7 +49,7 @@ namespace RealEngine {
 	{
 		Renderer::BeginScene(camera);
 
-		Renderer::SetUniform3f("lightPos", glm::vec3{2.0f, 2.0f, 2.0f});
+		Renderer::SetUniform3f("lightPos", glm::vec3{0.0f, 10.0f, 10.0f});
 		Renderer::SetUniform3f("viewPos", glm::vec3{camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z});
 
 		auto TCView = m_Registry.view<SpriteRendererComponent>();
@@ -104,7 +95,7 @@ namespace RealEngine {
 		{
 			if (m_Registry.has<MeshComponent>(entity))
 			{
-				auto& mesh = m_Registry.get<MeshComponent>(entity).Mesh;
+				auto& mesh = m_Registry.get<MeshComponent>(entity).ownMesh;
 				auto& transform = m_Registry.get<TransformComponent>(entity);
 
 				Renderer::DrawMesh(transform.GetTransform(), mesh, (int)entity);
@@ -112,7 +103,9 @@ namespace RealEngine {
 		}
 		glm::mat4 trans(1.0f);
 
-		//Renderer::DrawMesh(trans, mesh, 60);
+	
+
+		//Renderer::DrawMesh(trans, mesh, mat, 60);
 		//Renderer::DrawQuad(1.0f, 1.0f, 1.0f, );
 		//Renderer::DrawModel(verticesCone, indicesCone);
 		//Renderer::DrawModel(verticesAxe, indicesAxe);
@@ -237,7 +230,7 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentAdded<TagComponent>(Entity entity, TagComponent& component)
 	{
-		ENGINE_INFO("[{0}]::Tag Component added to entity with id {1}", m_Title, entity.Get());
+		ENGINE_INFO("[Scene::{0}]::Tag Component added to entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 
@@ -335,6 +328,13 @@ namespace RealEngine {
 	bool Scene::OnComponentDeleted<ModelComponent>(Entity entity, ModelComponent& component)
 	{
 		ENGINE_INFO("[{0}]::ModelComponent has been deleted from entity with id {1}", m_Title, entity.Get());
+		return true;
+	}
+
+	template<>
+	bool Scene::OnComponentDeleted<MeshComponent>(Entity entity, MeshComponent& component)
+	{
+		ENGINE_INFO("[{0}]::MeshComponent has been deleted from entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 }

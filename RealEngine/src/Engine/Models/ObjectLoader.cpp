@@ -32,6 +32,12 @@ namespace RealEngine {
 
 		int vertexCounter = 0;
 
+		mesh.VerticesBase = new Vertex[200000];
+		mesh.VerticesPtr = mesh.VerticesBase;
+
+		mesh.IndicesBase = new uint32_t[300000];
+		mesh.IndicesPtr = mesh.IndicesBase;
+
 		if (!in.is_open())
 		{
 			ENGINE_ERROR("Could not open file {0}", fileName);
@@ -152,14 +158,24 @@ namespace RealEngine {
 					}
 				}
 
-				int i = 1;
+				int tempIndex = 1;
 
-				while(i < tempIndices.size() - 1)
+				while(tempIndex < tempIndices.size() - 1)
 				{
-					mesh.GetIndices().push_back(vertexCounter - tempIndices.size());
-					mesh.GetIndices().push_back(vertexCounter - tempIndices.size() + i);
-					mesh.GetIndices().push_back(vertexCounter - tempIndices.size() + i + 1);
-					i++;
+					*mesh.IndicesPtr = vertexCounter - tempIndices.size();
+					mesh.IndicesPtr++;
+					*mesh.IndicesPtr = vertexCounter - tempIndices.size()+ tempIndex;
+					mesh.IndicesPtr++;
+					*mesh.IndicesPtr = vertexCounter - tempIndices.size() + tempIndex + 1;
+					mesh.IndicesPtr++;
+
+					//tempIndex++;
+					mesh.QuadIndexCount += 3;
+
+				/*	mesh.GetIndices().push_back(vertexCounter - tempIndices.size());
+					mesh.GetIndices().push_back(vertexCounter - tempIndices.size() + tempIndex);
+					mesh.GetIndices().push_back(vertexCounter - tempIndices.size() + tempIndex + 1);*/
+					tempIndex++;
 				}
 
 			}
@@ -167,12 +183,30 @@ namespace RealEngine {
 	
 		for (size_t i = 0; i < vertexPositionsIndices.size(); ++i)
 		{
-			Vertex vertex;
+			/*Vertex vertex;
 			mesh.GetVertices().push_back(vertex);
 			mesh.GetVertices()[i].Position = vertexPositions[vertexPositionsIndices[i] - 1];
 			mesh.GetVertices()[i].TexCoord = vertexTexCoords[vertexTexCoordIndicies[i] - 1];
 			mesh.GetVertices()[i].Normal = vertexNormals[vertexNormalsIndices[i] - 1];
 			mesh.GetVertices()[i].Color = vertexColor[vertexPositionsIndices[i] - 1];
+			mesh.GetVertices()[i].Metallic = mesh.m_Material.Metallic;
+			mesh.GetVertices()[i].Roughness = mesh.m_Material.Roughness;
+			mesh.GetVertices()[i].AO = mesh.m_Material.AO;
+			mesh.GetVertices()[i].Albedo = mesh.m_Material.Albedo;*/
+
+			mesh.VerticesPtr->Position = vertexPositions[vertexPositionsIndices[i] - 1];
+			mesh.VerticesPtr->Normal = vertexNormals[vertexNormalsIndices[i] - 1];;
+			mesh.VerticesPtr->Color = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
+			mesh.VerticesPtr->TexCoord = vertexTexCoords[vertexTexCoordIndicies[i] - 1];
+			mesh.VerticesPtr->Metallic = mesh.m_Material.Metallic;
+			mesh.VerticesPtr->Roughness = mesh.m_Material.Roughness;
+			mesh.VerticesPtr->AO = mesh.m_Material.AO;
+			mesh.VerticesPtr->Albedo = mesh.m_Material.Albedo;
+			mesh.VerticesPtr->TexId = 32.0f;
+			mesh.VerticesPtr->TilingFactor = 1.0f;
+			//mesh.VerticesPtr->Matrix = glm::mat4(1.0f);
+			mesh.VerticesPtr++;
+
 		}
 		ENGINE_INFO("{0} Vertices has been loaded from ""{1}"" file.", vertexPositionsIndices.size(), fileName);
 	}
@@ -267,12 +301,21 @@ namespace RealEngine {
 		const int polygonCount = mesh->GetPolygonCount();
 		std::vector<glm::vec3> verticesPositions;
 
-		std::cout << "Importing " << polygonCount << " polygons." << std::endl;
+		ENGINE_INFO("[ModelLOader::FBX]::\tImporting {0} polygons.", polygonCount);
+
 		ProcessControlPoints(mesh, verticesPositions);
 		uint32_t triCount = mesh->GetPolygonCount();
 		int vertexCounter = 0;
 		int* indicesCount = mesh->GetPolygonVertices();
-	
+
+		myMesh.VerticesBase = new Vertex[200000];
+		myMesh.VerticesPtr = myMesh.VerticesBase;
+
+		myMesh.IndicesBase = new uint32_t[300000];
+		myMesh.IndicesPtr = myMesh.IndicesBase;
+		
+		int inicesCount = 0;
+
 		for (uint32_t i = 0; i < triCount; i++)
 		{
 			glm::vec3 tangent;
@@ -294,32 +337,60 @@ namespace RealEngine {
 				// for (uint t = 0; t < 1; t++) // TODO: Support multiple layers
 				glm::vec2 uv = ReadUV(mesh, controlPointIndex, mesh->GetTextureUVIndex(i, j), 0);
 
-				vertex.Position = position;
+			    /*vertex.Position = position;
 				vertex.Normal = normal;
-				vertex.TexCoord = uv;
 				vertex.Color = glm::vec4{1.0f, 1.0f, 1.0f, 1.0f};
+				vertex.TexCoord = uv;
+				vertex.Metallic = myMesh.m_Material.Metallic;
+				vertex.Roughness = myMesh.m_Material.Roughness;
+				vertex.AO = myMesh.m_Material.AO;
+				vertex.Albedo = myMesh.m_Material.Albedo;
+				vertex.TexId = 32.0f;
+				vertex.TilingFactor = 1.0f;*/
+				//myMesh.GetVertices().push_back(vertex);
 
-				myMesh.GetVertices().push_back(vertex);
+				myMesh.VerticesPtr->Position = position;
+				myMesh.VerticesPtr->Normal = normal;
+				myMesh.VerticesPtr->Color = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
+				myMesh.VerticesPtr->TexCoord = uv;
+				myMesh.VerticesPtr->Metallic = myMesh.m_Material.Metallic;
+				myMesh.VerticesPtr->Roughness = myMesh.m_Material.Roughness;
+				myMesh.VerticesPtr->AO = myMesh.m_Material.AO;
+				myMesh.VerticesPtr->Albedo = myMesh.m_Material.Albedo;
+				myMesh.VerticesPtr->TexId = 32.0f;
+				myMesh.VerticesPtr->TilingFactor = 1.0f;
+				//myMesh.VerticesPtr->Matrix = glm::mat4(1.0f);
+				myMesh.VerticesPtr++;
 			
 				vertexCounter++;
-		
 			}
 
-			int startind = mesh->GetPolygonVertexIndex(i);
+			uint32_t startind = mesh->GetPolygonVertexIndex(i);
 
-			int k = 1;
+			int tempIndex = 1;
 
-			while (k < sizeOfPolygon - 1)
+			while (tempIndex < sizeOfPolygon - 1)
 			{
 				myMesh.GetIndices().push_back(startind);
-				myMesh.GetIndices().push_back(startind + k);
-				myMesh.GetIndices().push_back(startind + k + 1);
-				k++;
+				myMesh.GetIndices().push_back(startind + tempIndex);
+				myMesh.GetIndices().push_back(startind + tempIndex + 1);
+				
+				*myMesh.IndicesPtr = startind;
+				myMesh.IndicesPtr++;
+				*myMesh.IndicesPtr = startind + tempIndex;
+				myMesh.IndicesPtr++;
+				*myMesh.IndicesPtr = startind + tempIndex + 1;
+				myMesh.IndicesPtr++;
+
+				tempIndex++;
+				myMesh.QuadIndexCount += 3;
 			}
 
 		}
-		ENGINE_INFO("{0} Vertices has been loaded", vertexCounter);
 
+		ENGINE_INFO("[ModelLoader::FBX]::\t{0} Vertices has been loaded.", vertexCounter);
+		std::cout << myMesh.VerticesBase << " " << myMesh.VerticesPtr;
+		std::cout << myMesh.QuadIndexCount << std::endl;
 	}
 
 	void ModelLoader::ProcessControlPoints(const FbxMesh* mesh, std::vector<glm::vec3>& positions)

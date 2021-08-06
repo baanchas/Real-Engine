@@ -27,41 +27,50 @@ namespace RealEngine {
         m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 
         SpriteCheckerBoard.LoadFromFile("res/sprites/Checkerboard.png");
-                
+                 
         m_ActiveScene = new Scene();
         m_ActiveScene->SetTitle("Example");
         m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
-        ModelLoader::LoadObjectFromOBJ("assets/models/sphere", mesh);
-        model5 = m_ActiveScene->CreateEntity("3D Object");
-        model5.AddComponent<MeshComponent>();
-        auto& meshcomp = model5.GetComponent<MeshComponent>();
-        meshcomp.Mesh = mesh;
+        Material mat;
+        mat.Albedo = glm::vec3{ 0.8f, 0.8f, 0.8f };
+        mat.Metallic = 1.0f;
+        mat.Roughness = 0.5f;
+        mat.AO = 1.0f;
 
-        ModelLoader::LoadObjectFromOBJ("assets/models/roundedcube", mesh2);
-        model = m_ActiveScene->CreateEntity("3D Object");
+
+        mesh2.m_Material = mat;
+        mesh.m_Material = mat;
+        //ModelLoader::LoadObjectFromFBX("assets/models/a.fbx", mesh2);
+        ModelLoader::LoadObjectFromFBX("assets/models/plane.fbx", mesh2);
+        model = m_ActiveScene->CreateEntity("Cube");
         model.AddComponent<MeshComponent>();
-        auto& mc = model.GetComponent<MeshComponent>();
-        mc.Mesh = mesh2;
+        auto& meshcomps = model.GetComponent<MeshComponent>();
+        meshcomps.ownMesh = mesh2;
+        meshcomps.ownMesh.m_Material = mat;
 
-        model3 = m_ActiveScene->CreateEntity("IMAGE");
-        model3.AddComponent<TextureRendererComponent>();
-        auto& tcomp = model3.GetComponent<TextureRendererComponent>().Texture;
-        tcomp = SpriteCheckerBoard;
-      
-        model4 = m_ActiveScene->CreateEntity("IMAGE");
-        model4.AddComponent<SpriteRendererComponent>();
-        auto& scomp = model4.GetComponent<SpriteRendererComponent>().Color;
-        scomp = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
+        //ModelLoader::LoadObjectFromOBJ("assets/models/axe", mesh2);
+        model2 = m_ActiveScene->CreateEntity("plane");
+        model2.AddComponent<MeshComponent>();
+        auto& meshcomp = model2.GetComponent<MeshComponent>();
+        meshcomp.ownMesh = mesh2;
 
-       // model2 = m_ActiveScene->CreateEntity("3D Object AXE");
-       // model2.AddComponent<ModelComponent>();
-       // auto& mcomp = model2.GetComponent<ModelComponent>();
-       // auto [vet1, ind1] = ModelLoader::LoadObjectFromOBJ("assets/models/RoundedCube");
-       // mcomp.Vertices = vet1;
-       // mcomp.Indices = ind1;
+        model3 = m_ActiveScene->CreateEntity("plane 3");
+        model3.AddComponent<MeshComponent>();
+        auto& meshc = model3.GetComponent<MeshComponent>();
+        meshc.ownMesh = mesh2;
 
-
+        ModelLoader::LoadObjectFromOBJ("assets/models/axe", mesh);
+        model5 = m_ActiveScene->CreateEntity("cube.fbx");
+        model5.AddComponent<MeshComponent>();
+        auto& meshs = model5.GetComponent<MeshComponent>();
+        meshs.ownMesh = mesh;
+        //meshcomp.ownMesh.m_Material = mat;
+        //ModelLoader::LoadObjectFromFBX("assets/models/plane.fbx", mesh2);
+       /* model2 = m_ActiveScene->CreateEntity("Cube");
+        model2.AddComponent<TextureRendererComponent>();
+        auto& meshcomp = model2.GetComponent<TextureRendererComponent>().Texture;
+        meshcomp = SpriteCheckerBoard;*/
 
 	}
 
@@ -74,7 +83,7 @@ namespace RealEngine {
     void EditorLayer::OnUpdate(float ts)
     {
         m_ActiveScene->OnUpdate(ts);
-
+        std::cout << ts << std::endl;
         m_ActiveScene->OnViewportResize(m_ViewPortSize.x, m_ViewPortSize.y);
 
         if (m_SceneWindowIsFocused)
@@ -322,14 +331,11 @@ namespace RealEngine {
         
         Renderer::Clear();
 
-        //Renderer::BeginScene();
-
         m_FrameBuffer->ClearAttachment(1, -1);
 
         m_ActiveScene->OnRenderEditor(m_EditorCamera);
-        
+        //ImGui::ShowDemoWindow();
         OnImGuiRender();
-
 
         m_FrameBuffer->UnBind();
 

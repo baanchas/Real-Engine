@@ -347,7 +347,7 @@ namespace RealEngine {
 					out << "\t" << "\t" << "TexID: " << element.TexId << std::endl;
 					out << "\t" << "\t" << "TilingFactor: " << element.TilingFactor << std::endl;
 					out << "\t" << "\t" << "EntityID: " << element.entityID << std::endl;
-					out << "\t" << "\t" << "TransformMatrix: " << "[ " << element.Matrix[0][0] << " " << element.Matrix[0][1] << " " << element.Matrix[0][2] << " " << element.Matrix[0][3] << " " << element.Matrix[1][0] << " " << element.Matrix[1][1] << " " << element.Matrix[1][2] << " " << element.Matrix[1][3] << " " << element.Matrix[2][0] << " " << element.Matrix[2][1] << " " << element.Matrix[2][2] << " " << element.Matrix[2][3] << " " << element.Matrix[3][0] << " " << element.Matrix[3][1] << " " << element.Matrix[3][2] << " " << element.Matrix[3][3] << " ]" << std::endl;
+					//out << "\t" << "\t" << "TransformMatrix: " << "[ " << element.Matrix[0][0] << " " << element.Matrix[0][1] << " " << element.Matrix[0][2] << " " << element.Matrix[0][3] << " " << element.Matrix[1][0] << " " << element.Matrix[1][1] << " " << element.Matrix[1][2] << " " << element.Matrix[1][3] << " " << element.Matrix[2][0] << " " << element.Matrix[2][1] << " " << element.Matrix[2][2] << " " << element.Matrix[2][3] << " " << element.Matrix[3][0] << " " << element.Matrix[3][1] << " " << element.Matrix[3][2] << " " << element.Matrix[3][3] << " ]" << std::endl;
 
 				}
 			}

@@ -15,6 +15,7 @@ namespace RealEngine {
 		void UnBind();
 
 		void LoadFromFile(const std::string& path);
+		uint32_t LoadCubeMapTexture(std::vector<std::string>& path);
 
 		void SetRendererID(unsigned int id) { m_RendererID = id; };
 		inline unsigned int GetRendererID() const { return m_RendererID; }

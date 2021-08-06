@@ -131,10 +131,11 @@ namespace RealEngine{
 
 	struct MeshComponent
 	{
-		Mesh Mesh;
+		Mesh ownMesh;
 
 		MeshComponent() = default;
 		MeshComponent(const MeshComponent&) = default;
-
+		MeshComponent(Mesh& mesh)
+			: ownMesh(mesh) {}
 	};
 }

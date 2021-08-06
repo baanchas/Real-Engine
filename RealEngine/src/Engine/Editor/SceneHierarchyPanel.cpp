@@ -1,7 +1,7 @@
 #include "repch.h"
 #include "SceneHierarchyPanel.h"
 #include <glm/gtc/type_ptr.hpp>
-
+#include "Engine/Uilities/OpenGL/OpenGLFileDialogs.h"
 
 namespace RealEngine {
 
@@ -129,9 +129,11 @@ namespace RealEngine {
 			{
 				auto& transform = entity.GetComponent<TransformComponent>();
 				ImGui::DragFloat3("Position", glm::value_ptr(transform.Position), 0.1f);
+
 				glm::vec3 rotation = glm::degrees(transform.Rotation);
 				ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 0.1f);
 				transform.Rotation = glm::radians(rotation);
+
 				ImGui::DragFloat3("Scale", glm::value_ptr(transform.Scale), 0.1f);
 
 				ImGui::TreePop();
@@ -177,10 +179,10 @@ namespace RealEngine {
 			ImGui::PopStyleVar();
 		}
 
-		if (entity.HasComponent<ModelComponent>())
+		if (entity.HasComponent<MeshComponent>())
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
-			bool open = ImGui::TreeNodeEx((void*)typeid(ModelComponent).hash_code(), treeNodeFlags, "Model Component");
+			bool open = ImGui::TreeNodeEx((void*)typeid(MeshComponent).hash_code(), treeNodeFlags, "Mesh Component");
 			ImGui::SameLine(ImGui::GetWindowWidth() - 40.0f);
 			if (ImGui::Button("+", ImVec2{ 20, 20 }))
 			{
@@ -202,11 +204,31 @@ namespace RealEngine {
 			if (open)
 			{
 				ImGui::TreePop();
+				if (ImGui::Button("Open..."))
+				{
+					std::string filePath = FileDialogs::OpenFile("Mesh (*.fbx)\0*.fbx\0");
+
+					if (!filePath.empty())
+					{
+						auto& mc = entity.GetComponent<MeshComponent>().ownMesh;
+
+						Mesh mesh;
+						mesh.m_Material.Albedo = glm::vec3{ 0.8f, 0.8f, 0.8f };
+						mesh.m_Material.Metallic = 1.0f;
+						mesh.m_Material.Roughness = 0.5f;
+						mesh.m_Material.AO = 1.0f;
+						ModelLoader::LoadObjectFromFBX(filePath, mesh);
+
+						mc = mesh;
+
+					}
+				}
+
 			}
 
 			if (removeComponent)
 			{
-				entity.RemoveComponent<ModelComponent>();
+				entity.RemoveComponent<MeshComponent>();
 			}
 
 			ImGui::PopStyleVar();

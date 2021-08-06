@@ -38,6 +38,7 @@ namespace RealEngine {
 
 	private:
 		Texture2D SpriteCheckerBoard;
+		Texture2D CubeMap;
 
 		FrameBuffer* m_FrameBuffer;
 
