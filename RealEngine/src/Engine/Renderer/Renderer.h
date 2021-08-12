@@ -4,6 +4,7 @@
 #include "OpenGL/IndexBuffer.h"
 #include "OpenGL/Shader.h"
 #include "OpenGL/Texture2D.h"
+#include "OpenGL/TextureCubeMap.h"
 #include "OrthographicCamera.h"
 #include "EditorCamera.h"
 #include "Models/Mesh.h"
@@ -16,33 +17,86 @@ namespace RealEngine {
 		const uint32_t MaxQuads = 25000;
 		const uint32_t MaxVertices = 200000;
 		const uint32_t MaxIndices = MaxVertices * 3;
-		static const uint32_t MaxTextureSlots = 32;
+		static const uint32_t MaxTextureSlots = 27;
+
+		// SkyBox
 
 		VertexArray SkyboxVertexArray;
 		Shader SkyboxShader;
 		IndexBuffer SkyboxIndexBuffer;
 		VertexBuffer SkyboxVertexBuffer;
 
-		uint32_t CubemapTexturesID;
+		TextureCubeMap CubeMap;
+
+		uint32_t SkyBoxCubeMapIndicesCount = 36;
+		uint32_t SkyBoxCubeMapVerticesCount = 108;
+
+		float SkyBoxCubeMapVertexPositions[108] = {
+			-1.0f,  1.0f, -1.0f,
+			-1.0f, -1.0f, -1.0f,
+			 1.0f, -1.0f, -1.0f,
+			 1.0f, -1.0f, -1.0f,
+			 1.0f,  1.0f, -1.0f,
+			-1.0f,  1.0f, -1.0f,
+
+			-1.0f, -1.0f,  1.0f,
+			-1.0f, -1.0f, -1.0f,
+			-1.0f,  1.0f, -1.0f,
+			-1.0f,  1.0f, -1.0f,
+			-1.0f,  1.0f,  1.0f,
+			-1.0f, -1.0f,  1.0f,
+
+			 1.0f, -1.0f, -1.0f,
+			 1.0f, -1.0f,  1.0f,
+			 1.0f,  1.0f,  1.0f,
+			 1.0f,  1.0f,  1.0f,
+			 1.0f,  1.0f, -1.0f,
+			 1.0f, -1.0f, -1.0f,
+
+			-1.0f, -1.0f,  1.0f,
+			-1.0f,  1.0f,  1.0f,
+			 1.0f,  1.0f,  1.0f,
+			 1.0f,  1.0f,  1.0f,
+			 1.0f, -1.0f,  1.0f,
+			-1.0f, -1.0f,  1.0f,
+
+			-1.0f,  1.0f, -1.0f,
+			 1.0f,  1.0f, -1.0f,
+			 1.0f,  1.0f,  1.0f,
+			 1.0f,  1.0f,  1.0f,
+			-1.0f,  1.0f,  1.0f,
+			-1.0f,  1.0f, -1.0f,
+
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f,  1.0f,
+			 1.0f, -1.0f, -1.0f,
+			 1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f,  1.0f,
+			 1.0f, -1.0f,  1.0f
+		};
+
+		uint32_t SkyBoxCubeMapVertexIndices[36];
+
+		// Main Scene
 
 		VertexArray VertexArray;
 		Shader Shader;
 		IndexBuffer IndexBuffer;
 		VertexBuffer VertexBuffer;
 
-		uint32_t skyboxVAO, skyboxVBO, skyboxEBO;
-
-		uint32_t IndicesOffset = 0;
-
+		Vertex* QuadVertexBufferBase = nullptr;
 		Vertex* VertexBufferBase = nullptr;
 		Vertex* VertexBufferPtr = nullptr;
 
+
+		uint32_t* QuadIndexBufferBase = nullptr;
 		uint32_t* QuadIndices = nullptr;
 		uint32_t* QuadIndicesPtr = nullptr;
-
+		
 		std::array<Texture2D, MaxTextureSlots> TextureSlots;
-		uint32_t TextureIndex = 1;
+		uint32_t TextureIndex = 0;
 
+		uint32_t IndicesOffset = 0;
 		uint32_t QuadIndexCount = 0;
 		uint32_t DrawCallsCount = 0;
 
@@ -59,8 +113,10 @@ namespace RealEngine {
 
 		static void BeginScene(Camera& camera, glm::mat4& transform);
 		static void BeginScene(EditorCamera& camera);
+		static void BeginSkyBoxScene(EditorCamera& camera);
 		static void BeginScene(OrthographicCamera& camera);
 		static void EndScene();
+		static void EndSceneCubeMap();
 		static void ShutDown();
 
 		static void Clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); };
@@ -72,24 +128,22 @@ namespace RealEngine {
 		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 
 		static void DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID);
-		static void DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, float rotation, float r, float g, float b, float t, int entityID, float tf = 1.0f);
 		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const float rotation, const glm::vec4& color, const int entityID, float tf = 1.0f);
 
-
 		static void DrawQuad(const glm::mat4& transform, Texture2D& texture, float tilingFactor, float entityID);
-		static void DrawQuad(float posX, float posY, float posZ, float sizeX, float sizeY, Texture2D& texture, float tilingFactor);
-		static void DrawQuad(glm::vec3& position, glm::vec2& size, Texture2D& texture, float tilingFactor);
+		static void DrawQuad(const glm::vec3& position, glm::vec2& size, Texture2D& texture, float tilingFactor, float entityID);
 
 		static void DrawTriangle(const glm::vec3& position, const glm::vec2& size, const float rotation, const glm::vec4& color, float tf = 1.0f);
 
-		static void DrawModel(const glm::mat4& transform, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, int entityID);
-
 		static void DrawMesh(const glm::mat4& transform, Mesh& mesh, int entityID);
+		static void DrawMesh(const glm::mat4& transform, Mesh& mesh, std::vector<Texture2D>& textures, int entityID);
 		static void DrawMesh(const glm::mat4& transform, Mesh& mesh, Material& material, int entityID);
+
+
+		static void StartBatch();
 
 	private:
 
-		static void StartBatch();
 
 	private:
 		glm::mat4 ViewProjectionMatrix = glm::mat4(1.0f);

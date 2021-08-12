@@ -14,7 +14,7 @@ namespace RealEngine {
 		void Create(const std::string& vertexSrc, const std::string& fragmentSrc);
 
 		void Bind() const;
-		void Unbind() const;
+		void UnBind() const;
 
 		void SetUniform1i(const std::string& name, int value);
 		void SetUniform1f(const std::string& name, float value);

@@ -20,13 +20,14 @@ namespace RealEngine {
 	{
 		ImGui::Begin("Scene Hierarchy");
 
+
 		m_Context->m_Registry.each([&](auto entityID)
 		{
 			Entity entity{ entityID , m_Context };
 
 			auto& tc = entity.GetComponent<TagComponent>().Tag;
 
-			ImGuiTreeNodeFlags flags = ((m_SelectedEntity == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+			ImGuiTreeNodeFlags flags = ((m_SelectedEntity == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 			bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tc.c_str());
 			if (ImGui::IsItemClicked())
 			{
@@ -103,6 +104,51 @@ namespace RealEngine {
 		ImGui::End();
 	}
 
+	template<typename T, typename UIFunction>
+	static void DrawComponent(const std::string& name, Entity entity, UIFunction function)
+	{
+		const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_Framed;
+
+		if (entity.HasComponent<T>())
+		{
+			auto& sourceComponent = entity.GetComponent<T>();
+
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
+			bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, name.c_str());
+			ImGui::SameLine(ImGui::GetWindowWidth() - 40.0f);
+			if (ImGui::Button("+", ImVec2{ 20, 20 }))
+			{
+				ImGui::OpenPopup("ComponentSettings");
+			}
+
+			bool removeComponent = false;
+
+			if (ImGui::BeginPopup("ComponentSettings"))
+			{
+				if (ImGui::MenuItem("Remove Component"))
+				{
+					removeComponent = true;
+				}
+
+				ImGui::EndPopup();
+			}
+
+			if (open)
+			{
+				function(sourceComponent);
+
+				ImGui::TreePop();
+			}
+
+			if (removeComponent)
+			{
+				entity.RemoveComponent<T>();
+			}
+
+			ImGui::PopStyleVar();
+		}
+	}
+
 	void SceneHierarchyPanel::DrawComponents(Entity entity)
 	{
 		if (entity.HasComponent<TagComponent>())
@@ -140,78 +186,55 @@ namespace RealEngine {
 			}
 		}
 
+	//	const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_Framed;
+
 		if (entity.HasComponent<SpriteRendererComponent>())
 		{
-			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
-			bool open = ImGui::TreeNodeEx((void*)typeid(SpriteRendererComponent).hash_code(), treeNodeFlags, "Sprite Renderer Component");
-			ImGui::SameLine(ImGui::GetWindowWidth() - 40.0f);
-			if (ImGui::Button("+", ImVec2{ 20, 20}))
+			DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](auto& component)
 			{
-				ImGui::OpenPopup("ComponentSettings");
-			}
+				ImGui::ColorPicker4("Color", glm::value_ptr(component.Color));
+			});
+		}
 
-			bool removeComponent = false;
-
-			if (ImGui::BeginPopup("ComponentSettings"))
+		if (entity.HasComponent<TextureRendererComponent>())
+		{
+			DrawComponent<TextureRendererComponent>("Texture Renderer", entity, [](auto& component)
 			{
-				if (ImGui::MenuItem("Remove Component"))
+				ImGui::Text(component.Texture.GetFilePath().c_str());
+
+				ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
+				if (ImGui::Button("Open..."))
 				{
-					removeComponent = true;
+					std::string filePath = FileDialogs::OpenFile("Image (*.jpg;*.png;)\0*.jpg;*.png;\0");
+
+					if (!filePath.empty())
+					{
+						auto& texture = component.Texture;
+
+						texture.LoadFromFile(filePath);
+					}
 				}
-
-				ImGui::EndPopup();
-			}
-
-			if (open)
-			{
-				auto& color = entity.GetComponent<SpriteRendererComponent>().Color;
-
-				ImGui::ColorPicker4("Color", glm::value_ptr(color));
-
-				ImGui::TreePop();
-			}
-
-			if (removeComponent)
-			{
-				entity.RemoveComponent<SpriteRendererComponent>();
-			}
-
-			ImGui::PopStyleVar();
+			});
 		}
 
 		if (entity.HasComponent<MeshComponent>())
 		{
-			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
-			bool open = ImGui::TreeNodeEx((void*)typeid(MeshComponent).hash_code(), treeNodeFlags, "Mesh Component");
-			ImGui::SameLine(ImGui::GetWindowWidth() - 40.0f);
-			if (ImGui::Button("+", ImVec2{ 20, 20 }))
+			DrawComponent<MeshComponent>("Mesh", entity, [](auto& component)
 			{
-				ImGui::OpenPopup("ComponentSettings");
-			}
+				auto& filePath = component.ownMesh.FilePath;
 
-			bool removeComponent = false;
+				auto& mc = component.ownMesh;
 
-			if (ImGui::BeginPopup("ComponentSettings"))
-			{
-				if (ImGui::MenuItem("Remove Component"))
-				{
-					removeComponent = true;
-				}
+				ImGui::Text(filePath.c_str());
 
-				ImGui::EndPopup();
-			}
+				ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
 
-			if (open)
-			{
-				ImGui::TreePop();
 				if (ImGui::Button("Open..."))
 				{
 					std::string filePath = FileDialogs::OpenFile("Mesh (*.fbx)\0*.fbx\0");
 
 					if (!filePath.empty())
 					{
-						auto& mc = entity.GetComponent<MeshComponent>().ownMesh;
-
 						Mesh mesh;
 						mesh.m_Material.Albedo = glm::vec3{ 0.8f, 0.8f, 0.8f };
 						mesh.m_Material.Metallic = 1.0f;
@@ -220,25 +243,139 @@ namespace RealEngine {
 						ModelLoader::LoadObjectFromFBX(filePath, mesh);
 
 						mc = mesh;
-
 					}
 				}
 
-			}
+				ImGui::DragFloat3("Albedo", glm::value_ptr(mc.m_Material.Albedo), 0.1f);
 
-			if (removeComponent)
+				ImGui::DragFloat("Metallnes", &mc.m_Material.Metallic, 0.1f);
+
+				ImGui::DragFloat("Roughness", &mc.m_Material.Roughness, 0.1f);
+
+				ImGui::DragFloat("AO", &mc.m_Material.AO, 0.1f);
+			});
+		}
+
+		if (entity.HasComponent<TexturedMeshComponent>())
+		{
+			DrawComponent<TexturedMeshComponent>("Textured Mesh", entity, [](auto& component)
 			{
-				entity.RemoveComponent<MeshComponent>();
-			}
+				auto& filePath = component.ownMesh.FilePath;
 
-			ImGui::PopStyleVar();
+				ImGui::Text(filePath.c_str());
+
+				ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
+
+				if (ImGui::Button("Open..."))
+				{
+					std::string filePath = FileDialogs::OpenFile("Mesh (*.fbx)\0*.fbx\0");
+
+					if (!filePath.empty())
+					{
+						Mesh mesh;
+						ModelLoader::LoadObjectFromFBX(filePath, mesh);
+
+						component.ownMesh = mesh;
+					}
+				}
+
+				ImGui::Text(component.Textures[0].GetFilePath().c_str());
+
+				ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
+
+				ImGui::PushID("Albedo");
+				if (ImGui::Button("Open..."))
+				{
+					std::string filePath = FileDialogs::OpenFile("Image (*.jpg;*.png;)\0*.jpg;*.png;\0");
+
+					if (!filePath.empty())
+					{
+						auto& texture = component.Textures[0];
+
+						texture.LoadFromFile(filePath);
+					}
+				}
+
+				ImGui::PopID();
+
+				ImGui::Text(component.Textures[1].GetFilePath().c_str());
+
+				ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
+				ImGui::PushID("Metallness");
+				if (ImGui::Button("Open..."))
+				{
+					std::string filePath = FileDialogs::OpenFile("Image (*.jpg;*.png;)\0*.jpg;*.png;\0");
+
+					if (!filePath.empty())
+					{
+						auto& texture = component.Textures[1];
+
+						texture.LoadFromFile(filePath);
+					}
+				}
+				ImGui::PopID();
+
+				ImGui::Text(component.Textures[2].GetFilePath().c_str());
+
+				ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
+
+				ImGui::PushID("Roughness");
+				if (ImGui::Button("Open..."))
+				{
+					std::string filePath = FileDialogs::OpenFile("Image (*.jpg;*.png;)\0*.jpg;*.png;\0");
+
+					if (!filePath.empty())
+					{
+						auto& texture = component.Textures[2];
+
+						texture.LoadFromFile(filePath);
+					}
+				}
+				ImGui::PopID();
+
+				ImGui::Text(component.Textures[3].GetFilePath().c_str());
+
+				ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
+
+				ImGui::PushID("AO");
+				if (ImGui::Button("Open..."))
+				{
+					std::string filePath = FileDialogs::OpenFile("Image (*.jpg;*.png;)\0*.jpg;*.png;\0");
+
+					if (!filePath.empty())
+					{
+						auto& texture = component.Textures[3];
+
+						texture.LoadFromFile(filePath);
+					}
+				}
+				ImGui::PopID();
+
+				ImGui::Text(component.Textures[4].GetFilePath().c_str());
+
+				ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
+
+				ImGui::PushID("Normal");
+				if (ImGui::Button("Open..."))
+				{
+					std::string filePath = FileDialogs::OpenFile("Image (*.jpg;*.png;)\0*.jpg;*.png;\0");
+
+					if (!filePath.empty())
+					{
+						auto& texture = component.Textures[4];
+
+						texture.LoadFromFile(filePath);
+					}
+				}
+				ImGui::PopID();
+			});
 		}
 
 		if (entity.HasComponent<CameraComponent>())
 		{
-			if (ImGui::TreeNodeEx((void*)typeid(CameraComponent).hash_code(), treeNodeFlags, "Camera Component"))
+			DrawComponent<CameraComponent>("Camera", entity, [](auto& component)
 			{
-				auto& camera = entity.GetComponent<CameraComponent>().Camera;
+				auto& camera = component.Camera;
 
 				const char* projectionTypeStrings[] = { "Perspective", "Orthographic" };
 				const char* currentProjectionTyoeString = projectionTypeStrings[(int)camera.GetProjectionType()];
@@ -262,7 +399,6 @@ namespace RealEngine {
 
 					ImGui::EndCombo();
 				}
-
 
 				if (camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective)
 				{
@@ -305,9 +441,7 @@ namespace RealEngine {
 						camera.SetOrthographicFarClip(farClip);
 					}
 				}
-
-				ImGui::TreePop();
-			}
+			});
 		}
 	}
 }

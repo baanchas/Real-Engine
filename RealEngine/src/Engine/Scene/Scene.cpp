@@ -5,6 +5,7 @@ namespace RealEngine {
 
 	Scene::Scene()
 	{
+		
 	}
 
 	Scene::~Scene()
@@ -49,12 +50,16 @@ namespace RealEngine {
 	{
 		Renderer::BeginScene(camera);
 
+		// #temprory
+
 		Renderer::SetUniform3f("lightPos", glm::vec3{0.0f, 10.0f, 10.0f});
 		Renderer::SetUniform3f("viewPos", glm::vec3{camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z});
 
+		// #endtemp
+
 		auto TCView = m_Registry.view<SpriteRendererComponent>();
 		auto TRCView = m_Registry.view<TextureRendererComponent>();
-		auto MCView = m_Registry.view<ModelComponent>();
+		auto TMeshCView = m_Registry.view<TexturedMeshComponent>();
 		auto MeshCView = m_Registry.view<MeshComponent>();
 
 		for (auto entity : TCView)
@@ -80,16 +85,7 @@ namespace RealEngine {
 			}
 		}
 
-		for (auto entity : MCView)
-		{
-			if (m_Registry.has<ModelComponent>(entity))
-			{
-				auto& model = m_Registry.get<ModelComponent>(entity);
-				auto& transform = m_Registry.get<TransformComponent>(entity);
-
-				Renderer::DrawModel(transform.GetTransform(), model.Vertices, model.Indices, (int)entity);
-			}
-		}
+		Renderer::StartBatch();
 
 		for (auto entity : MeshCView)
 		{
@@ -101,16 +97,22 @@ namespace RealEngine {
 				Renderer::DrawMesh(transform.GetTransform(), mesh, (int)entity);
 			}
 		}
-		glm::mat4 trans(1.0f);
 
-	
+		for (auto entity : TMeshCView)
+		{
+			if (m_Registry.has<TexturedMeshComponent>(entity))
+			{
+				auto& mesh = m_Registry.get<TexturedMeshComponent>(entity).ownMesh;
+				auto& textures = m_Registry.get<TexturedMeshComponent>(entity).Textures;
+				auto& transform = m_Registry.get<TransformComponent>(entity);
 
-		//Renderer::DrawMesh(trans, mesh, mat, 60);
-		//Renderer::DrawQuad(1.0f, 1.0f, 1.0f, );
-		//Renderer::DrawModel(verticesCone, indicesCone);
-		//Renderer::DrawModel(verticesAxe, indicesAxe);
-
-		Renderer::EndScene();
+				Renderer::DrawMesh(transform.GetTransform(), mesh, textures, (int)entity);
+			}
+		}
+		
+		//Renderer::EndScene();
+		Renderer::BeginSkyBoxScene(camera);
+		Renderer::EndSceneCubeMap();
 	}
 
 
@@ -205,7 +207,7 @@ namespace RealEngine {
 	Entity Scene::CreateEntity()
 	{
 		Entity entity = { m_Registry.create(), this };
-		ENGINE_INFO("[{0}]::New Entity has been created with id {0}", m_Title, entity.Get());
+		ENGINE_INFO("[{0}]::New Entity has been created with id {1}", m_Title, entity.Get());
 		entity.AddComponent<TagComponent>();
 		entity.AddComponent<TransformComponent>();
 		return entity;
@@ -214,7 +216,7 @@ namespace RealEngine {
 	Entity Scene::CreateEntity(const std::string& name)
 	{
 		Entity entity = { m_Registry.create(), this };
-		ENGINE_INFO("[{0}]::New Entity has been created with id {0}", m_Title, entity.Get());
+		ENGINE_INFO("[{0}]::New Entity has been created with id {1}", m_Title, entity.Get());
 		auto& tc = entity.AddComponent<TagComponent>();
 		tc.Tag = name;
 		entity.AddComponent<TransformComponent>();
@@ -230,35 +232,35 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentAdded<TagComponent>(Entity entity, TagComponent& component)
 	{
-		ENGINE_INFO("[Scene::{0}]::Tag Component added to entity with id {1}", m_Title, entity.Get());
+		ENGINE_TRACE("[Scene::{0}]::Tag Component added to entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 
 	template<>
 	bool Scene::OnComponentAdded<TransformComponent>(Entity entity, TransformComponent& component)
 	{
-		ENGINE_INFO("[{0}]::Transform Component added to entity with id {1}", m_Title, entity.Get());
+		ENGINE_TRACE("[{0}]::Transform Component added to entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 
 	template<>
 	bool Scene::OnComponentAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component)
 	{
-		ENGINE_INFO("[{0}]::Sprite Component added to entity with id {1}", m_Title, entity.Get());
+		ENGINE_TRACE("[{0}]::Sprite Component added to entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 
 	template<>
 	bool Scene::OnComponentAdded<TextureRendererComponent>(Entity entity, TextureRendererComponent& component)
 	{
-		ENGINE_INFO("[{0}]::Texture Component added to entity with id {1}", m_Title, entity.Get());
+		ENGINE_TRACE("[{0}]::Texture Component added to entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 
 	template<>
 	bool Scene::OnComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& component)
 	{
-		ENGINE_INFO("[{0}]::Native Script Component added to entity with id {1}", m_Title, entity.Get());
+		ENGINE_TRACE("[{0}]::Native Script Component added to entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 
@@ -266,7 +268,7 @@ namespace RealEngine {
 	bool Scene::OnComponentAdded<CameraComponent>(Entity entity, CameraComponent& component)
 	{
 		component.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
-		ENGINE_INFO("[{0}]::Camera Component added to entity with id {1}", m_Title, entity.Get());
+		ENGINE_TRACE("[{0}]::Camera Component added to entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 
@@ -278,6 +280,13 @@ namespace RealEngine {
 
 	template<>
 	bool Scene::OnComponentAdded<MeshComponent>(Entity entity, MeshComponent& component)
+	{
+		ENGINE_TRACE("[{0}]::Mesh Component added to entity with id {1}", m_Title, entity.Get());
+		return true;
+	}
+
+	template<>
+	bool Scene::OnComponentAdded<TexturedMeshComponent>(Entity entity, TexturedMeshComponent& component)
 	{
 		return true;
 	}
@@ -292,49 +301,63 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentDeleted<TagComponent>(Entity entity, TagComponent& component)
 	{
-		ENGINE_INFO("[{0}]::Tag Component has been deleted from entity with id {1}", m_Title, entity.Get());
+		ENGINE_WARNING("[{0}]::Tag Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 
 	template<>
 	bool Scene::OnComponentDeleted<TransformComponent>(Entity entity, TransformComponent& component)
 	{
-		ENGINE_INFO("[{0}]::Transform Component has been deleted from entity with id {1}", m_Title, entity.Get());
+		ENGINE_WARNING("[{0}]::Transform Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 
 	template<>
 	bool Scene::OnComponentDeleted<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component)
 	{
-		ENGINE_INFO("[{0}]::Sprite Component has been deleted from entity with id {1}", m_Title, entity.Get());
+		ENGINE_WARNING("[{0}]::Sprite Component has been deleted from entity with id {1}", m_Title, entity.Get());
+		return true;
+	}
+
+	template<>
+	bool Scene::OnComponentDeleted<TextureRendererComponent>(Entity entity, TextureRendererComponent& component)
+	{
+		ENGINE_WARNING("[{0}]::Texture Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 
 	template<>
 	bool Scene::OnComponentDeleted<NativeScriptComponent>(Entity entity, NativeScriptComponent& component)
 	{
-		ENGINE_INFO("[{0}]::Native Script Component has been deleted from entity with id {1}", m_Title, entity.Get());
+		ENGINE_WARNING("[{0}]::Native Script Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 
 	template<>
 	bool Scene::OnComponentDeleted<CameraComponent>(Entity entity, CameraComponent& component)
 	{
-		ENGINE_INFO("[{0}]::Camera Component has been deleted from entity with id {1}", m_Title, entity.Get());
+		ENGINE_WARNING("[{0}]::Camera Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 
 	template<>
 	bool Scene::OnComponentDeleted<ModelComponent>(Entity entity, ModelComponent& component)
 	{
-		ENGINE_INFO("[{0}]::ModelComponent has been deleted from entity with id {1}", m_Title, entity.Get());
+		ENGINE_WARNING("[{0}]::ModelComponent has been deleted from entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 
 	template<>
 	bool Scene::OnComponentDeleted<MeshComponent>(Entity entity, MeshComponent& component)
 	{
-		ENGINE_INFO("[{0}]::MeshComponent has been deleted from entity with id {1}", m_Title, entity.Get());
+		ENGINE_WARNING("[{0}]::MeshComponent has been deleted from entity with id {1}", m_Title, entity.Get());
+		return true;
+	}
+
+	template<>
+	bool Scene::OnComponentDeleted<TexturedMeshComponent>(Entity entity, TexturedMeshComponent& component)
+	{
+		ENGINE_WARNING("[{0}]::TexturedMeshComponent has been deleted from entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
 }

@@ -40,6 +40,8 @@ namespace RealEngine {
 		Texture2D SpriteCheckerBoard;
 		Texture2D CubeMap;
 
+		std::vector<Texture2D> Textures;
+
 		FrameBuffer* m_FrameBuffer;
 
 		Scene* m_ActiveScene;
@@ -60,6 +62,8 @@ namespace RealEngine {
 
 		Mesh mesh;
 		Mesh mesh2;
+
+		Material mat;
 
 		std::vector<Vertex> verticesAxe;
 		std::vector<glm::uint32_t> indicesAxe;

@@ -40,6 +40,9 @@ namespace RealEngine {
         uint32_t* IndicesBase = nullptr;
 
         uint32_t QuadIndexCount = 0;
+        uint32_t QuadVerticesCount = 0;
+
+        std::string FilePath = "";
     private:
     };
 

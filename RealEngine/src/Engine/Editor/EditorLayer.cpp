@@ -7,6 +7,8 @@
 #include "Models/Mesh.h"
 #include <spdlog/spdlog.h>
 
+#include "Renderer/RenderCommand.h"
+
 #include <ImGuizmo.h>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -26,52 +28,56 @@ namespace RealEngine {
 
         m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 
-        SpriteCheckerBoard.LoadFromFile("res/sprites/Checkerboard.png");
+        SpriteCheckerBoard.LoadFromFileFormatted("res/sprites/Checkerboard.png");
                  
         m_ActiveScene = new Scene();
         m_ActiveScene->SetTitle("Example");
         m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
-        Material mat;
-        mat.Albedo = glm::vec3{ 0.8f, 0.8f, 0.8f };
+        Texture2D albedo;
+        Texture2D metallic;
+        Texture2D roughness;
+        Texture2D ao;
+        Texture2D normal;
+        Textures.push_back(albedo);
+        Textures.push_back(metallic);
+        Textures.push_back(roughness);
+        Textures.push_back(ao);
+        Textures.push_back(normal);
+        Textures[0].LoadFromFile("assets/models/Material/albedo.png");
+        Textures[1].LoadFromFile("assets/models/Material/metallic.png");
+        Textures[2].LoadFromFile("assets/models/Material/roughness.png");
+        Textures[4].LoadFromFile("assets/models/Material/normal.png");
+
+        mat.Albedo = glm::vec3{ 2.0f, 1.0f, 0.0f };
         mat.Metallic = 1.0f;
         mat.Roughness = 0.5f;
         mat.AO = 1.0f;
-
-
-        mesh2.m_Material = mat;
+        
         mesh.m_Material = mat;
-        //ModelLoader::LoadObjectFromFBX("assets/models/a.fbx", mesh2);
-        ModelLoader::LoadObjectFromFBX("assets/models/plane.fbx", mesh2);
-        model = m_ActiveScene->CreateEntity("Cube");
-        model.AddComponent<MeshComponent>();
-        auto& meshcomps = model.GetComponent<MeshComponent>();
-        meshcomps.ownMesh = mesh2;
-        meshcomps.ownMesh.m_Material = mat;
-
-        //ModelLoader::LoadObjectFromOBJ("assets/models/axe", mesh2);
-        model2 = m_ActiveScene->CreateEntity("plane");
-        model2.AddComponent<MeshComponent>();
-        auto& meshcomp = model2.GetComponent<MeshComponent>();
-        meshcomp.ownMesh = mesh2;
+        mesh2.m_Material = mat;
 
         model3 = m_ActiveScene->CreateEntity("plane 3");
-        model3.AddComponent<MeshComponent>();
-        auto& meshc = model3.GetComponent<MeshComponent>();
-        meshc.ownMesh = mesh2;
+        model3.AddComponent<TextureRendererComponent>();
+        auto& meshc = model3.GetComponent<TextureRendererComponent>();
+        meshc.Texture = SpriteCheckerBoard;
+        
+        ModelLoader::LoadObjectFromOBJ("assets/models/roundedcube", mesh);
 
-        ModelLoader::LoadObjectFromOBJ("assets/models/axe", mesh);
+
+
+        ModelLoader::LoadObjectFromOBJ("assets/models/spheresmooth", mesh2);
         model5 = m_ActiveScene->CreateEntity("cube.fbx");
         model5.AddComponent<MeshComponent>();
         auto& meshs = model5.GetComponent<MeshComponent>();
         meshs.ownMesh = mesh;
-        //meshcomp.ownMesh.m_Material = mat;
-        //ModelLoader::LoadObjectFromFBX("assets/models/plane.fbx", mesh2);
-       /* model2 = m_ActiveScene->CreateEntity("Cube");
-        model2.AddComponent<TextureRendererComponent>();
-        auto& meshcomp = model2.GetComponent<TextureRendererComponent>().Texture;
-        meshcomp = SpriteCheckerBoard;*/
 
+        model2 = m_ActiveScene->CreateEntity("plane");
+        model2.AddComponent<TexturedMeshComponent>();
+        auto& meshcomp = model2.GetComponent<TexturedMeshComponent>();
+        meshcomp.ownMesh = mesh2;
+        meshcomp.Textures = Textures;
+               
 	}
 
 	EditorLayer::~EditorLayer()
@@ -83,7 +89,7 @@ namespace RealEngine {
     void EditorLayer::OnUpdate(float ts)
     {
         m_ActiveScene->OnUpdate(ts);
-        std::cout << ts << std::endl;
+        ENGINE_TRACE(ts);
         m_ActiveScene->OnViewportResize(m_ViewPortSize.x, m_ViewPortSize.y);
 
         if (m_SceneWindowIsFocused)
@@ -329,8 +335,8 @@ namespace RealEngine {
     {
         m_FrameBuffer->Bind();
         
-        Renderer::Clear();
-
+        RenderCommand::Clear();
+        //Renderer::Clear();
         m_FrameBuffer->ClearAttachment(1, -1);
 
         m_ActiveScene->OnRenderEditor(m_EditorCamera);

@@ -40,20 +40,10 @@ namespace RealEngine {
 	private:
 		std::string m_Title = "Untitled";
 
-		std::vector<Vertex> verticesAxe;
-		std::vector<glm::uint32_t> indicesAxe;
-
-		std::vector<Vertex> verticesCone;
-		std::vector<glm::uint32_t> indicesCone;
-
 		entt::registry m_Registry;
 
 		uint32_t m_ViewportWidth = 0;
 		uint32_t m_ViewportHeight = 0;
-
-		Mesh mesh;
-
-		Material mat;
 
 		friend class Entity;
 		friend class SceneHierarchyPanel;

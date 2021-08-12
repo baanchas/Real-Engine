@@ -15,6 +15,7 @@ namespace RealEngine {
 		void UnBind();
 
 		void LoadFromFile(const std::string& path);
+		void LoadFromFileFormatted(const std::string& path);
 		uint32_t LoadCubeMapTexture(std::vector<std::string>& path);
 
 		void SetRendererID(unsigned int id) { m_RendererID = id; };
@@ -22,6 +23,8 @@ namespace RealEngine {
 
 		void SetRotation(float rotation) { m_Rotation = rotation; }
 		inline float GetRotation() const { return m_Rotation; }
+
+		inline std::string GetFilePath() { return m_FilePath; }
 
 		inline int GetWidth() const { return m_Width; }
 		inline int GetHeight() const { return m_Height; }

@@ -8,14 +8,10 @@ namespace RealEngine {
 		glm::vec4 Color;
 		glm::vec2 TexCoord;
 		glm::vec3 Normal;
-		glm::vec3 Albedo;
-		float Metallic;
-		float Roughness;
-		float AO;
+		float IsFlatColored;
 		float TexId;
 		float TilingFactor;
 		int entityID;
-
 		//glm::vec3 Ambient;
 		//glm::vec3 Diffuse;
 		//glm::vec3 Specular;

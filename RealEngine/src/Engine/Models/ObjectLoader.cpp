@@ -15,9 +15,6 @@ namespace RealEngine {
 		std::vector<uint32_t> vertexTexCoordIndicies;
 		std::vector<uint32_t> vertexNormalsIndices;
 
-		//std::vector<Vertex> verticesToReturn;
-		//std::vector<uint32_t> indicesToReturn;
-
 		std::ifstream in(fileName + ".obj");
 
 		std::stringstream ss;
@@ -31,6 +28,8 @@ namespace RealEngine {
 		uint32_t tempFaceVariable = 0;
 
 		int vertexCounter = 0;
+
+		mesh.FilePath = fileName + ".obj";
 
 		mesh.VerticesBase = new Vertex[200000];
 		mesh.VerticesPtr = mesh.VerticesBase;
@@ -170,12 +169,12 @@ namespace RealEngine {
 					mesh.IndicesPtr++;
 
 					//tempIndex++;
+					tempIndex++;
 					mesh.QuadIndexCount += 3;
 
-				/*	mesh.GetIndices().push_back(vertexCounter - tempIndices.size());
+					mesh.GetIndices().push_back(vertexCounter - tempIndices.size());
 					mesh.GetIndices().push_back(vertexCounter - tempIndices.size() + tempIndex);
-					mesh.GetIndices().push_back(vertexCounter - tempIndices.size() + tempIndex + 1);*/
-					tempIndex++;
+					mesh.GetIndices().push_back(vertexCounter - tempIndices.size() + tempIndex + 1);
 				}
 
 			}
@@ -195,25 +194,25 @@ namespace RealEngine {
 			mesh.GetVertices()[i].Albedo = mesh.m_Material.Albedo;*/
 
 			mesh.VerticesPtr->Position = vertexPositions[vertexPositionsIndices[i] - 1];
-			mesh.VerticesPtr->Normal = vertexNormals[vertexNormalsIndices[i] - 1];;
+			mesh.VerticesPtr->Normal = vertexNormals[vertexNormalsIndices[i] - 1];
 			mesh.VerticesPtr->Color = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
 			mesh.VerticesPtr->TexCoord = vertexTexCoords[vertexTexCoordIndicies[i] - 1];
-			mesh.VerticesPtr->Metallic = mesh.m_Material.Metallic;
-			mesh.VerticesPtr->Roughness = mesh.m_Material.Roughness;
-			mesh.VerticesPtr->AO = mesh.m_Material.AO;
-			mesh.VerticesPtr->Albedo = mesh.m_Material.Albedo;
 			mesh.VerticesPtr->TexId = 32.0f;
 			mesh.VerticesPtr->TilingFactor = 1.0f;
 			//mesh.VerticesPtr->Matrix = glm::mat4(1.0f);
 			mesh.VerticesPtr++;
 
 		}
-		ENGINE_INFO("{0} Vertices has been loaded from ""{1}"" file.", vertexPositionsIndices.size(), fileName);
+		//mesh.QuadIndexCount = mesh.QuadIndexCount + 3;
+		ENGINE_TRACE(mesh.QuadIndexCount);
+		ENGINE_INFO("[ModelLoader::OBJ]::{0} Vertices has been loaded from ""{1}"" file.\n", vertexPositionsIndices.size(), fileName + ".obj");
 	}
 
 
 	void ModelLoader::LoadObjectFromFBX(const std::string& path, Mesh& myMesh)
 	{
+		myMesh.FilePath = path;
+
 		// Create the FBX SDK manager
 		FbxManager* lSdkManager = FbxManager::Create();
 
@@ -284,6 +283,7 @@ namespace RealEngine {
 		}
 
 		const int childCount = node->GetChildCount();
+
 		if (childCount != 0)
 		{
 			for (int i = 0; i < childCount; i++)
@@ -301,12 +301,13 @@ namespace RealEngine {
 		const int polygonCount = mesh->GetPolygonCount();
 		std::vector<glm::vec3> verticesPositions;
 
-		ENGINE_INFO("[ModelLOader::FBX]::\tImporting {0} polygons.", polygonCount);
+		ENGINE_TRACE("[ModelLOader::FBX]::\tImporting {0} polygons.", polygonCount);
 
 		ProcessControlPoints(mesh, verticesPositions);
-		uint32_t triCount = mesh->GetPolygonCount();
+		
+		uint32_t polygonCountOfTheMesh = mesh->GetPolygonCount();
+		
 		int vertexCounter = 0;
-		int* indicesCount = mesh->GetPolygonVertices();
 
 		myMesh.VerticesBase = new Vertex[200000];
 		myMesh.VerticesPtr = myMesh.VerticesBase;
@@ -314,9 +315,7 @@ namespace RealEngine {
 		myMesh.IndicesBase = new uint32_t[300000];
 		myMesh.IndicesPtr = myMesh.IndicesBase;
 		
-		int inicesCount = 0;
-
-		for (uint32_t i = 0; i < triCount; i++)
+		for (uint32_t i = 0; i < polygonCountOfTheMesh; i++)
 		{
 			glm::vec3 tangent;
 			glm::vec3 binormal;
@@ -353,15 +352,12 @@ namespace RealEngine {
 				myMesh.VerticesPtr->Normal = normal;
 				myMesh.VerticesPtr->Color = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
 				myMesh.VerticesPtr->TexCoord = uv;
-				myMesh.VerticesPtr->Metallic = myMesh.m_Material.Metallic;
-				myMesh.VerticesPtr->Roughness = myMesh.m_Material.Roughness;
-				myMesh.VerticesPtr->AO = myMesh.m_Material.AO;
-				myMesh.VerticesPtr->Albedo = myMesh.m_Material.Albedo;
 				myMesh.VerticesPtr->TexId = 32.0f;
 				myMesh.VerticesPtr->TilingFactor = 1.0f;
 				//myMesh.VerticesPtr->Matrix = glm::mat4(1.0f);
 				myMesh.VerticesPtr++;
-			
+				
+				myMesh.QuadVerticesCount++;
 				vertexCounter++;
 			}
 
@@ -374,7 +370,7 @@ namespace RealEngine {
 				myMesh.GetIndices().push_back(startind);
 				myMesh.GetIndices().push_back(startind + tempIndex);
 				myMesh.GetIndices().push_back(startind + tempIndex + 1);
-				
+
 				*myMesh.IndicesPtr = startind;
 				myMesh.IndicesPtr++;
 				*myMesh.IndicesPtr = startind + tempIndex;
@@ -388,9 +384,7 @@ namespace RealEngine {
 
 		}
 
-		ENGINE_INFO("[ModelLoader::FBX]::\t{0} Vertices has been loaded.", vertexCounter);
-		std::cout << myMesh.VerticesBase << " " << myMesh.VerticesPtr;
-		std::cout << myMesh.QuadIndexCount << std::endl;
+		ENGINE_INFO("[ModelLoader::FBX]::\t{0} Vertices has been loaded from {1} file.\n", vertexCounter, myMesh.FilePath);
 	}
 
 	void ModelLoader::ProcessControlPoints(const FbxMesh* mesh, std::vector<glm::vec3>& positions)

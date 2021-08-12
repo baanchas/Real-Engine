@@ -128,7 +128,6 @@ namespace RealEngine{
 
 	};
 
-
 	struct MeshComponent
 	{
 		Mesh ownMesh;
@@ -136,6 +135,17 @@ namespace RealEngine{
 		MeshComponent() = default;
 		MeshComponent(const MeshComponent&) = default;
 		MeshComponent(Mesh& mesh)
+			: ownMesh(mesh) {}
+	};
+
+	struct TexturedMeshComponent
+	{
+		Mesh ownMesh;
+		std::vector<Texture2D> Textures;
+
+		TexturedMeshComponent() = default;
+		TexturedMeshComponent(const TexturedMeshComponent&) = default;
+		TexturedMeshComponent(Mesh& mesh)
 			: ownMesh(mesh) {}
 	};
 }
