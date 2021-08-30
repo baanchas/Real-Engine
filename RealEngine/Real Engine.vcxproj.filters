@@ -120,7 +120,7 @@
     <ClCompile Include="src\Engine\Renderer\EditorCamera.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\Models\ObjectLoader.cpp">
+    <ClCompile Include="src\Engine\Models\MeshLoader.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\Engine\Models\Mesh.cpp">
@@ -242,7 +242,7 @@
     <ClInclude Include="src\Engine\Renderer\EditorCamera.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine\Models\ObjectLoader.h">
+    <ClInclude Include="src\Engine\Models\MeshLoader.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\Engine\Models\Mesh.h">

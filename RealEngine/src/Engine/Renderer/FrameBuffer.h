@@ -36,9 +36,9 @@ namespace RealEngine {
 
 	struct FrameBufferSpecification
 	{
-		uint32_t m_Width, m_Height;
+		uint32_t Width, Height;
 		FrameBufferAttachmentSpecification Attachments;
-		uint32_t m_Samples = 1;
+		uint32_t Samples = 1;
 
 		bool m_SwapChainTarget = false;
 	};

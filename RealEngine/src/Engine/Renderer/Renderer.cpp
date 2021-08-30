@@ -10,7 +10,6 @@ namespace RealEngine {
 
     void Renderer::Init()
     {
-        //RenderCommand::Enable(GL_LINE_SMOOTH);
         RenderCommand::Enable(GL_BLEND);
         RenderCommand::SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         RenderCommand::Enable(GL_DEPTH_TEST);
@@ -20,12 +19,12 @@ namespace RealEngine {
 
         std::vector<std::string> faces
         {
-            "assets/skyboxes/quarry01/right.png",
-            "assets/skyboxes/quarry01/left.png",
-            "assets/skyboxes/quarry01/top.png",
-            "assets/skyboxes/quarry01/bottom.png",
-            "assets/skyboxes/quarry01/front.png",
-            "assets/skyboxes/quarry01/back.png"
+            "assets/skyboxes/quarry01_blurred/right.png",
+            "assets/skyboxes/quarry01_blurred/left.png",
+            "assets/skyboxes/quarry01_blurred/top.png",
+            "assets/skyboxes/quarry01_blurred/bottom.png",
+            "assets/skyboxes/quarry01_blurred/front.png",
+            "assets/skyboxes/quarry01_blurred/back.png"
         };
 
         s_Data.CubeMap.LoadCubeMapTexture(faces);
@@ -73,16 +72,19 @@ namespace RealEngine {
         s_Data.QuadVertexBufferBase = new Vertex[s_Data.MaxVertices];
 
         int32_t samplers[s_Data.MaxTextureSlots];
+
         for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
         {
             samplers[i] = i;
         }
+
         s_Data.Shader.SetUniformIntArray("u_Texture", samplers, s_Data.MaxTextureSlots);
 
-        for (uint32_t i = 0; i < s_Data.TextureIndex; i++)
+        /*for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
         {
-            s_Data.TextureSlots[i].SetRendererID(0);
-        }
+            s_Data.TextureSlots[i] = new Texture2D;
+            s_Data.TextureSlots[i]->SetRendererID(0);
+        }*/
 
         s_Data.VertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
         s_Data.VertexPositions[1] = { 0.5f, -0.5f, 0.0f, 1.0f };
@@ -111,14 +113,19 @@ namespace RealEngine {
         s_Data.IndexBuffer.Bind();
         s_Data.Shader.Bind();
         
+        s_Data.CubeMap.Bind();
+        s_Data.Shader.SetUniform1i("irradianceMap", s_Data.CubeMap.GetRendererID());
+
         s_Data.IndicesOffset = 0;
         s_Data.QuadIndexCount = 0;
         s_Data.DrawCallsCount = 0;
+        
 
         s_Data.QuadIndices = s_Data.QuadIndexBufferBase;
         s_Data.QuadIndicesPtr = s_Data.QuadIndices;
         s_Data.VertexBufferBase = s_Data.QuadVertexBufferBase;
         s_Data.VertexBufferPtr = s_Data.VertexBufferBase;
+
     }
 
     void Renderer::BeginScene(OrthographicCamera& camera)
@@ -134,7 +141,6 @@ namespace RealEngine {
 
     void Renderer::BeginSkyBoxScene(EditorCamera& camera)
     {
-        
         s_Data.SkyboxShader.Bind();
         s_Data.SkyboxVertexArray.Bind();
         s_Data.SkyboxIndexBuffer.Bind();
@@ -148,19 +154,15 @@ namespace RealEngine {
 
 	void Renderer::EndScene()
 	{
-        for (uint32_t i = 0; i < s_Data.TextureIndex; i++)
-        {
-            s_Data.TextureSlots[i].Bind(i);
-        }
-
         s_Data.Shader.SetUniformMat4f("u_ViewProjection", m_SceneData->ViewProjectionMatrix);
-      
+
         uint32_t dataSize = (uint8_t*)s_Data.VertexBufferPtr - (uint8_t*)s_Data.VertexBufferBase;
       
         s_Data.IndexBuffer.SetData((void*)s_Data.QuadIndices, s_Data.QuadIndexCount);
         s_Data.VertexBuffer.SetData((void*)s_Data.VertexBufferBase, dataSize);
 
         RenderCommand::DrawElements(GL_TRIANGLES, s_Data.QuadIndexCount, GL_UNSIGNED_INT, nullptr);
+        
     }
 
     void Renderer::EndSceneCubeMap()
@@ -181,11 +183,23 @@ namespace RealEngine {
     void Renderer::StartBatch()
     {
         EndScene();
+        ResetStats();
 
+    }
+
+    void Renderer::ResetStats()
+    {
+        s_Data.TextureIndex = 0;
         s_Data.QuadIndexCount = 0;
         s_Data.IndicesOffset = 0;
-        s_Data.VertexBufferPtr = s_Data.VertexBufferBase;
+
+        s_Data.QuadIndices = s_Data.QuadIndexBufferBase;
         s_Data.QuadIndicesPtr = s_Data.QuadIndices;
+        s_Data.VertexBufferBase = s_Data.QuadVertexBufferBase;
+        s_Data.VertexBufferPtr = s_Data.VertexBufferBase;
+
+        //s_Data.VertexBufferPtr = s_Data.VertexBufferBase;
+        //s_Data.QuadIndicesPtr = s_Data.QuadIndices;
 
         s_Data.DrawCallsCount++;
     }
@@ -195,14 +209,40 @@ namespace RealEngine {
         delete[] s_Data.VertexBufferBase;
     }
 
+    void Renderer::SetUniform1i(const std::string& name, const int& value)
+    {
+        s_Data.Shader.SetUniform1i(name, value);
+    }
+
+    void Renderer::SetUniform1f(const std::string& name, const float& value)
+    {
+        s_Data.Shader.SetUniform1f(name, value);
+    }
+
     void Renderer::SetUniform3f(const std::string& name, const glm::vec3& position)
     {
         s_Data.Shader.SetUniform3f(name, position.x, position.y, position.z);
     }
 
+    void Renderer::SetUniform3fArray(const std::string& name, const glm::vec3* position, const int count)
+    {
+        s_Data.Shader.SetUniformVec3Array(name, position, count);
+    }
+
     void Renderer::SetUniformMat4f(const std::string& name, const glm::mat4& transform)
     {
         s_Data.Shader.SetUniformMat4f(name, transform);
+    }
+
+    void Renderer::BindTextures()
+    {
+        for (uint32_t i = 0; i < s_Data.TextureIndex; i++)
+        {
+            if (s_Data.TextureSlots[i] != nullptr)
+            {
+                s_Data.TextureSlots[i]->Bind(i);
+            }
+        }
     }
 
     void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID)
@@ -269,26 +309,13 @@ namespace RealEngine {
         s_Data.QuadIndexCount += 6;
     }
 
-    void Renderer::DrawQuad(const glm::mat4& transform, Texture2D& texture, float tilingFactor, float entityID)
+    void Renderer::DrawQuad(const glm::mat4& transform, Texture2D* texture, float tilingFactor, float entityID)
     {
-        float textureIndex = 0.0f;
+        float textureIndex = (float)s_Data.TextureIndex;
 
-        for (uint32_t i = 1; i < s_Data.TextureIndex; i++)
-        {
-            if (s_Data.TextureSlots[i] == texture)
-            {
-                textureIndex = (float)i;
-                break;
-            }
-        }
+        s_Data.TextureSlots[s_Data.TextureIndex] = texture;
+        s_Data.TextureIndex++;
 
-        if (textureIndex == 0.0f)
-        {
-            textureIndex = (float)s_Data.TextureIndex;
-
-            s_Data.TextureSlots[s_Data.TextureIndex] = texture;
-            s_Data.TextureIndex++;
-        }
 
         s_Data.Shader.SetUniformMat4f("u_MeshTransform", glm::mat4(1.0f));
         s_Data.Shader.SetUniform1i("u_IsTextured", 0);
@@ -297,11 +324,7 @@ namespace RealEngine {
         s_Data.VertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
         s_Data.VertexBufferPtr->TexCoord = { 0.0f, 0.0f };
         s_Data.VertexBufferPtr->Normal = { 0.0f, 0.0f, 1.0f };
-        //*s_Data.VertexBufferPtr->Albedo = { 1.0f, 1.0f, 1.0f};
         s_Data.VertexBufferPtr->IsFlatColored = 1.0f;
-        //*s_Data.VertexBufferPtr->Metallic = 1.0f;
-        //*s_Data.VertexBufferPtr->Roughness = 0.5f;
-        //*s_Data.VertexBufferPtr->AO = 1.0f;
         s_Data.VertexBufferPtr->TexId = textureIndex;
         s_Data.VertexBufferPtr->TilingFactor = tilingFactor;
         s_Data.VertexBufferPtr->entityID = entityID;
@@ -311,11 +334,7 @@ namespace RealEngine {
         s_Data.VertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
         s_Data.VertexBufferPtr->TexCoord = { 1.0f, 0.0f };
         s_Data.VertexBufferPtr->Normal = { 0.0f, 0.0f, 1.0f };
-        //*s_Data.VertexBufferPtr->Albedo = { 1.0f, 1.0f, 1.0f };
         s_Data.VertexBufferPtr->IsFlatColored = 1.0f;
-        //*s_Data.VertexBufferPtr->Metallic = 1.0f;
-        //*s_Data.VertexBufferPtr->Roughness = 0.5f;
-        //*s_Data.VertexBufferPtr->AO = 1.0f;
         s_Data.VertexBufferPtr->TexId = textureIndex;
         s_Data.VertexBufferPtr->TilingFactor = tilingFactor;
         s_Data.VertexBufferPtr->entityID = entityID;
@@ -325,11 +344,7 @@ namespace RealEngine {
         s_Data.VertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
         s_Data.VertexBufferPtr->TexCoord = { 1.0f, 1.0f };
         s_Data.VertexBufferPtr->Normal = { 0.0f, 0.0f, 1.0f };
-        //*s_Data.VertexBufferPtr->Albedo = { 1.0f, 1.0f, 1.0f };
         s_Data.VertexBufferPtr->IsFlatColored = 1.0f;
-        //*s_Data.VertexBufferPtr->Metallic = 1.0f;
-       // *s_Data.VertexBufferPtr->Roughness = 0.5f;
-        //*s_Data.VertexBufferPtr->AO = 1.0f;
         s_Data.VertexBufferPtr->TexId = textureIndex;
         s_Data.VertexBufferPtr->TilingFactor = tilingFactor;
         s_Data.VertexBufferPtr->entityID = entityID;
@@ -339,16 +354,13 @@ namespace RealEngine {
         s_Data.VertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
         s_Data.VertexBufferPtr->TexCoord = { 0.0f, 1.0f };
         s_Data.VertexBufferPtr->Normal = { 0.0f, 0.0f, 1.0f };
-        //*s_Data.VertexBufferPtr->Albedo = { 1.0f, 1.0f, 1.0f };
         s_Data.VertexBufferPtr->IsFlatColored = 1.0f;
-        //*s_Data.VertexBufferPtr->Metallic = 1.0f;
-       // *s_Data.VertexBufferPtr->Roughness = 0.5f;
-       // *s_Data.VertexBufferPtr->AO = 1.0f;
         s_Data.VertexBufferPtr->TexId = textureIndex;
         s_Data.VertexBufferPtr->TilingFactor = tilingFactor;
         s_Data.VertexBufferPtr->entityID = entityID;
         s_Data.VertexBufferPtr++;
 
+        
         *s_Data.QuadIndicesPtr = s_Data.IndicesOffset + 0;
         s_Data.QuadIndicesPtr++;
         *s_Data.QuadIndicesPtr = s_Data.IndicesOffset + 1;
@@ -377,29 +389,15 @@ namespace RealEngine {
         DrawQuad(transform, color, entityID);
     }
 
-    void Renderer::DrawQuad(const glm::vec3& position, glm::vec2& size, Texture2D& texture, float tilingFactor, float entityID)
+    void Renderer::DrawQuad(const glm::vec3& position, glm::vec2& size, Texture2D* texture, float tilingFactor, float entityID)
     {
-        float textureIndex = 0.0f;
+        float textureIndex = (float)s_Data.TextureIndex;
 
-        for (uint32_t i = 1; i < s_Data.TextureIndex; i++)
-        {
-            if (s_Data.TextureSlots[i] == texture)
-            {
-                textureIndex = (float)i;
-                break;
-            }
-        }
-
-        if (textureIndex == 0.0f)
-        {
-            textureIndex = (float)s_Data.TextureIndex;
-
-            s_Data.TextureSlots[s_Data.TextureIndex] = texture;
-            s_Data.TextureIndex++;
-        }
+        s_Data.TextureSlots[s_Data.TextureIndex] = texture;
+        s_Data.TextureIndex++;
 
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) *
-            glm::rotate(glm::mat4(1.0f), glm::radians(texture.GetRotation()), { 0.0f, 0.0f, 1.0f }) *
+            glm::rotate(glm::mat4(1.0f), glm::radians(texture->GetRotation()), { 0.0f, 0.0f, 1.0f }) *
             glm::scale(glm::mat4(1.0f), { size, 1.0f });
 
         DrawQuad(transform, texture, tilingFactor, entityID);
@@ -446,6 +444,7 @@ namespace RealEngine {
 
     void Renderer::DrawMesh(const glm::mat4& transform, Mesh& mesh, int entityID)
     {
+
         s_Data.Shader.SetUniformMat4f("u_MeshTransform", transform);
         s_Data.Shader.SetUniform1i("u_EntityID", entityID);
         s_Data.Shader.SetUniform1i("u_IsTextured", 0);
@@ -459,7 +458,7 @@ namespace RealEngine {
         s_Data.VertexBufferBase = mesh.VerticesBase;
         s_Data.VertexBufferPtr = mesh.VerticesPtr;
         s_Data.QuadIndices = mesh.IndicesBase;
-        s_Data.IndicesOffset += mesh.QuadVerticesCount;
+        s_Data.IndicesOffset = mesh.QuadVerticesCount;
         
         StartBatch();
         // TODO::Reconsider which method is better to Render;
@@ -533,6 +532,72 @@ namespace RealEngine {
         s_Data.VertexBufferBase = mesh.VerticesBase;
         s_Data.VertexBufferPtr = mesh.VerticesPtr;
         s_Data.QuadIndices = mesh.IndicesBase;
+    }
+
+    void Renderer::DrawLight(const glm::mat4& transform, const Light& light, Texture2D* texture, int entityID)
+    {
+        s_Data.Shader.SetUniformMat4f("u_MeshTransform", glm::mat4(1.0f));
+        s_Data.TextureSlots[25] = texture;
+        s_Data.TextureSlots[25]->Bind(25);
+
+        s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[0];
+        s_Data.VertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+        s_Data.VertexBufferPtr->TexCoord = { 0.0f, 0.0f };
+        s_Data.VertexBufferPtr->Normal = { 0.0f, 0.0f, 1.0f };
+        s_Data.VertexBufferPtr->IsFlatColored = 1.0f;
+        s_Data.VertexBufferPtr->TexId = 25.0f;
+        s_Data.VertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.VertexBufferPtr->entityID = entityID;
+        s_Data.VertexBufferPtr++;
+
+        s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[1];
+        s_Data.VertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+        s_Data.VertexBufferPtr->TexCoord = { 1.0f, 0.0f };
+        s_Data.VertexBufferPtr->Normal = { 0.0f, 0.0f, 1.0f };
+        s_Data.VertexBufferPtr->IsFlatColored = 1.0f;
+        s_Data.VertexBufferPtr->TexId = 25.0f;
+        s_Data.VertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.VertexBufferPtr->entityID = entityID;
+        s_Data.VertexBufferPtr++;
+
+        s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[2];
+        s_Data.VertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+        s_Data.VertexBufferPtr->TexCoord = { 1.0f, 1.0f };
+        s_Data.VertexBufferPtr->Normal = { 0.0f, 0.0f, 1.0f };
+        s_Data.VertexBufferPtr->IsFlatColored = 1.0f;
+        s_Data.VertexBufferPtr->TexId = 25.0f;
+        s_Data.VertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.VertexBufferPtr->entityID = entityID;
+        s_Data.VertexBufferPtr++;
+
+        s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[3];
+        s_Data.VertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+        s_Data.VertexBufferPtr->TexCoord = { 0.0f, 1.0f };
+        s_Data.VertexBufferPtr->Normal = { 0.0f, 0.0f, 1.0f };
+        s_Data.VertexBufferPtr->IsFlatColored = 1.0f;
+        s_Data.VertexBufferPtr->TexId = 25.0f;
+        s_Data.VertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.VertexBufferPtr->entityID = entityID;
+        s_Data.VertexBufferPtr++;
+
+
+        *s_Data.QuadIndicesPtr = s_Data.IndicesOffset + 0;
+        s_Data.QuadIndicesPtr++;
+        *s_Data.QuadIndicesPtr = s_Data.IndicesOffset + 1;
+        s_Data.QuadIndicesPtr++;
+        *s_Data.QuadIndicesPtr = s_Data.IndicesOffset + 2;
+        s_Data.QuadIndicesPtr++;
+
+        *s_Data.QuadIndicesPtr = s_Data.IndicesOffset + 3;
+        s_Data.QuadIndicesPtr++;
+        *s_Data.QuadIndicesPtr = s_Data.IndicesOffset + 2;
+        s_Data.QuadIndicesPtr++;
+        *s_Data.QuadIndicesPtr = s_Data.IndicesOffset + 0;
+        s_Data.QuadIndicesPtr++;
+
+
+        s_Data.IndicesOffset += 4;
+        s_Data.QuadIndexCount += 6;
     }
 
     void Renderer::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)

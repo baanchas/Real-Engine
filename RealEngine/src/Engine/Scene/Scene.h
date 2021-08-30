@@ -5,7 +5,7 @@
 #include "Renderer/Renderer.h"
 #include "Renderer/EditorCamera.h"
 #include "SceneSerializer.h"
-#include "Models/ObjectLoader.h"
+#include "Models/MeshLoader.h"
 
 namespace RealEngine {
 
@@ -48,6 +48,14 @@ namespace RealEngine {
 		friend class Entity;
 		friend class SceneHierarchyPanel;
 		friend class SceneSerializer;
+
+		glm::vec3* m_SceneLightsPositionsBase;
+		glm::vec3* m_SceneLightsColorsBase;
+
+		std::vector<glm::vec3> m_SceneLightsPositions;
+		std::vector<glm::vec3> m_SceneLightsColors;
+
+		Texture2D m_LightTexture;
 	};
 
 }

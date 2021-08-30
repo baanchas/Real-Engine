@@ -22,61 +22,60 @@ namespace RealEngine {
         
         FrameBufferSpecification FrameBufferSpec;
         FrameBufferSpec.Attachments = { FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::RED_INTEGER, FrameBufferTextureFormat::Depth };
-        FrameBufferSpec.m_Width = Application::Get().GetWindow().GetWidth();
-        FrameBufferSpec.m_Height = Application::Get().GetWindow().GetHeight();
+        FrameBufferSpec.Width = Application::Get().GetWindow().GetWidth();
+        FrameBufferSpec.Height = Application::Get().GetWindow().GetHeight();
+        //FrameBufferSpec.Samples = 4;
         m_FrameBuffer = new FrameBuffer(FrameBufferSpec);
 
         m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 
-        SpriteCheckerBoard.LoadFromFileFormatted("res/sprites/Checkerboard.png");
+        //CubeMap.LoadFromFileFormatted("res/sprites/components/lightImage.png");
+        SpriteCheckerBoard.LoadFromFileFormatted("res/sprites/components/lightIMage.png");
+        CubeMap.LoadFromFileFormatted("res/sprites/Checkerboard.png");
                  
         m_ActiveScene = new Scene();
         m_ActiveScene->SetTitle("Example");
         m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
-        Texture2D albedo;
-        Texture2D metallic;
-        Texture2D roughness;
-        Texture2D ao;
-        Texture2D normal;
-        Textures.push_back(albedo);
-        Textures.push_back(metallic);
-        Textures.push_back(roughness);
-        Textures.push_back(ao);
-        Textures.push_back(normal);
-        Textures[0].LoadFromFile("assets/models/Material/albedo.png");
-        Textures[1].LoadFromFile("assets/models/Material/metallic.png");
-        Textures[2].LoadFromFile("assets/models/Material/roughness.png");
-        Textures[4].LoadFromFile("assets/models/Material/normal.png");
-
-        mat.Albedo = glm::vec3{ 2.0f, 1.0f, 0.0f };
-        mat.Metallic = 1.0f;
-        mat.Roughness = 0.5f;
-        mat.AO = 1.0f;
+        material.Albedo = glm::vec3{ 2.0f, 1.0f, 0.0f };
+        material.Metallic = 1.0f;
+        material.Roughness = 0.5f;
+        material.AO = 1.0f;
         
-        mesh.m_Material = mat;
-        mesh2.m_Material = mat;
+        mesh.m_Material = material;
 
-        model3 = m_ActiveScene->CreateEntity("plane 3");
-        model3.AddComponent<TextureRendererComponent>();
-        auto& meshc = model3.GetComponent<TextureRendererComponent>();
-        meshc.Texture = SpriteCheckerBoard;
-        
-        ModelLoader::LoadObjectFromOBJ("assets/models/roundedcube", mesh);
+        MeshLoader::LoadMeshFromOBJ("assets/models/spherehighpoly", mesh);
 
-
-
-        ModelLoader::LoadObjectFromOBJ("assets/models/spheresmooth", mesh2);
-        model5 = m_ActiveScene->CreateEntity("cube.fbx");
-        model5.AddComponent<MeshComponent>();
-        auto& meshs = model5.GetComponent<MeshComponent>();
+        model = m_ActiveScene->CreateEntity("Sphere");
+        model.AddComponent<MeshComponent>();
+        auto& meshs = model.GetComponent<MeshComponent>();
         meshs.ownMesh = mesh;
 
-        model2 = m_ActiveScene->CreateEntity("plane");
-        model2.AddComponent<TexturedMeshComponent>();
-        auto& meshcomp = model2.GetComponent<TexturedMeshComponent>();
-        meshcomp.ownMesh = mesh2;
-        meshcomp.Textures = Textures;
+
+        model3 = m_ActiveScene->CreateEntity("Light");
+        model3.AddComponent<TextureRendererComponent>();
+        auto& text2 = model3.GetComponent<TextureRendererComponent>().Texture;
+        text2 = &CubeMap;
+
+        model2 = m_ActiveScene->CreateEntity("Light");
+        model2.AddComponent<Light>();
+        auto& tr = model2.GetComponent<TransformComponent>();
+        tr.Position = { 10.0f, 10.0f, 10.0f };
+
+        model4 = m_ActiveScene->CreateEntity("Light");
+        model4.AddComponent<Light>();
+        auto& tr4 = model4.GetComponent<TransformComponent>();
+        tr4.Position = { -10.0f, 10.0f, 10.0f };
+
+        //CheckerBoard.LoadFromFile("res/sprites/checkerboard.png");
+
+      /*  model4 = m_ActiveScene->CreateEntity("Light");
+        model4.AddComponent<TextureRendererComponent>();
+        auto& text3 = model4.GetComponent<TextureRendererComponent>();
+        text3.Texture = CheckerBoard;*/
+
+
+        //text.ownMesh = mesh;
                
 	}
 
@@ -89,7 +88,6 @@ namespace RealEngine {
     void EditorLayer::OnUpdate(float ts)
     {
         m_ActiveScene->OnUpdate(ts);
-        ENGINE_TRACE(ts);
         m_ActiveScene->OnViewportResize(m_ViewPortSize.x, m_ViewPortSize.y);
 
         if (m_SceneWindowIsFocused)
@@ -102,7 +100,7 @@ namespace RealEngine {
 	void EditorLayer::OnEvent(Event& event)
 	{
         m_ActiveScene->OnEvent(event);
-
+       
         if (m_SceneWindowIsFocused)
         {
             m_EditorCamera.OnEvent(event);
@@ -335,13 +333,16 @@ namespace RealEngine {
     {
         m_FrameBuffer->Bind();
         
-        RenderCommand::Clear();
+        RenderCommand::SetClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+        RenderCommand::Clear();  
         //Renderer::Clear();
         m_FrameBuffer->ClearAttachment(1, -1);
 
         m_ActiveScene->OnRenderEditor(m_EditorCamera);
-        //ImGui::ShowDemoWindow();
+        
         OnImGuiRender();
+
+        ImGui::ShowDemoWindow();
 
         m_FrameBuffer->UnBind();
 

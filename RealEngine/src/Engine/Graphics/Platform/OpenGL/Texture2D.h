@@ -15,8 +15,8 @@ namespace RealEngine {
 		void UnBind();
 
 		void LoadFromFile(const std::string& path);
+
 		void LoadFromFileFormatted(const std::string& path);
-		uint32_t LoadCubeMapTexture(std::vector<std::string>& path);
 
 		void SetRendererID(unsigned int id) { m_RendererID = id; };
 		inline unsigned int GetRendererID() const { return m_RendererID; }
@@ -31,7 +31,7 @@ namespace RealEngine {
 
 		bool operator==(Texture2D& other)
 		{
-			return this->GetRendererID() == other.GetRendererID();
+			return m_RendererID == other.GetRendererID();
 		}
 	private:
 		unsigned int m_RendererID = 0;

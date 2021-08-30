@@ -5,8 +5,12 @@ layout(location = 1) out int ID;
 
 const float PI = 3.14159265359;
 
-uniform vec3 lightPos;
-uniform vec3 viewPos;
+const int MAX_LIGHTS = 500;
+
+uniform int u_LightCount;
+uniform vec3 u_LightPositions[MAX_LIGHTS];
+uniform vec3 u_LightColors[MAX_LIGHTS];
+uniform vec3 u_ViewPos;
 
 in vec3 v_Position;
 in vec4 v_Color;
@@ -22,21 +26,22 @@ in float v_TilingFactor;
 in flat int v_EntityID;
 in mat4 v_MeshTransform;
 
-uniform sampler2D u_Texture[27];
+uniform sampler2D u_Texture[26];
 uniform sampler2D u_TexturedMap[5];
+uniform float u_AmbientOcclusion;
 uniform int u_IsTextured;
 uniform int u_EntityID;
 
-vec3 getNormalFromMap()
+vec3 getNormalFromMap(vec3 normal, vec2 texCoord)
 {
-    vec3 tangentNormal = texture(u_TexturedMap[4], v_TexCoord).xyz * 2.0 - 1.0; //normal map
-
+    vec3 tangentNormal = texture(u_TexturedMap[4], texCoord).xyz * 2.0 - 1.0; //normal map            
+	 
     vec3 Q1  = dFdx(v_Position);
-    vec3 Q2  = dFdy(v_Position);
-    vec2 st1 = dFdx(v_TexCoord);
-    vec2 st2 = dFdy(v_TexCoord);
+    vec3 Q2  = dFdy(v_Position) ;
+    vec2 st1 = dFdx(texCoord);
+    vec2 st2 = dFdy(texCoord);
 
-    vec3 N   = normalize(v_Normal);
+    vec3 N   = normalize(normal);
     vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
     vec3 B  = -normalize(cross(N, T));
     mat3 TBN = mat3(T, B, N);
@@ -120,59 +125,71 @@ void main()
 			case 22: texColor *= texture(u_Texture[22], v_TexCoord * v_TilingFactor); break;
 			case 23: texColor *= texture(u_Texture[23], v_TexCoord * v_TilingFactor); break;
 			case 24: texColor *= texture(u_Texture[24], v_TexCoord * v_TilingFactor); break;
+			//case 25: texColor *= texture(u_Texture[25], v_TexCoord * v_TilingFactor); break;
 			case 25: texColor *= texture(u_Texture[25], v_TexCoord * v_TilingFactor); break;
-			case 26: texColor *= texture(u_Texture[26], v_TexCoord * v_TilingFactor); break;
 		}
 	}
 	else
 	{
-		vec3 albedo = v_Albedo;
-		vec3 normal = v_Normal;
-		float metallic = v_Metallic;
-		float roughness = v_Roughness;
-		float ao = v_AO;
+		vec3 f_Albedo = v_Albedo;
+		vec3 f_Normal = v_Normal;
+		float f_Metallic = v_Metallic;
+		float f_Roughness = v_Roughness;
 
 		if (u_IsTextured == 1)
 		{
-			albedo = pow(texture(u_TexturedMap[0], v_TexCoord).rgb, vec3(2.2)); //albedo
-			metallic = texture(u_TexturedMap[1], v_TexCoord).r; // metallic
-			roughness = texture(u_TexturedMap[2], v_TexCoord).r; // roughness
-			ao = texture(u_TexturedMap[3], v_TexCoord).r; // AO
+			f_Albedo = pow(texture(u_TexturedMap[0], v_TexCoord).rgb, vec3(2.2)); //albedo
+			f_Metallic = texture(u_TexturedMap[1], v_TexCoord).r; // metallic
+			f_Roughness = texture(u_TexturedMap[2], v_TexCoord).r; // roughness
 
-			normal = getNormalFromMap();
+			f_Normal = getNormalFromMap(v_Normal, v_TexCoord);
 		}
 
 		vec4 posV = v_MeshTransform * vec4(v_Position, 1.0f);
-		vec3 N = normalize(normal);
-		vec3 V = normalize(viewPos - vec3(posV[0], posV[1], posV[2]));
+		vec3 WorldPosition = vec3(posV[0], posV[1], posV[2]);
+		vec3 N = f_Normal;
+		vec3 V = normalize(u_ViewPos - WorldPosition);
 
 		vec3 F0 = vec3(0.04);
-		F0 = mix(F0, albedo, metallic);
+		F0 = mix(F0, f_Albedo, f_Metallic);
 
 		vec3 Lo = vec3(0.0);
+		
+		// includes light from here
+		for (int i = 0; i < u_LightCount; ++i)
+		{
+			vec3 L = normalize(u_LightPositions[i] - WorldPosition);
+			vec3 H = normalize(V + L);
+			
+			float distance = length(u_LightPositions[i] - WorldPosition);
 
-		vec3 L = normalize(lightPos - vec3(posV[0], posV[1], posV[2]));
-		vec3 H = normalize(V + L);
-		float distance = length(lightPos - vec3(posV[0], posV[1], posV[2]));
-		float attenuation = 1.0 / (distance * distance);
-		vec3 radiance = vec3(300.0f, 300.0f, 300.0f) * attenuation;
+			if (distance == 0.0f)
+			{
+				distance = 0.001f;
+			}
 
-		float NDF = DistributionGGX(N, H, roughness);
-		float G = GeometrySmith(N, V, L, roughness);
-		vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+			float attenuation = 1.0 / (distance * distance);
 
-		vec3 kS = F;
-		vec3 kD = vec3(1.0) - kS;
-		kD *= 1.0 - metallic;
+			vec3 radiance = (u_LightColors[i]) * attenuation;
 
-		vec3 numerator = NDF * G * F;
-		float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
-		vec3 specular = numerator / max(denominator, 0.001);
+			float NDF = DistributionGGX(N, H, f_Roughness);
+			float G = GeometrySmith(N, V, L, f_Roughness);
+			vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
-		float NdotL = max(dot(N, L), 0.0);
-		Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+			vec3 numerator = NDF * G * F;
+			float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;
+			vec3 specular = numerator / max(denominator, 0.001);
 
-		vec3 ambient = vec3(0.03) * albedo * ao * attenuation;
+			vec3 kS = F;
+			vec3 kD = vec3(1.0) - kS;
+			kD *= 1.0 - f_Metallic;
+
+			float NdotL = max(dot(N, L), 0.0);
+			Lo += (kD * f_Albedo / PI + specular) * radiance * NdotL;
+		}
+		// stop include light
+
+		vec3 ambient = vec3(0.03) * f_Albedo * u_AmbientOcclusion;// *attenuation;
 		vec3 colour = ambient + Lo;
 
 		colour = colour / (colour + vec3(1.0));

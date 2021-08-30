@@ -90,9 +90,34 @@ namespace RealEngine {
 					ImGui::CloseCurrentPopup();
 				}
 	
-				if (ImGui::MenuItem("Sprite Renderer Component"))
+				if (ImGui::MenuItem("Sprite Component"))
 				{
 					m_SelectedEntity.AddComponent<SpriteRendererComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+
+				if (ImGui::MenuItem("Texture Component"))
+				{
+					m_SelectedEntity.AddComponent<TextureRendererComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+
+				if (ImGui::MenuItem("Light"))
+				{
+					m_SelectedEntity.AddComponent<Light>();
+					ImGui::CloseCurrentPopup();
+				}
+
+
+				if (ImGui::MenuItem("Mesh Component"))
+				{
+					m_SelectedEntity.AddComponent<MeshComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+
+				if (ImGui::MenuItem("Textured Mesh Component"))
+				{
+					m_SelectedEntity.AddComponent<TexturedMeshComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 
@@ -186,7 +211,20 @@ namespace RealEngine {
 			}
 		}
 
-	//	const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_Framed;
+		if (entity.HasComponent<Light>())
+		{
+			DrawComponent<Light>("Light", entity, [](auto& component)
+			{
+				ImGui::Text("Color:");
+				ImGui::ColorPicker3("Color", glm::value_ptr(component.Color));
+
+				ENGINE_TRACE("{0} {1} {2}", component.Color.x, component.Color.y, component.Color.z);
+
+				auto& strengh = component.ColorStrength;
+				ImGui::Text("Color Strengh:");
+				ImGui::SliderFloat("slider float", &strengh, 0.0f, 255.0f);
+			});
+		}
 
 		if (entity.HasComponent<SpriteRendererComponent>())
 		{
@@ -200,18 +238,18 @@ namespace RealEngine {
 		{
 			DrawComponent<TextureRendererComponent>("Texture Renderer", entity, [](auto& component)
 			{
-				ImGui::Text(component.Texture.GetFilePath().c_str());
-
+				if (component.Texture != nullptr)
+				{
+					ImGui::Text(component.Texture->GetFilePath().c_str());
+				}
 				ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
 				if (ImGui::Button("Open..."))
 				{
 					std::string filePath = FileDialogs::OpenFile("Image (*.jpg;*.png;)\0*.jpg;*.png;\0");
-
+						
 					if (!filePath.empty())
 					{
-						auto& texture = component.Texture;
-
-						texture.LoadFromFile(filePath);
+						component.Texture->LoadFromFile(filePath);
 					}
 				}
 			});
@@ -240,7 +278,7 @@ namespace RealEngine {
 						mesh.m_Material.Metallic = 1.0f;
 						mesh.m_Material.Roughness = 0.5f;
 						mesh.m_Material.AO = 1.0f;
-						ModelLoader::LoadObjectFromFBX(filePath, mesh);
+						MeshLoader::LoadMeshFromFBX(filePath, mesh);
 
 						mc = mesh;
 					}
@@ -273,7 +311,7 @@ namespace RealEngine {
 					if (!filePath.empty())
 					{
 						Mesh mesh;
-						ModelLoader::LoadObjectFromFBX(filePath, mesh);
+						MeshLoader::LoadMeshFromFBX(filePath, mesh);
 
 						component.ownMesh = mesh;
 					}

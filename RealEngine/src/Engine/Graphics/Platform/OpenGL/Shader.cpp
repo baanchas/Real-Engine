@@ -1,5 +1,6 @@
 #include "repch.h"
 #include "Shader.h"
+#include <glm/gtc/type_ptr.hpp>
 
 namespace RealEngine {
 
@@ -138,11 +139,6 @@ namespace RealEngine {
 		glUniform1f(GetUniformLocation(name), value);
 	}
 
-	void Shader::SetUniformIntArray(const std::string& name, int* value, uint32_t count)
-	{
-		glUniform1iv(GetUniformLocation(name), count, value);
-	}
-
 	void Shader::SetUniform3f(const std::string& name, float v0, float v1, float v2)
 	{
 		glUniform3f(GetUniformLocation(name), v0, v1, v2);
@@ -151,6 +147,16 @@ namespace RealEngine {
 	void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3)
 	{
 		glUniform4f(GetUniformLocation(name), v0, v1, v2, v3);
+	}
+
+	void Shader::SetUniformIntArray(const std::string& name, int* value, uint32_t count)
+	{
+		glUniform1iv(GetUniformLocation(name), count, value);
+	}
+
+	void Shader::SetUniformVec3Array(const std::string& name, const glm::vec3* value, uint32_t count)
+	{
+		glUniform3fv(GetUniformLocation(name), count, glm::value_ptr(value[0]));
 	}
 
 	void Shader::SetUniformMat4f(const std::string& name, const glm::mat4& matrix)

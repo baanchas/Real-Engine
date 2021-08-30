@@ -18,9 +18,12 @@ namespace RealEngine {
 
 		void SetUniform1i(const std::string& name, int value);
 		void SetUniform1f(const std::string& name, float value);
-		void SetUniformIntArray(const std::string& name, int* value, uint32_t count);
 		void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
 		void SetUniform3f(const std::string& name, float v0, float v1, float v2);
+
+		void SetUniformIntArray(const std::string& name, int* value, uint32_t count);
+		void SetUniformVec3Array(const std::string& name, const glm::vec3* value, uint32_t count);
+
 		void SetUniformMat4f(const std::string& name, const glm::mat4& matrix);
 
 

@@ -5,7 +5,9 @@ namespace RealEngine {
 
 	Scene::Scene()
 	{
-		
+		m_LightTexture.LoadFromFileFormatted("res/sprites/components/lightimage.png");
+		m_SceneLightsPositionsBase = new glm::vec3[500];
+		m_SceneLightsColorsBase = new glm::vec3[500];
 	}
 
 	Scene::~Scene()
@@ -48,44 +50,36 @@ namespace RealEngine {
 
 	void Scene::OnRenderEditor(EditorCamera& camera)
 	{
+		Renderer::BeginSkyBoxScene(camera);
+		Renderer::EndSceneCubeMap();
+
 		Renderer::BeginScene(camera);
 
-		// #temprory
+		glm::vec3* lightPositions = m_SceneLightsPositionsBase;
+		glm::vec3* lightColors = m_SceneLightsColorsBase;
 
-		Renderer::SetUniform3f("lightPos", glm::vec3{0.0f, 10.0f, 10.0f});
-		Renderer::SetUniform3f("viewPos", glm::vec3{camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z});
+		for (unsigned int i = 0; i < m_SceneLightsPositions.size(); ++i)
+		{
+			lightPositions[i] = m_SceneLightsPositions[i];
+			lightColors[i] = m_SceneLightsColors[i];
+		}
 
-		// #endtemp
+		Renderer::SetUniform1i("u_LightCount", m_SceneLightsPositions.size());
+		Renderer::SetUniform3fArray("u_LightPositions", lightPositions, m_SceneLightsPositions.size());
+		Renderer::SetUniform3fArray("u_LightColors", lightColors, m_SceneLightsPositions.size());
+
+		m_SceneLightsPositions.clear();
+		m_SceneLightsColors.clear();
+
+		Renderer::SetUniform3f("u_ViewPos", glm::vec3{camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z});
+		Renderer::SetUniform1f("u_AmbientOcclusion", 1.0f);
+
 
 		auto TCView = m_Registry.view<SpriteRendererComponent>();
 		auto TRCView = m_Registry.view<TextureRendererComponent>();
 		auto TMeshCView = m_Registry.view<TexturedMeshComponent>();
 		auto MeshCView = m_Registry.view<MeshComponent>();
-
-		for (auto entity : TCView)
-		{
-			if (m_Registry.has<SpriteRendererComponent>(entity))
-			{
-
-				auto& transform = m_Registry.get<TransformComponent>(entity);
-				auto& sprite = m_Registry.get<SpriteRendererComponent>(entity);
-
-				Renderer::DrawQuad(transform.GetTransform(), sprite, int(entity));
-			}
-		}
-
-		for (auto entity : TRCView)
-		{
-			if (m_Registry.has<TextureRendererComponent>(entity))
-			{
-				auto& transform = m_Registry.get<TransformComponent>(entity);
-				auto& sprite = m_Registry.get<TextureRendererComponent>(entity).Texture;
-
-				Renderer::DrawQuad(transform.GetTransform(), sprite, 1.0f, (int)entity);
-			}
-		}
-
-		Renderer::StartBatch();
+		auto LightCView = m_Registry.view<Light>();
 
 		for (auto entity : MeshCView)
 		{
@@ -109,10 +103,47 @@ namespace RealEngine {
 				Renderer::DrawMesh(transform.GetTransform(), mesh, textures, (int)entity);
 			}
 		}
-		
-		//Renderer::EndScene();
-		Renderer::BeginSkyBoxScene(camera);
-		Renderer::EndSceneCubeMap();
+
+		for (auto entity : TCView)
+		{
+			if (m_Registry.has<SpriteRendererComponent>(entity))
+			{
+
+				auto& transform = m_Registry.get<TransformComponent>(entity);
+				auto& sprite = m_Registry.get<SpriteRendererComponent>(entity);
+
+				Renderer::DrawQuad(transform.GetTransform(), sprite, int(entity));
+			}
+		}
+
+		for (auto entity : TRCView)
+		{
+			if (m_Registry.has<TextureRendererComponent>(entity))
+			{
+				auto& transform = m_Registry.get<TransformComponent>(entity);
+				auto& sprite = m_Registry.get<TextureRendererComponent>(entity);
+
+				if (sprite.Texture != nullptr)
+					Renderer::DrawQuad(transform.GetTransform(), sprite.Texture, 1.0f, (int)entity);
+			}
+		}
+
+
+		for (auto entity : LightCView)
+		{
+			if (m_Registry.has<Light>(entity))
+			{
+				auto& transform = m_Registry.get<TransformComponent>(entity);
+				auto& light = m_Registry.get<Light>(entity);
+
+				Renderer::DrawLight(transform.GetTransform(), light, &m_LightTexture, (int)entity);
+				m_SceneLightsPositions.push_back(transform.Position);
+				m_SceneLightsColors.push_back({ light.Color.r * light.ColorStrength, light.Color.g * light.ColorStrength, light.Color.b * light.ColorStrength, });
+			}
+		}
+
+		Renderer::BindTextures();
+		Renderer::EndScene();
 	}
 
 
@@ -149,8 +180,8 @@ namespace RealEngine {
 				if (m_Registry.has<SpriteRendererComponent>(entity))
 				{
 					
-					auto transform = m_Registry.get<TransformComponent>(entity);
-					auto sprite = m_Registry.get<SpriteRendererComponent>(entity);
+					auto& transform = m_Registry.get<TransformComponent>(entity);
+					auto& sprite = m_Registry.get<SpriteRendererComponent>(entity);
 
 					Renderer::DrawQuad(transform.GetTransform(), sprite, int(entity));
 				}
@@ -160,8 +191,8 @@ namespace RealEngine {
 			{
 				if (m_Registry.has<TextureRendererComponent>(entity))
 				{
-					auto transform = m_Registry.get<TransformComponent>(entity);
-					auto sprite = m_Registry.get<TextureRendererComponent>(entity).Texture;
+					auto& transform = m_Registry.get<TransformComponent>(entity);
+					auto& sprite = m_Registry.get<TextureRendererComponent>(entity).Texture;
 
 					Renderer::DrawQuad(transform.GetTransform(), sprite, 1.0f, (int)entity);
 				}
@@ -254,6 +285,15 @@ namespace RealEngine {
 	bool Scene::OnComponentAdded<TextureRendererComponent>(Entity entity, TextureRendererComponent& component)
 	{
 		ENGINE_TRACE("[{0}]::Texture Component added to entity with id {1}", m_Title, entity.Get());
+		component.Texture = new Texture2D;
+		return true;
+	}
+
+	template<>
+	bool Scene::OnComponentAdded<Light>(Entity entity, Light& component)
+	{
+		ENGINE_TRACE("[{0}]::Light Component added to entity with id {1}", m_Title, entity.Get());
+		//m_SceneLightsPositions.push_back(component);
 		return true;
 	}
 
@@ -321,6 +361,14 @@ namespace RealEngine {
 
 	template<>
 	bool Scene::OnComponentDeleted<TextureRendererComponent>(Entity entity, TextureRendererComponent& component)
+	{
+		ENGINE_WARNING("[{0}]::Texture Component has been deleted from entity with id {1}", m_Title, entity.Get());
+		//delete component.Texture;
+		return true;
+	}
+
+	template<>
+	bool Scene::OnComponentDeleted<Light>(Entity entity, Light& component)
 	{
 		ENGINE_WARNING("[{0}]::Texture Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		return true;

@@ -69,15 +69,28 @@ namespace RealEngine{
 
 	struct TextureRendererComponent
 	{
-		Texture2D Texture;
+		Texture2D* Texture = nullptr;
 
 		TextureRendererComponent() = default;
 		TextureRendererComponent(const TextureRendererComponent&) = default;
-		TextureRendererComponent(Texture2D texture)
-			: Texture(texture) {};
+		TextureRendererComponent(Texture2D& texture)
+			: Texture(&texture) {};
 
-		operator const Texture2D() { return Texture; }
+		operator const Texture2D*() { return Texture; }
+	};
 
+	struct Light
+	{
+		glm::vec3 Color = { 1.0f, 1.0f, 1.0f };
+		float ColorStrength = 1.0f;
+
+
+		Light() = default;
+		Light(const Light&) = default;
+		Light(const glm::vec3 position, const glm::vec3 color)
+			: Color(color) {};
+
+		operator const glm::vec3() { return Color; }
 	};
 
 	struct CameraComponent
@@ -143,7 +156,7 @@ namespace RealEngine{
 		Mesh ownMesh;
 		std::vector<Texture2D> Textures;
 
-		TexturedMeshComponent() = default;
+		TexturedMeshComponent() { Textures.resize(5); };
 		TexturedMeshComponent(const TexturedMeshComponent&) = default;
 		TexturedMeshComponent(Mesh& mesh)
 			: ownMesh(mesh) {}

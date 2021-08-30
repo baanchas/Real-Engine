@@ -6,6 +6,7 @@ namespace RealEngine {
 	{
 	public:
 		static void Clear();
+		static void SetClearColor(float r, float g, float b, float a);
 		static void Enable(GLenum cap);
 		static void SetBlendFunc(GLenum sfactor, GLenum dfactor);
 		static void SetDepthFunc(GLenum func);

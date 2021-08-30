@@ -39,6 +39,7 @@ namespace RealEngine {
 	private:
 		Texture2D SpriteCheckerBoard;
 		Texture2D CubeMap;
+		Texture2D CheckerBoard;
 
 		std::vector<Texture2D> Textures;
 
@@ -56,17 +57,12 @@ namespace RealEngine {
 
 		Entity model;
 		Entity model2;
-		Entity model4;
 		Entity model3;
-		Entity model5;
+		Entity model4;
 
 		Mesh mesh;
-		Mesh mesh2;
 
-		Material mat;
-
-		std::vector<Vertex> verticesAxe;
-		std::vector<glm::uint32_t> indicesAxe;
+		Material material;
 
 		glm::vec2 m_ViewPortSize;
 		glm::vec2 m_ViewPortBounds[2];
