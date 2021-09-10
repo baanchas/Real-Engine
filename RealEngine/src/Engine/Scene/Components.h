@@ -53,44 +53,58 @@ namespace RealEngine{
 
 	};
 
-	struct SpriteRendererComponent
+	struct SpriteRenderer
 	{
 
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
 
-		SpriteRendererComponent() = default;
-		SpriteRendererComponent(const SpriteRendererComponent&) = default;
-		SpriteRendererComponent(const glm::vec4& color)
+		SpriteRenderer() = default;
+		SpriteRenderer(const SpriteRenderer&) = default;
+		SpriteRenderer(const glm::vec4& color)
 			: Color(color) {};
 
 		operator const glm::vec4() { return Color; }
 
 	};
 
-	struct TextureRendererComponent
+	struct TextureRenderer
 	{
 		Texture2D* Texture = nullptr;
 
-		TextureRendererComponent() = default;
-		TextureRendererComponent(const TextureRendererComponent&) = default;
-		TextureRendererComponent(Texture2D& texture)
+		TextureRenderer() = default;
+		TextureRenderer(const TextureRenderer&) = default;
+		TextureRenderer(Texture2D& texture)
 			: Texture(&texture) {};
 
 		operator const Texture2D*() { return Texture; }
 	};
 
-	struct Light
+	struct PointLight
 	{
 		glm::vec3 Color = { 1.0f, 1.0f, 1.0f };
 		float ColorStrength = 1.0f;
 
 
-		Light() = default;
-		Light(const Light&) = default;
-		Light(const glm::vec3 position, const glm::vec3 color)
+		PointLight() = default;
+		PointLight(const PointLight&) = default;
+		PointLight(const glm::vec3 position, const glm::vec3 color)
 			: Color(color) {};
 
 		operator const glm::vec3() { return Color; }
+	};
+
+	struct Spotlight
+	{
+		glm::vec3 Direction;
+		float CutOff;
+
+
+		Spotlight() = default;
+		Spotlight(const Spotlight&) = default;
+		Spotlight(const glm::vec3 direction)
+			: Direction(direction) {};
+
+		operator const glm::vec3() { return Direction; }
 	};
 
 	struct CameraComponent
@@ -129,19 +143,7 @@ namespace RealEngine{
 		}
 	};
 
-	struct ModelComponent
-	{
-		std::vector<Vertex> Vertices;
-		std::vector<uint32_t> Indices;
-
-		ModelComponent() = default;
-		ModelComponent(const ModelComponent&) = default;
-		ModelComponent(std::vector<Vertex> vertices, std::vector<uint32_t> indices)
-			: Vertices(vertices), Indices(indices) {}
-
-	};
-
-	struct MeshComponent
+	/*struct MeshComponent
 	{
 		Mesh ownMesh;
 
@@ -149,16 +151,22 @@ namespace RealEngine{
 		MeshComponent(const MeshComponent&) = default;
 		MeshComponent(Mesh& mesh)
 			: ownMesh(mesh) {}
-	};
+	};*/
 
-	struct TexturedMeshComponent
+	struct MeshComponent
 	{
 		Mesh ownMesh;
-		std::vector<Texture2D> Textures;
 
-		TexturedMeshComponent() { Textures.resize(5); };
-		TexturedMeshComponent(const TexturedMeshComponent&) = default;
-		TexturedMeshComponent(Mesh& mesh)
+		std::vector<std::shared_ptr<Texture2D>> Textures;
+		bool isTexturedProperty[5];
+
+		MeshComponent()
+		{ 
+			
+		};
+		MeshComponent(const MeshComponent&) = default;
+		MeshComponent(Mesh& mesh)
 			: ownMesh(mesh) {}
+
 	};
 }

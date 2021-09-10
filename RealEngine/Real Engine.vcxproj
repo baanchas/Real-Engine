@@ -182,6 +182,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\Fragment.shader" />
+    <None Include="assets\shaders\SkyboxFragment.shader" />
+    <None Include="assets\shaders\SkyboxVertex.shader" />
     <None Include="assets\shaders\Vertex.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -55,6 +55,8 @@ namespace RealEngine {
 
 		Entity m_HoveredEntity;
 
+		float time = 0.0f;
+
 		Entity model;
 		Entity model2;
 		Entity model3;

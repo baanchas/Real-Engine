@@ -92,19 +92,19 @@ namespace RealEngine {
 	
 				if (ImGui::MenuItem("Sprite Component"))
 				{
-					m_SelectedEntity.AddComponent<SpriteRendererComponent>();
+					m_SelectedEntity.AddComponent<SpriteRenderer>();
 					ImGui::CloseCurrentPopup();
 				}
 
 				if (ImGui::MenuItem("Texture Component"))
 				{
-					m_SelectedEntity.AddComponent<TextureRendererComponent>();
+					m_SelectedEntity.AddComponent<TextureRenderer>();
 					ImGui::CloseCurrentPopup();
 				}
 
 				if (ImGui::MenuItem("Light"))
 				{
-					m_SelectedEntity.AddComponent<Light>();
+					m_SelectedEntity.AddComponent<PointLight>();
 					ImGui::CloseCurrentPopup();
 				}
 
@@ -115,11 +115,11 @@ namespace RealEngine {
 					ImGui::CloseCurrentPopup();
 				}
 
-				if (ImGui::MenuItem("Textured Mesh Component"))
+				/*if (ImGui::MenuItem("Textured Mesh Component"))
 				{
 					m_SelectedEntity.AddComponent<TexturedMeshComponent>();
 					ImGui::CloseCurrentPopup();
-				}
+				}*/
 
 				ImGui::EndPopup();
 			}
@@ -211,32 +211,31 @@ namespace RealEngine {
 			}
 		}
 
-		if (entity.HasComponent<Light>())
+		if (entity.HasComponent<PointLight>())
 		{
-			DrawComponent<Light>("Light", entity, [](auto& component)
+			DrawComponent<PointLight>("Light", entity, [](auto& component)
 			{
 				ImGui::Text("Color:");
 				ImGui::ColorPicker3("Color", glm::value_ptr(component.Color));
 
-				ENGINE_TRACE("{0} {1} {2}", component.Color.x, component.Color.y, component.Color.z);
-
 				auto& strengh = component.ColorStrength;
-				ImGui::Text("Color Strengh:");
+
+				ImGui::Text("Light Intensity:");
 				ImGui::SliderFloat("slider float", &strengh, 0.0f, 255.0f);
 			});
 		}
 
-		if (entity.HasComponent<SpriteRendererComponent>())
+		if (entity.HasComponent<SpriteRenderer>())
 		{
-			DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](auto& component)
+			DrawComponent<SpriteRenderer>("Sprite Renderer", entity, [](auto& component)
 			{
 				ImGui::ColorPicker4("Color", glm::value_ptr(component.Color));
 			});
 		}
 
-		if (entity.HasComponent<TextureRendererComponent>())
+		if (entity.HasComponent<TextureRenderer>())
 		{
-			DrawComponent<TextureRendererComponent>("Texture Renderer", entity, [](auto& component)
+			DrawComponent<TextureRenderer>("Texture Renderer", entity, [](auto& component)
 			{
 				if (component.Texture != nullptr)
 				{
@@ -255,7 +254,7 @@ namespace RealEngine {
 			});
 		}
 
-		if (entity.HasComponent<MeshComponent>())
+		/*if (entity.HasComponent<MeshComponent>())
 		{
 			DrawComponent<MeshComponent>("Mesh", entity, [](auto& component)
 			{
@@ -292,120 +291,183 @@ namespace RealEngine {
 
 				ImGui::DragFloat("AO", &mc.m_Material.AO, 0.1f);
 			});
-		}
+		}*/
 
-		if (entity.HasComponent<TexturedMeshComponent>())
+		if (entity.HasComponent<MeshComponent>())
 		{
-			DrawComponent<TexturedMeshComponent>("Textured Mesh", entity, [](auto& component)
+			DrawComponent<MeshComponent>("Textured Mesh", entity, [this](auto& component)
 			{
 				auto& filePath = component.ownMesh.FilePath;
+				auto& remfilePath = component.ownMesh.REMFilePath;
+				auto& mc = component.ownMesh;
 
-				ImGui::Text(filePath.c_str());
+				if (!filePath.empty())
+				{
+					ImGui::Text(filePath.c_str());
+				}
+				else
+				{
+					ImGui::Text(remfilePath.c_str());
+				}
 
 				ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
 
 				if (ImGui::Button("Open..."))
 				{
-					std::string filePath = FileDialogs::OpenFile("Mesh (*.fbx)\0*.fbx\0");
+					std::string filePath = FileDialogs::OpenFile("Mesh (*.fbx;*rem;)\0*.fbx;*rem;\0");
 
 					if (!filePath.empty())
 					{
 						Mesh mesh;
-						MeshLoader::LoadMeshFromFBX(filePath, mesh);
-
+						if (filePath.substr(filePath.length() - 4) == ".fbx")
+						{
+							MeshLoader::FBX::LoadMesh(filePath, mesh);
+						}
+						else
+						{
+							MeshLoader::REM::LoadMesh(filePath, mesh);
+						}
 						component.ownMesh = mesh;
 					}
 				}
 
-				ImGui::Text(component.Textures[0].GetFilePath().c_str());
-
-				ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
-
-				ImGui::PushID("Albedo");
-				if (ImGui::Button("Open..."))
+				ImGui::Checkbox("Textured Albedo", &component.isTexturedProperty[0]);
+				if (component.isTexturedProperty[0])
 				{
-					std::string filePath = FileDialogs::OpenFile("Image (*.jpg;*.png;)\0*.jpg;*.png;\0");
+					ImGui::Text(component.Textures[0]->GetFilePath().c_str());
 
-					if (!filePath.empty())
+					ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
+
+					ImGui::PushID("Albedo");
+					if (ImGui::Button("Open..."))
 					{
-						auto& texture = component.Textures[0];
+						std::string filePath = FileDialogs::OpenFile("Image (*.jpg;*.png;*.tga;*.exr;)\0*.jpg;*.png;*.tga;*.exr;\0");
 
-						texture.LoadFromFile(filePath);
+						if (!filePath.empty())
+						{
+							auto texture = component.Textures[0];
+
+							texture->LoadFromFile(filePath);
+						}
 					}
+
+					ImGui::PopID();
+				}
+				else
+				{
+					auto& mc = component.ownMesh;
+
+					ImGui::DragFloat3("Albedo", glm::value_ptr(mc.m_Material.Albedo), 0.1f);
 				}
 
-				ImGui::PopID();
 
-				ImGui::Text(component.Textures[1].GetFilePath().c_str());
-
-				ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
-				ImGui::PushID("Metallness");
-				if (ImGui::Button("Open..."))
+				ImGui::Checkbox("Textured Metallness", &component.isTexturedProperty[1]);
+				if (component.isTexturedProperty[1])
 				{
-					std::string filePath = FileDialogs::OpenFile("Image (*.jpg;*.png;)\0*.jpg;*.png;\0");
+					ImGui::Text(component.Textures[1]->GetFilePath().c_str());
 
-					if (!filePath.empty())
+					ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
+					ImGui::PushID("Metallness");
+					if (ImGui::Button("Open..."))
 					{
-						auto& texture = component.Textures[1];
+						std::string filePath = FileDialogs::OpenFile("Image (*.jpg;*.png;*.tga;*.exr;)\0*.jpg;*.png;*.tga;*.exr;\0");
 
-						texture.LoadFromFile(filePath);
+						if (!filePath.empty())
+						{
+							auto texture = component.Textures[1];
+
+							texture->LoadFromFile(filePath);
+						}
 					}
+					ImGui::PopID();
 				}
-				ImGui::PopID();
-
-				ImGui::Text(component.Textures[2].GetFilePath().c_str());
-
-				ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
-
-				ImGui::PushID("Roughness");
-				if (ImGui::Button("Open..."))
+				else
 				{
-					std::string filePath = FileDialogs::OpenFile("Image (*.jpg;*.png;)\0*.jpg;*.png;\0");
+					auto& mc = component.ownMesh;
 
-					if (!filePath.empty())
-					{
-						auto& texture = component.Textures[2];
-
-						texture.LoadFromFile(filePath);
-					}
+					ImGui::DragFloat("Metallnes", &mc.m_Material.Metallic, 0.01f, 0.0f, 1.0f);
 				}
-				ImGui::PopID();
 
-				ImGui::Text(component.Textures[3].GetFilePath().c_str());
-
-				ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
-
-				ImGui::PushID("AO");
-				if (ImGui::Button("Open..."))
+				ImGui::Checkbox("Textured Roughness", &component.isTexturedProperty[2]);
+				if (component.isTexturedProperty[2])
 				{
-					std::string filePath = FileDialogs::OpenFile("Image (*.jpg;*.png;)\0*.jpg;*.png;\0");
+					ImGui::Text(component.Textures[2]->GetFilePath().c_str());
 
-					if (!filePath.empty())
+					ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
+
+					ImGui::PushID("Roughness");
+					if (ImGui::Button("Open..."))
 					{
-						auto& texture = component.Textures[3];
+						std::string filePath = FileDialogs::OpenFile("Image (*.jpg;*.png;*.tga;*.exr;)\0*.jpg;*.png;*.tga;*.exr;\0");
 
-						texture.LoadFromFile(filePath);
+						if (!filePath.empty())
+						{
+							auto texture = component.Textures[2];
+
+							texture->LoadFromFile(filePath);
+						}
 					}
+					ImGui::PopID();
 				}
-				ImGui::PopID();
-
-				ImGui::Text(component.Textures[4].GetFilePath().c_str());
-
-				ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
-
-				ImGui::PushID("Normal");
-				if (ImGui::Button("Open..."))
+				else
 				{
-					std::string filePath = FileDialogs::OpenFile("Image (*.jpg;*.png;)\0*.jpg;*.png;\0");
+					auto& mc = component.ownMesh;
 
-					if (!filePath.empty())
-					{
-						auto& texture = component.Textures[4];
+					ImGui::DragFloat("Roughness", &mc.m_Material.Roughness, 0.01f, 0.0f, 1.0f);
 
-						texture.LoadFromFile(filePath);
-					}
 				}
-				ImGui::PopID();
+
+
+				ImGui::Checkbox("Textured AO", &component.isTexturedProperty[3]);
+				if (component.isTexturedProperty[3])
+				{
+					ImGui::Text(component.Textures[3]->GetFilePath().c_str());
+
+					ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
+
+					ImGui::PushID("AO");
+					if (ImGui::Button("Open..."))
+					{
+						std::string filePath = FileDialogs::OpenFile("Image (*.jpg;*.png;*.tga;*.exr;)\0*.jpg;*.png;*.tga;*.exr;\0");
+
+						if (!filePath.empty())
+						{
+							auto texture = component.Textures[3];
+
+							texture->LoadFromFile(filePath);
+						}
+					}
+					ImGui::PopID();
+				}
+				else
+				{
+					auto& mc = component.ownMesh;
+
+					ImGui::DragFloat("AO", &mc.m_Material.AO, 0.1f);
+				}
+
+
+				ImGui::Checkbox("Textured Normal", &component.isTexturedProperty[4]);
+				if (component.isTexturedProperty[4])
+				{
+					ImGui::Text(component.Textures[4]->GetFilePath().c_str());
+
+					ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
+
+					ImGui::PushID("Normal");
+					if (ImGui::Button("Open..."))
+					{
+						std::string filePath = FileDialogs::OpenFile("Image (*.jpg;*.png;*.tga;*.exr;)\0*.jpg;*.png;*.tga;*.exr;\0");
+
+						if (!filePath.empty())
+						{
+							auto texture = component.Textures[4];
+
+							texture->LoadFromFile(filePath);
+						}
+					}
+					ImGui::PopID();
+				}
 			});
 		}
 

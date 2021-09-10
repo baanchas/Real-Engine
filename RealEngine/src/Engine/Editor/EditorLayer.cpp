@@ -44,8 +44,8 @@ namespace RealEngine {
         
         mesh.m_Material = material;
 
-        MeshLoader::LoadMeshFromOBJ("assets/models/spherehighpoly", mesh);
-
+        MeshLoader::OBJ::LoadMesh("assets/models/axe", mesh);
+        //MeshLoader::REM::LoadMesh("assets/models/axe.rem", mesh);
         model = m_ActiveScene->CreateEntity("Sphere");
         model.AddComponent<MeshComponent>();
         auto& meshs = model.GetComponent<MeshComponent>();
@@ -53,30 +53,19 @@ namespace RealEngine {
 
 
         model3 = m_ActiveScene->CreateEntity("Light");
-        model3.AddComponent<TextureRendererComponent>();
-        auto& text2 = model3.GetComponent<TextureRendererComponent>().Texture;
+        model3.AddComponent<TextureRenderer>();
+        auto& text2 = model3.GetComponent<TextureRenderer>().Texture;
         text2 = &CubeMap;
 
         model2 = m_ActiveScene->CreateEntity("Light");
-        model2.AddComponent<Light>();
+        model2.AddComponent<PointLight>();
         auto& tr = model2.GetComponent<TransformComponent>();
         tr.Position = { 10.0f, 10.0f, 10.0f };
 
         model4 = m_ActiveScene->CreateEntity("Light");
-        model4.AddComponent<Light>();
+        model4.AddComponent<PointLight>();
         auto& tr4 = model4.GetComponent<TransformComponent>();
         tr4.Position = { -10.0f, 10.0f, 10.0f };
-
-        //CheckerBoard.LoadFromFile("res/sprites/checkerboard.png");
-
-      /*  model4 = m_ActiveScene->CreateEntity("Light");
-        model4.AddComponent<TextureRendererComponent>();
-        auto& text3 = model4.GetComponent<TextureRendererComponent>();
-        text3.Texture = CheckerBoard;*/
-
-
-        //text.ownMesh = mesh;
-               
 	}
 
 	EditorLayer::~EditorLayer()
@@ -88,6 +77,7 @@ namespace RealEngine {
     void EditorLayer::OnUpdate(float ts)
     {
         m_ActiveScene->OnUpdate(ts);
+        //std::cout << ts << std::endl;
         m_ActiveScene->OnViewportResize(m_ViewPortSize.x, m_ViewPortSize.y);
 
         if (m_SceneWindowIsFocused)
@@ -338,11 +328,10 @@ namespace RealEngine {
         //Renderer::Clear();
         m_FrameBuffer->ClearAttachment(1, -1);
 
-        m_ActiveScene->OnRenderEditor(m_EditorCamera);
+        //m_ActiveScene->OnRenderEditor(m_EditorCamera);
+        m_ActiveScene->OnRenderRuntime();
         
         OnImGuiRender();
-
-        ImGui::ShowDemoWindow();
 
         m_FrameBuffer->UnBind();
 

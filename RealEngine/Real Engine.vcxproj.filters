@@ -258,5 +258,7 @@
   <ItemGroup>
     <None Include="assets\shaders\Vertex.shader" />
     <None Include="assets\shaders\Fragment.shader" />
+    <None Include="assets\shaders\SkyboxFragment.shader" />
+    <None Include="assets\shaders\SkyboxVertex.shader" />
   </ItemGroup>
 </Project>

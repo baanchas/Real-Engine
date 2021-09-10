@@ -2,6 +2,7 @@
 #include "SceneSerializer.h"
 #include "Renderer/SceneCamera.h"
 
+
 namespace RealEngine {
 
 	SceneSerializer::SceneSerializer(Scene* scene)
@@ -76,7 +77,26 @@ namespace RealEngine {
 				size_t foundSprite = line.find("Sprite Renderer");
 				if (foundSprite != std::string::npos)
 				{
-					tempEntity.AddComponent<SpriteRendererComponent>();
+					tempEntity.AddComponent<SpriteRenderer>();
+				}
+
+
+				size_t foundMesh = line.find("Mesh Component");
+				if (foundMesh != std::string::npos)
+				{
+					tempEntity.AddComponent<MeshComponent>();
+				}
+
+				/*size_t foundTexturedMesh = line.find("Mesh Textured Component");
+				if (foundTexturedMesh != std::string::npos)
+				{
+					tempEntity.AddComponent<TexturedMeshComponent>();
+				}*/
+
+				size_t foundLight = line.find("Point Light Component");
+				if (foundLight != std::string::npos)
+				{
+					tempEntity.AddComponent<PointLight>();
 				}
 
 				// Tag
@@ -273,9 +293,9 @@ namespace RealEngine {
 				size_t foundSpriteIterator = line.find(Color);
 				if (foundSpriteIterator != std::string::npos)
 				{
-					if (tempEntity.HasComponent<SpriteRendererComponent>())
+					if (tempEntity.HasComponent<SpriteRenderer>())
 					{
-						auto& src = tempEntity.GetComponent<SpriteRendererComponent>();
+						auto& src = tempEntity.GetComponent<SpriteRenderer>();
 						std::string undline = line.substr(foundSpriteIterator + Color.length(), line.length() - (foundSpriteIterator + Color.length()) - 2);
 						if (undline.find(",") != std::string::npos)
 						{
@@ -290,6 +310,193 @@ namespace RealEngine {
 
 							src.Color.w = std::stof(undline.substr(0, undline.length()));
 						}
+					}
+				}
+
+				// Mesh
+
+				std::string Albedo = "Albedo: false: [ ";
+				size_t foundAlbedoIterator = line.find(Albedo);
+				if (foundAlbedoIterator != std::string::npos)
+				{
+					if (tempEntity.HasComponent<MeshComponent>())
+					{
+						auto& src = tempEntity.GetComponent<MeshComponent>();
+						std::string undline = line.substr(foundAlbedoIterator + Albedo.length(), line.length() - (foundAlbedoIterator + Albedo.length()) - 2);
+						src.isTexturedProperty[0] = false;
+						if (undline.find(",") != std::string::npos)
+						{
+
+							src.ownMesh.m_Material.Albedo.x = std::stof(undline.substr(0, undline.find(",")));
+							undline = undline.substr(undline.find(",") + 2);
+
+							src.ownMesh.m_Material.Albedo.y = std::stof(undline.substr(0, undline.find(",")));
+							undline = undline.substr(undline.find(",") + 2);
+
+							src.ownMesh.m_Material.Albedo.z = std::stof(undline.substr(0, undline.length()));
+						}
+					}
+				}
+
+				std::string Metallic = "Metallic: false: ";
+				size_t foundMetallicIterator = line.find(Metallic);
+				if (foundMetallicIterator != std::string::npos)
+				{
+					if (tempEntity.HasComponent<MeshComponent>())
+					{
+						auto& src = tempEntity.GetComponent<MeshComponent>();
+						float metallic = std::stof(line.substr(foundMetallicIterator + Metallic.length()));
+						src.isTexturedProperty[1] = false;
+						src.ownMesh.m_Material.Metallic = metallic;
+					}
+				}
+
+				std::string Roughness = "Roughness: false: ";
+				size_t foundRoughnessIterator = line.find(Roughness);
+				if (foundRoughnessIterator != std::string::npos)
+				{
+					if (tempEntity.HasComponent<MeshComponent>())
+					{
+						auto& src = tempEntity.GetComponent<MeshComponent>();
+						src.isTexturedProperty[2] = false;
+						float roughness = std::stof(line.substr(foundRoughnessIterator + Roughness.length()));
+						src.ownMesh.m_Material.Roughness = roughness;
+					}
+				}
+
+				std::string AO = "AO: false: ";
+				size_t foundAOIterator = line.find(AO);
+				if (foundAOIterator != std::string::npos)
+				{
+					if (tempEntity.HasComponent<MeshComponent>())
+					{
+						auto& src = tempEntity.GetComponent<MeshComponent>();
+						src.isTexturedProperty[3] = false;
+						float ao = std::stof(line.substr(foundAOIterator + AO.length()));
+						src.ownMesh.m_Material.AO = ao;
+					}
+				}
+
+
+				// Textured Mesh
+
+				std::string AlbedoT = "Albedo: true: ";
+				size_t foundTextureAlbedoIterator = line.find(AlbedoT);
+				if (foundTextureAlbedoIterator != std::string::npos)
+				{
+					if (tempEntity.HasComponent<MeshComponent>())
+					{
+						auto& src = tempEntity.GetComponent<MeshComponent>();
+						src.isTexturedProperty[0] = true;
+						std::string albedo = line.substr(foundTextureAlbedoIterator + AlbedoT.length());
+						src.Textures[0]->LoadFromFile(albedo);
+					}
+				}
+
+				std::string MetallicT = "Metallic: true: ";
+				size_t foundTexturedMetallicIterator = line.find(MetallicT);
+				if (foundTexturedMetallicIterator != std::string::npos)
+				{
+					if (tempEntity.HasComponent<MeshComponent>())
+					{
+						auto& src = tempEntity.GetComponent<MeshComponent>();
+						src.isTexturedProperty[1] = true;
+						std::string metallic = line.substr(foundTexturedMetallicIterator + MetallicT.length());
+						src.Textures[1]->LoadFromFile(metallic);
+					}
+				}
+
+				std::string RoughnessT = "Roughness: true: ";
+				size_t foundTexturedRoughnessIterator = line.find(RoughnessT);
+				if (foundTexturedRoughnessIterator != std::string::npos)
+				{
+					if (tempEntity.HasComponent<MeshComponent>())
+					{
+						auto& src = tempEntity.GetComponent<MeshComponent>();
+						src.isTexturedProperty[2] = true;
+						std::string roughness = line.substr(foundTexturedRoughnessIterator + RoughnessT.length());
+						src.Textures[2]->LoadFromFile(roughness);
+					}
+				}
+
+				std::string AOT = "AO: true: ";
+				size_t foundTExturedAOIterator = line.find(AOT);
+				if (foundTExturedAOIterator != std::string::npos)
+				{
+					if (tempEntity.HasComponent<MeshComponent>())
+					{
+						auto& src = tempEntity.GetComponent<MeshComponent>();
+						src.isTexturedProperty[3] = true;
+						std::string ao = line.substr(foundTExturedAOIterator + AOT.length());
+						src.Textures[3]->LoadFromFile(ao);
+					}
+				}
+
+				std::string NormalT = "Normal: true: ";
+				size_t foundTExturedNormalIterator = line.find(NormalT);
+				if (foundTExturedNormalIterator != std::string::npos)
+				{
+					if (tempEntity.HasComponent<MeshComponent>())
+					{
+						auto& src = tempEntity.GetComponent<MeshComponent>();
+						src.isTexturedProperty[4] = true;
+						std::string normal = line.substr(foundTExturedNormalIterator + NormalT.length());
+						src.Textures[4]->LoadFromFile(normal);
+					}
+				}
+
+				std::string path = "REM Path: ";
+				size_t foundMeshIterator = line.find(path);
+				if (foundMeshIterator != std::string::npos)
+				{
+					std::ifstream remPath;
+					std::string undline = line.substr(foundMeshIterator + path.length());
+					remPath.open(undline);
+
+					if (remPath.is_open())
+					{
+						if (tempEntity.HasComponent<MeshComponent>())
+						{
+							auto& src = tempEntity.GetComponent<MeshComponent>();
+							//REM::ReadFromFileToMesh("assets/test.rem", src.ownMesh);
+							MeshLoader::REM::LoadMesh(undline, src.ownMesh);
+						}
+					}
+				}
+				
+
+				// Light
+
+				std::string pointLight = "Color: [ ";
+				size_t foundPointLightIterator = line.find(pointLight);
+				if (foundPointLightIterator != std::string::npos)
+				{
+					if (tempEntity.HasComponent<PointLight>())
+					{
+						auto& src = tempEntity.GetComponent<PointLight>();
+						std::string undline = line.substr(foundSpriteIterator + Color.length(), line.length() - (foundSpriteIterator + Color.length()) - 2);
+						if (undline.find(",") != std::string::npos)
+						{
+							src.Color.x = std::stof(undline.substr(0, undline.find(",")));
+							undline = undline.substr(undline.find(",") + 2);
+
+							src.Color.y = std::stof(undline.substr(0, undline.find(",")));
+							undline = undline.substr(undline.find(",") + 2);
+
+							src.Color.z = std::stof(undline.substr(0, undline.length()));
+						}
+					}
+				}
+
+				std::string colorIntensity = "Color Intensity: ";
+				size_t foundPointLightIntensityIterator = line.find(colorIntensity);
+				if (foundPointLightIntensityIterator != std::string::npos)
+				{
+					if (tempEntity.HasComponent<PointLight>())
+					{
+						auto& src = tempEntity.GetComponent<PointLight>();
+						float intensity = std::stof(line.substr(foundPointLightIntensityIterator + colorIntensity.length()));
+						src.ColorStrength = intensity;
 					}
 				}
 			}
@@ -326,30 +533,11 @@ namespace RealEngine {
 				out << "\t" << "\t" << "Scale: " << "[ " << tc.Scale.x << ", " << tc.Scale.y << ", " << tc.Scale.z << " ]" << std::endl;
 			}
 
-			if (entity.HasComponent<SpriteRendererComponent>())
+			if (entity.HasComponent<SpriteRenderer>())
 			{
-				auto& sc = entity.GetComponent<SpriteRendererComponent>();
+				auto& sc = entity.GetComponent<SpriteRenderer>();
 				out << "\t" << "Sprite Renderer Component:" << std::endl;
 				out << "\t" << "\t" << "Color: " << "[ " << sc.Color.x << ", " << sc.Color.y << ", " << sc.Color.z << ", " << sc.Color.w << " ]" << std::endl;
-			}
-
-			if (entity.HasComponent<ModelComponent>())
-			{
-				auto& mc = entity.GetComponent<ModelComponent>();
-				out << "\t" << "Model Component:" << std::endl;
-				for (auto element : mc.Vertices)
-				{
-					out << "\t" << "Vertex:" << std::endl;
-					out << "\t" << "\t" << "VertexPosition: " << "[ " << element.Position.x << ", " << element.Position.y << ", " << element.Position.z << " ]" << std::endl;
-					out << "\t" << "\t" << "VertexColor: " << "[ " << element.Color.r << ", " << element.Color.g << ", " << element.Color.b << ", " << element.Color.w << " ]" << std::endl;
-					out << "\t" << "\t" << "VertexTextureCoordinate: " << "[ " << element.TexCoord.x << ", " << element.TexCoord.y << " ]" << std::endl;
-					out << "\t" << "\t" << "VertexNormal: " << "[ " << element.Normal.x << ", " << element.Normal.y << ", " << element.Normal.z << " ]" << std::endl;
-					out << "\t" << "\t" << "TexID: " << element.TexId << std::endl;
-					out << "\t" << "\t" << "TilingFactor: " << element.TilingFactor << std::endl;
-					out << "\t" << "\t" << "EntityID: " << element.entityID << std::endl;
-					//out << "\t" << "\t" << "TransformMatrix: " << "[ " << element.Matrix[0][0] << " " << element.Matrix[0][1] << " " << element.Matrix[0][2] << " " << element.Matrix[0][3] << " " << element.Matrix[1][0] << " " << element.Matrix[1][1] << " " << element.Matrix[1][2] << " " << element.Matrix[1][3] << " " << element.Matrix[2][0] << " " << element.Matrix[2][1] << " " << element.Matrix[2][2] << " " << element.Matrix[2][3] << " " << element.Matrix[3][0] << " " << element.Matrix[3][1] << " " << element.Matrix[3][2] << " " << element.Matrix[3][3] << " ]" << std::endl;
-
-				}
 			}
 
 			if (entity.HasComponent<CameraComponent>())
@@ -365,6 +553,63 @@ namespace RealEngine {
 				out << "\t" << "\t" << "Perspective Far: " << cc.Camera.GetPerspectiveFarClip() << std::endl;
 				out << "\t" << "\t" << "Primary: " << cc.Primary << std::endl;
 				out << "\t" << "\t" << "Is Fixed AR: " << cc.FixedAspectRatio << std::endl;
+			}
+
+			if (entity.HasComponent<MeshComponent>())
+			{
+				auto& tc = entity.GetComponent<MeshComponent>();
+				out << "\t" << "Mesh Component:" << std::endl;
+				out << "\t" << "\t" << "REM Path: " << tc.ownMesh.REMFilePath << std::endl;
+				out << "\t" << "\t" << "Path: " << tc.ownMesh.FilePath << std::endl;
+
+				if (tc.isTexturedProperty[0])
+				{
+					out << "\t" << "\t" << "Albedo: true: " << tc.Textures[0]->GetFilePath() << std::endl;
+				}
+				else 
+				{
+					out << "\t" << "\t" << "Albedo: false: " << "[ " << tc.ownMesh.m_Material.Albedo.x << ", " << tc.ownMesh.m_Material.Albedo.y << ", " << tc.ownMesh.m_Material.Albedo.z << " ]" << std::endl;
+				}
+
+				if (tc.isTexturedProperty[1])
+				{
+					out << "\t" << "\t" << "Metallic: true: " << tc.Textures[1]->GetFilePath() << std::endl;
+				}
+				else
+				{
+					out << "\t" << "\t" << "Metallic: false: " << tc.ownMesh.m_Material.Metallic << std::endl;
+				}
+
+				if (tc.isTexturedProperty[2])
+				{
+					out << "\t" << "\t" << "Roughness: true: " << tc.Textures[2]->GetFilePath() << std::endl;
+				}
+				else
+				{
+					out << "\t" << "\t" << "Roughness: false: " << tc.ownMesh.m_Material.Roughness << std::endl;
+				}
+
+				if (tc.isTexturedProperty[3])
+				{
+					out << "\t" << "\t" << "AO: true: " << tc.Textures[3]->GetFilePath() << std::endl;
+				}
+				else
+				{
+					out << "\t" << "\t" << "AO: false: " << tc.ownMesh.m_Material.AO << std::endl;
+				}
+
+				if (tc.isTexturedProperty[4])
+				{
+					out << "\t" << "\t" << "Normal: true: " << tc.Textures[4]->GetFilePath() << std::endl;
+				}
+			}
+
+			if (entity.HasComponent<PointLight>())
+			{
+				auto& plc = entity.GetComponent<PointLight>();
+				out << "\t" << "Point Light Component:" << std::endl;
+				out << "\t" << "\t" << "Color: " << "[ " << plc.Color.r << ", " << plc.Color.g << ", " << plc.Color.b << " ]" <<std::endl;
+				out << "\t" << "\t" << "Color Intensity: " << plc.ColorStrength << std::endl;
 			}
 		}
 

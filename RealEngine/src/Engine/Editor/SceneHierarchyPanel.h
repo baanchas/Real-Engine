@@ -22,6 +22,7 @@ namespace RealEngine {
 	private:
 		Entity m_SelectedEntity{ entt::null, m_Context };
 		Scene* m_Context = nullptr;
+
 	};
 
 }

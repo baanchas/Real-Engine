@@ -5,7 +5,7 @@ layout(location = 1) in vec4 a_Color;
 layout(location = 2) in vec2 a_TexCoord;
 layout(location = 3) in vec3 a_Normal;
 layout(location = 4) in float a_FlatColor;
-layout(location = 5) in float a_TexID;
+layout(location = 5) in float a_TextureIndex;
 layout(location = 6) in float a_TilingFactor;
 layout(location = 7) in int a_EntityID;
 
@@ -26,7 +26,7 @@ out vec3 v_Albedo;
 out float v_Metallic;
 out float v_Roughness;
 out float v_AO;
-out float v_TexID;
+out float v_TextureIndex;
 out float v_TilingFactor;
 out flat int v_EntityID;
 out float v_FlatColor;
@@ -40,7 +40,7 @@ void main()
     v_Metallic = u_Metallness;
     v_Roughness = u_Roughness;
     v_AO = u_AO;
-    v_TexID = a_TexID;
+    v_TextureIndex = a_TextureIndex;
     v_TilingFactor = a_TilingFactor;
     v_EntityID = a_EntityID;
     v_FlatColor = a_FlatColor;

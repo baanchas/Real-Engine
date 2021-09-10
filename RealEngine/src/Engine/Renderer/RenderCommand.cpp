@@ -28,9 +28,9 @@ namespace RealEngine {
 		glDepthFunc(func);
 	}
 
-	void RenderCommand::DrawElements(GLenum mode, uint32_t count, GLenum type, const GLvoid* indices)
+	void RenderCommand::DrawTriangles(uint32_t count, GLenum type, const GLvoid* indices)
 	{
-		glDrawElements(mode, count, type, indices);
+		glDrawElements(GL_TRIANGLES, count, type, indices);
 	}
 
 }

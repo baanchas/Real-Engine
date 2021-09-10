@@ -7,7 +7,6 @@ namespace RealEngine {
 	{
 	public:
 		Shader();
-		Shader(const std::string& vertexSrc, const std::string& fragmentSrc);
 		~Shader();
 
 
@@ -16,16 +15,16 @@ namespace RealEngine {
 		void Bind() const;
 		void UnBind() const;
 
-		void SetUniform1i(const std::string& name, int value);
-		void SetUniform1f(const std::string& name, float value);
-		void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
-		void SetUniform3f(const std::string& name, float v0, float v1, float v2);
+		void UploadUniformInt(const std::string& name, int value);
+		void UploadUniformFloat(const std::string& name, float value);
+		void UploadUniformVec4Float(const std::string& name, float v0, float v1, float v2, float v3);
+		void UploadUniformVec3Float(const std::string& name, float v0, float v1, float v2);
 
-		void SetUniformIntArray(const std::string& name, int* value, uint32_t count);
-		void SetUniformVec3Array(const std::string& name, const glm::vec3* value, uint32_t count);
+		void UploadUniformIntArray(const std::string& name, int* value, uint32_t count);
+		void UploadUniformFloatArray(const std::string& name, const float* value, uint32_t count);
+		void UploadUniformVec3Array(const std::string& name, const glm::vec3* value, uint32_t count);
 
-		void SetUniformMat4f(const std::string& name, const glm::mat4& matrix);
-
+		void UploadUniformMat4Float(const std::string& name, const glm::mat4& matrix);
 
 		int GetUniformLocation(const std::string& uniform);
 

@@ -1,9 +1,9 @@
 #version 330 core
-out vec4 color;
+out vec4 Color;
 
-in vec3 TexCoords;
+in vec3 TextureCoordinates;
 
-uniform samplerCube skybox;
+uniform samplerCube u_Skybox;
 
 const float PI = 3.14159265359;
 
@@ -35,5 +35,5 @@ void main()
     //irradiance = PI * irradiance * (1.0 / float(nrSamples));
 
     //color = vec4(irradiance, 1.0);
-	color = texture(skybox, TexCoords);
+	Color = texture(u_Skybox, TextureCoordinates);
 }

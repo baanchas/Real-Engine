@@ -28,52 +28,60 @@ namespace RealEngine {
 
 	void Texture2D::LoadFromFile(const std::string& path)
 	{
-		m_FilePath = path;
-	
-		int width, height, channels;
-
-		stbi_set_flip_vertically_on_load(1);
-
-		stbi_uc* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-		ENGINE_TRACE(channels);
-		ENGINE_ASSERT(data, "OpenGLTexture2D:: Failed to load Image!");
-		
-		
-		m_Width = width;
-		m_Height = height;
-
-		GLenum internalFormat = 0, format = 0;
-
-		if (channels == 1)
+		if (!path.empty())
 		{
-			format = GL_RED;
+			m_FilePath = path;
+
+			int width, height, channels;
+
+			stbi_set_flip_vertically_on_load(1);
+
+			stbi_uc* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+			ENGINE_ASSERT(data, "OpenGLTexture2D:: Failed to load Image!");
+
+
+			m_Width = width;
+			m_Height = height;
+
+			GLenum internalFormat = 0, format = 0;
+
+			if (channels == 1)
+			{
+				internalFormat = GL_R32I;
+				format = GL_RED;
+			}
+			else if (channels == 3)
+			{
+				internalFormat = GL_RGB8;
+				format = GL_RGB;
+			}
+			else if (channels == 4)
+			{
+				internalFormat = GL_RGBA8;
+				format = GL_RGBA;
+			}
+
+			ENGINE_ASSERT(internalFormat && format, "OpenGLTexture2D:: Format not supported!");
+
+			glGenTextures(1, &m_RendererID);
+			glBindTexture(GL_TEXTURE_2D, m_RendererID);
+
+			glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+			if (data)
+				stbi_image_free(data);
 		}
-		else if (channels == 3)
+		else
 		{
-			internalFormat = GL_RGB8;
-			format = GL_RGB;
+			ENGINE_ERROR("The path string is EMPTY!");
 		}
-		else if (channels == 4)
-		{
-			internalFormat = GL_RGBA8;
-			format = GL_RGBA;
-		}
-
-		ENGINE_ASSERT(internalFormat && format, "OpenGLTexture2D:: Format not supported!");
-
-		glGenTextures(1, &m_RendererID);
-		glBindTexture(GL_TEXTURE_2D, m_RendererID);
-		
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		if (data)
-			stbi_image_free(data);
 
 	}
 

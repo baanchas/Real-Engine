@@ -19,12 +19,12 @@ namespace RealEngine {
 
         std::vector<std::string> faces
         {
-            "assets/skyboxes/quarry01_blurred/right.png",
-            "assets/skyboxes/quarry01_blurred/left.png",
-            "assets/skyboxes/quarry01_blurred/top.png",
-            "assets/skyboxes/quarry01_blurred/bottom.png",
-            "assets/skyboxes/quarry01_blurred/front.png",
-            "assets/skyboxes/quarry01_blurred/back.png"
+            "assets/skyboxes/snow_field/right.png",
+            "assets/skyboxes/snow_field/left.png",
+            "assets/skyboxes/snow_field/top.png",
+            "assets/skyboxes/snow_field/bottom.png",
+            "assets/skyboxes/snow_field/front.png",
+            "assets/skyboxes/snow_field/back.png",
         };
 
         s_Data.CubeMap.LoadCubeMapTexture(faces);
@@ -50,7 +50,6 @@ namespace RealEngine {
         s_Data.VertexBuffer.Create(sizeof(Vertex) * s_Data.MaxVertices);
         s_Data.VertexBuffer.Bind();
 
-        VertexBufferLayout m_Layout;
 
         s_Data.QuadIndexBufferBase = new uint32_t[s_Data.MaxIndices];
 
@@ -59,6 +58,7 @@ namespace RealEngine {
         s_Data.Shader.Bind();
 
 
+        VertexBufferLayout m_Layout;
         m_Layout.Push<float>(3);
         m_Layout.Push<float>(4);
         m_Layout.Push<float>(2);
@@ -78,13 +78,7 @@ namespace RealEngine {
             samplers[i] = i;
         }
 
-        s_Data.Shader.SetUniformIntArray("u_Texture", samplers, s_Data.MaxTextureSlots);
-
-        /*for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
-        {
-            s_Data.TextureSlots[i] = new Texture2D;
-            s_Data.TextureSlots[i]->SetRendererID(0);
-        }*/
+        UploadUniformIntArray("u_Texture", samplers, s_Data.MaxTextureSlots);
 
         s_Data.VertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
         s_Data.VertexPositions[1] = { 0.5f, -0.5f, 0.0f, 1.0f };
@@ -97,71 +91,63 @@ namespace RealEngine {
     {
         m_SceneData->ViewProjectionMatrix = camera.GetProjection() * glm::inverse(transform);
 
-        s_Data.IndicesOffset = 0;
-        s_Data.QuadIndexCount = 0;  
+        BindScene(s_Data.Shader, s_Data.VertexArray, s_Data.VertexBuffer, s_Data.IndexBuffer);
 
-        s_Data.QuadIndicesPtr = s_Data.QuadIndices;
-        s_Data.VertexBufferPtr = s_Data.VertexBufferBase;
+        ResetMainSceneBuffers();
     }
 
     void Renderer::BeginScene(EditorCamera& camera)
     {
         m_SceneData->ViewProjectionMatrix = camera.GetViewProjection();
 
-        s_Data.VertexArray.Bind();
-        s_Data.VertexBuffer.Bind();
-        s_Data.IndexBuffer.Bind();
-        s_Data.Shader.Bind();
-        
-        s_Data.CubeMap.Bind();
-        s_Data.Shader.SetUniform1i("irradianceMap", s_Data.CubeMap.GetRendererID());
+        BindScene(s_Data.Shader, s_Data.VertexArray, s_Data.VertexBuffer, s_Data.IndexBuffer);
 
-        s_Data.IndicesOffset = 0;
-        s_Data.QuadIndexCount = 0;
-        s_Data.DrawCallsCount = 0;
-        
-
-        s_Data.QuadIndices = s_Data.QuadIndexBufferBase;
-        s_Data.QuadIndicesPtr = s_Data.QuadIndices;
-        s_Data.VertexBufferBase = s_Data.QuadVertexBufferBase;
-        s_Data.VertexBufferPtr = s_Data.VertexBufferBase;
-
+        ResetMainSceneBuffers();
     }
 
     void Renderer::BeginScene(OrthographicCamera& camera)
 	{
 		m_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
         
-        s_Data.IndicesOffset = 0;
-        s_Data.QuadIndexCount = 0;
-        s_Data.DrawCallsCount = 0;
+        BindScene(s_Data.Shader, s_Data.VertexArray, s_Data.VertexBuffer, s_Data.IndexBuffer);
 
-        s_Data.VertexBufferPtr = s_Data.VertexBufferBase;
+        ResetMainSceneBuffers();
 	}
+
+    /*void Renderer::BeginSkyBoxScene(Camera& camera, glm::mat4& transform)
+    {
+        BindScene(s_Data.SkyboxShader, s_Data.SkyboxVertexArray, s_Data.SkyboxVertexBuffer, s_Data.SkyboxIndexBuffer);
+
+        s_Data.CubeMap.Bind();
+
+        s_Data.SkyboxShader.UploadUniformMat4Float("u_Projection", camera.GetProjection());
+        glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+        s_Data.SkyboxShader.UploadUniformMat4Float("u_View", view);
+        s_Data.SkyboxShader.UploadUniformInt("u_Skybox", s_Data.CubeMap.GetRendererID());
+    }*/
 
     void Renderer::BeginSkyBoxScene(EditorCamera& camera)
     {
-        s_Data.SkyboxShader.Bind();
-        s_Data.SkyboxVertexArray.Bind();
-        s_Data.SkyboxIndexBuffer.Bind();
-        s_Data.SkyboxVertexBuffer.Bind();
+        BindScene(s_Data.SkyboxShader, s_Data.SkyboxVertexArray, s_Data.SkyboxVertexBuffer, s_Data.SkyboxIndexBuffer);
+
         s_Data.CubeMap.Bind();
-        s_Data.SkyboxShader.SetUniformMat4f("projection", camera.GetProjection());
+
+        s_Data.SkyboxShader.UploadUniformMat4Float("u_Projection", camera.GetProjection());
         glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-        s_Data.SkyboxShader.SetUniformMat4f("view", view);
-        s_Data.SkyboxShader.SetUniform1i("skybox", s_Data.CubeMap.GetRendererID());
+        s_Data.SkyboxShader.UploadUniformMat4Float("u_View", view);
+        s_Data.SkyboxShader.UploadUniformInt("u_Skybox", s_Data.CubeMap.GetRendererID());
     }
 
 	void Renderer::EndScene()
 	{
-        s_Data.Shader.SetUniformMat4f("u_ViewProjection", m_SceneData->ViewProjectionMatrix);
+        UploadUniformMat4Float("u_ViewProjection", m_SceneData->ViewProjectionMatrix);
 
         uint32_t dataSize = (uint8_t*)s_Data.VertexBufferPtr - (uint8_t*)s_Data.VertexBufferBase;
       
         s_Data.IndexBuffer.SetData((void*)s_Data.QuadIndices, s_Data.QuadIndexCount);
         s_Data.VertexBuffer.SetData((void*)s_Data.VertexBufferBase, dataSize);
 
-        RenderCommand::DrawElements(GL_TRIANGLES, s_Data.QuadIndexCount, GL_UNSIGNED_INT, nullptr);
+        RenderCommand::DrawTriangles(s_Data.QuadIndexCount, GL_UNSIGNED_INT, nullptr);
         
     }
 
@@ -171,67 +157,26 @@ namespace RealEngine {
         s_Data.SkyboxVertexBuffer.SetData((void*)s_Data.SkyBoxCubeMapVertexPositions, sizeof(float) * s_Data.SkyBoxCubeMapVerticesCount);
 
         RenderCommand::SetDepthFunc(GL_LEQUAL);
-        RenderCommand::DrawElements(GL_TRIANGLES, s_Data.SkyBoxCubeMapIndicesCount, GL_UNSIGNED_INT, nullptr);
+        RenderCommand::DrawTriangles(s_Data.SkyBoxCubeMapIndicesCount, GL_UNSIGNED_INT, nullptr);
         RenderCommand::SetDepthFunc(GL_LESS);
 
-        s_Data.SkyboxShader.UnBind();
-        s_Data.SkyboxVertexArray.UnBind();
-        s_Data.SkyboxIndexBuffer.UnBind();
-        s_Data.SkyboxVertexBuffer.UnBind();
+        UnbindScene(s_Data.SkyboxShader, s_Data.SkyboxVertexArray, s_Data.SkyboxVertexBuffer, s_Data.SkyboxIndexBuffer);
     }
 
-    void Renderer::StartBatch()
+    void Renderer::BindScene(Shader& shader, VertexArray& va, VertexBuffer& vb, IndexBuffer& ib)
     {
-        EndScene();
-        ResetStats();
-
+        shader.Bind();
+        va.Bind();
+        vb.Bind();
+        ib.Bind();
     }
 
-    void Renderer::ResetStats()
+    void Renderer::UnbindScene(Shader& shader, VertexArray& va, VertexBuffer& vb, IndexBuffer& ib)
     {
-        s_Data.TextureIndex = 0;
-        s_Data.QuadIndexCount = 0;
-        s_Data.IndicesOffset = 0;
-
-        s_Data.QuadIndices = s_Data.QuadIndexBufferBase;
-        s_Data.QuadIndicesPtr = s_Data.QuadIndices;
-        s_Data.VertexBufferBase = s_Data.QuadVertexBufferBase;
-        s_Data.VertexBufferPtr = s_Data.VertexBufferBase;
-
-        //s_Data.VertexBufferPtr = s_Data.VertexBufferBase;
-        //s_Data.QuadIndicesPtr = s_Data.QuadIndices;
-
-        s_Data.DrawCallsCount++;
-    }
-
-    void Renderer::ShutDown()
-    {
-        delete[] s_Data.VertexBufferBase;
-    }
-
-    void Renderer::SetUniform1i(const std::string& name, const int& value)
-    {
-        s_Data.Shader.SetUniform1i(name, value);
-    }
-
-    void Renderer::SetUniform1f(const std::string& name, const float& value)
-    {
-        s_Data.Shader.SetUniform1f(name, value);
-    }
-
-    void Renderer::SetUniform3f(const std::string& name, const glm::vec3& position)
-    {
-        s_Data.Shader.SetUniform3f(name, position.x, position.y, position.z);
-    }
-
-    void Renderer::SetUniform3fArray(const std::string& name, const glm::vec3* position, const int count)
-    {
-        s_Data.Shader.SetUniformVec3Array(name, position, count);
-    }
-
-    void Renderer::SetUniformMat4f(const std::string& name, const glm::mat4& transform)
-    {
-        s_Data.Shader.SetUniformMat4f(name, transform);
+        shader.UnBind();
+        va.UnBind();
+        vb.UnBind();
+        ib.UnBind();
     }
 
     void Renderer::BindTextures()
@@ -245,10 +190,106 @@ namespace RealEngine {
         }
     }
 
+    void Renderer::StartBatch()
+    {
+        EndScene();
+        ResetMainSceneBuffers();
+    }
+
+    void Renderer::ResetMainSceneBuffers()
+    {
+        s_Data.TextureIndex = 0;
+        s_Data.QuadIndexCount = 0;
+        s_Data.IndicesOffset = 0;
+
+        s_Data.QuadIndices = s_Data.QuadIndexBufferBase;
+        s_Data.QuadIndicesPtr = s_Data.QuadIndices;
+        s_Data.VertexBufferBase = s_Data.QuadVertexBufferBase;
+        s_Data.VertexBufferPtr = s_Data.VertexBufferBase;
+    }
+
+    void Renderer::ShutDown()
+    {
+        delete[] s_Data.VertexBufferBase;
+        delete[] s_Data.QuadIndexBufferBase;
+    }
+
+    void Renderer::UploadUniformInt(const std::string& name, const int& value)
+    {
+        s_Data.Shader.UploadUniformInt(name, value);
+    }
+
+    void Renderer::UploadUniformFloat(const std::string& name, const float& value)
+    {
+        s_Data.Shader.UploadUniformFloat(name, value);
+    }
+
+    void Renderer::UploadUniformVec3Float(const std::string& name, const glm::vec3& position)
+    {
+        s_Data.Shader.UploadUniformVec3Float(name, position.x, position.y, position.z);
+    }
+
+    void Renderer::UploadUniformIntArray(const std::string& name, int* value, const int count)
+    {
+        s_Data.Shader.UploadUniformIntArray(name, value, count);
+    }
+
+    void Renderer::UploadUniformFloatArray(const std::string& name, const float* value, const int count)
+    {
+        s_Data.Shader.UploadUniformFloatArray(name, value, count);
+    }
+
+    void Renderer::UploadUniformVec3Array(const std::string& name, const glm::vec3* position, const int count)
+    {
+       s_Data.Shader.UploadUniformVec3Array(name, position, count);
+    }
+
+    void Renderer::UploadUniformMat4Float(const std::string& name, const glm::mat4& transform)
+    {
+        s_Data.Shader.UploadUniformMat4Float(name, transform);
+    }
+
+    void Renderer::DrawTriangle(const glm::vec3& position, const glm::vec2& size, const float rotation, const glm::vec4& color, float tf)
+    {
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, position.z)) *
+            glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f }) *
+            glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+
+        UploadUniformMat4Float("u_MeshTransform", transform);
+
+        s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[0];
+        s_Data.VertexBufferPtr->Color = { color.r, color.g, color.b, color.t };
+        s_Data.VertexBufferPtr->TexCoord = { 0.0f, 0.0f };
+        s_Data.VertexBufferPtr->TexId = 32.0f;
+        s_Data.VertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.VertexBufferPtr++;
+
+        s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[1];
+        s_Data.VertexBufferPtr->Color = { color.r, color.g, color.b, color.t };
+        s_Data.VertexBufferPtr->TexCoord = { 1.0f, 0.0f };
+        s_Data.VertexBufferPtr->TexId = 32.0f;
+        s_Data.VertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.VertexBufferPtr++;
+
+        s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[2];
+        s_Data.VertexBufferPtr->Color = { color.r, color.g, color.b, color.t };
+        s_Data.VertexBufferPtr->TexCoord = { 1.0f, 1.0f };
+        s_Data.VertexBufferPtr->TexId = 32.0f;
+        s_Data.VertexBufferPtr->TilingFactor = 1.0f;
+        s_Data.VertexBufferPtr++;
+
+
+        s_Data.QuadIndicesPtr[s_Data.QuadIndexCount + 0] = s_Data.IndicesOffset + 0;
+        s_Data.QuadIndicesPtr[s_Data.QuadIndexCount + 1] = s_Data.IndicesOffset + 1;
+        s_Data.QuadIndicesPtr[s_Data.QuadIndexCount + 2] = s_Data.IndicesOffset + 2;
+
+        s_Data.IndicesOffset += 3;
+        s_Data.QuadIndexCount += 3;
+    }
+
     void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID)
     {
-        s_Data.Shader.SetUniformMat4f("u_MeshTransform", glm::mat4(1.0f));
-        s_Data.Shader.SetUniform1i("u_IsTextured", 0);
+        UploadUniformMat4Float("u_MeshTransform", glm::mat4(1.0f));
 
         s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[0];
         s_Data.VertexBufferPtr->Color = { color.x, color.y, color.z, color.w };
@@ -317,8 +358,7 @@ namespace RealEngine {
         s_Data.TextureIndex++;
 
 
-        s_Data.Shader.SetUniformMat4f("u_MeshTransform", glm::mat4(1.0f));
-        s_Data.Shader.SetUniform1i("u_IsTextured", 0);
+        UploadUniformMat4Float("u_MeshTransform", glm::mat4(1.0f));
 
         s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[0];
         s_Data.VertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -404,54 +444,15 @@ namespace RealEngine {
 
     }
 
-    void Renderer::DrawTriangle(const glm::vec3& position, const glm::vec2& size, const float rotation, const glm::vec4& color, float tf)
-    {
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, position.z)) *
-            glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f }) *
-            glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-
-        s_Data.Shader.SetUniformMat4f("u_MeshTransform", transform);
-
-        s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[0];
-        s_Data.VertexBufferPtr->Color = { color.r, color.g, color.b, color.t };
-        s_Data.VertexBufferPtr->TexCoord = { 0.0f, 0.0f };
-        s_Data.VertexBufferPtr->TexId = 32.0f;
-        s_Data.VertexBufferPtr->TilingFactor = 1.0f;
-        s_Data.VertexBufferPtr++;
-
-        s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[1];
-        s_Data.VertexBufferPtr->Color = { color.r, color.g, color.b, color.t };
-        s_Data.VertexBufferPtr->TexCoord = { 1.0f, 0.0f };
-        s_Data.VertexBufferPtr->TexId = 32.0f;
-        s_Data.VertexBufferPtr->TilingFactor = 1.0f;
-        s_Data.VertexBufferPtr++;
-
-        s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[2];
-        s_Data.VertexBufferPtr->Color = { color.r, color.g, color.b, color.t };
-        s_Data.VertexBufferPtr->TexCoord = { 1.0f, 1.0f };
-        s_Data.VertexBufferPtr->TexId = 32.0f;
-        s_Data.VertexBufferPtr->TilingFactor = 1.0f;
-        s_Data.VertexBufferPtr++;
-
-
-        s_Data.QuadIndicesPtr[s_Data.QuadIndexCount + 0] = s_Data.IndicesOffset + 0;
-        s_Data.QuadIndicesPtr[s_Data.QuadIndexCount + 1] = s_Data.IndicesOffset + 1;
-        s_Data.QuadIndicesPtr[s_Data.QuadIndexCount + 2] = s_Data.IndicesOffset + 2;
-
-        s_Data.IndicesOffset += 3;
-        s_Data.QuadIndexCount += 3;
-    }
-
     void Renderer::DrawMesh(const glm::mat4& transform, Mesh& mesh, int entityID)
     {
-
-        s_Data.Shader.SetUniformMat4f("u_MeshTransform", transform);
-        s_Data.Shader.SetUniform1i("u_EntityID", entityID);
-        s_Data.Shader.SetUniform1i("u_IsTextured", 0);
-        s_Data.Shader.SetUniform3f("u_Albedo", mesh.m_Material.Albedo.x, mesh.m_Material.Albedo.y, mesh.m_Material.Albedo.z);
-        s_Data.Shader.SetUniform1f("u_Metallness", mesh.m_Material.Metallic);
-        s_Data.Shader.SetUniform1f("u_Roughness", mesh.m_Material.Roughness);
-        s_Data.Shader.SetUniform1f("u_AO", mesh.m_Material.AO);
+        UploadUniformMat4Float("u_MeshTransform", transform);
+        UploadUniformInt("u_EntityID", entityID);
+        UploadUniformInt("u_IsTextured", 0);
+        UploadUniformVec3Float("u_Albedo", { mesh.m_Material.Albedo.x, mesh.m_Material.Albedo.y, mesh.m_Material.Albedo.z });
+        UploadUniformFloat("u_Metallness", mesh.m_Material.Metallic);
+        UploadUniformFloat("u_Roughness", mesh.m_Material.Roughness);
+        UploadUniformFloat("u_AO", mesh.m_Material.AO);
 
         s_Data.QuadIndicesPtr = mesh.IndicesPtr;
         s_Data.QuadIndexCount = mesh.QuadIndexCount;
@@ -461,48 +462,35 @@ namespace RealEngine {
         s_Data.IndicesOffset = mesh.QuadVerticesCount;
         
         StartBatch();
-        // TODO::Reconsider which method is better to Render;
-        
-        //for (auto& index : mesh.GetIndices())
-        //{
-        //    s_Data.QuadIndicesPtr[s_Data.QuadIndexCount] = s_Data.IndicesOffset + index;
-        //    s_Data.QuadIndexCount += 1;
-        //}
-        //for (auto& vertex : mesh.GetVertices())
-        //{
-        //    s_Data.VertexBufferPtr->Position = vertex.Position;
-        //    s_Data.VertexBufferPtr->Color = vertex.Color;
-        //    s_Data.VertexBufferPtr->TexCoord = vertex.TexCoord;
-        //    s_Data.VertexBufferPtr->Normal = vertex.Normal;
-        //    s_Data.VertexBufferPtr->Albedo = vertex.Albedo; //mesh.m_Material.Albedo;
-        //    s_Data.VertexBufferPtr->Metallic = vertex.Metallic; //mesh.m_Material.Metallic;
-        //    s_Data.VertexBufferPtr->Roughness = vertex.Roughness;// mesh.m_Material.Roughness;
-        //    s_Data.VertexBufferPtr->AO = vertex.AO;// mesh.m_Material.AO;
-        //    s_Data.VertexBufferPtr->TexId = 32.0f;
-        //    s_Data.VertexBufferPtr->TilingFactor = 1.0f;
-        //    s_Data.VertexBufferPtr->entityID = entityID;
-        //    s_Data.VertexBufferPtr->Matrix = transform;
-        //    s_Data.VertexBufferPtr++;
-        //    s_Data.IndicesOffset++;
-        //}
     }
 
-    void Renderer::DrawMesh(const glm::mat4& transform, Mesh& mesh, std::vector<Texture2D>& textures, int entityID)
+    void Renderer::DrawMesh(const glm::mat4& transform, Mesh& mesh, std::vector<std::shared_ptr<Texture2D>>& textures, bool isTexturedMaterial[5], int entityID)
     {
-        s_Data.Shader.SetUniformMat4f("u_MeshTransform", transform);
-        s_Data.Shader.SetUniform1i("u_EntityID", entityID);
-        s_Data.Shader.SetUniform1i("u_IsTextured", 1);
-      
+        UploadUniformMat4Float("u_MeshTransform", transform);
+        UploadUniformInt("u_EntityID", entityID);
+        UploadUniformVec3Float("u_Albedo", { mesh.m_Material.Albedo.x, mesh.m_Material.Albedo.y, mesh.m_Material.Albedo.z });
+        UploadUniformFloat("u_Metallness", mesh.m_Material.Metallic);
+        UploadUniformFloat("u_Roughness", mesh.m_Material.Roughness);
+        UploadUniformFloat("u_AO", mesh.m_Material.AO);
+
 
         int samplers[5];
 
         for (uint32_t i = 0; i < 5; i++)
         {
             samplers[i] = s_Data.TextureIndex + i;
-            textures[i].Bind(i + s_Data.TextureIndex);
+            if (textures[i] != nullptr)
+                textures[i]->Bind(i + s_Data.TextureIndex);
+        }
+        
+        int isTexturedMaterialUniform[5];
+        for (uint32_t i = 0; i < 5; i++)
+        {
+            isTexturedMaterialUniform[i] = isTexturedMaterial[i];
         }
 
-        s_Data.Shader.SetUniformIntArray("u_TexturedMap", samplers, 5);
+        UploadUniformIntArray("u_TexturedMap", samplers, 5);
+        UploadUniformIntArray("u_isTexturedMaterial", isTexturedMaterialUniform, 5);
 
         s_Data.QuadIndicesPtr = mesh.IndicesPtr;
         s_Data.QuadIndexCount = mesh.QuadIndexCount;
@@ -515,30 +503,18 @@ namespace RealEngine {
 
         for (uint32_t i = 0; i < 5; i++)
         {
-            textures[i].UnBind();
+            if (textures[i] != nullptr)
+                textures[i]->UnBind();
         }
     }
 
-    void Renderer::DrawMesh(const glm::mat4& transform, Mesh& mesh, Material& material, int entityID)
+    void Renderer::DrawLight(const glm::mat4& transform, Texture2D* texture, int entityID)
     {
-        StartBatch();
-
-        s_Data.Shader.SetUniformMat4f("MeshTransform", transform);
-        s_Data.Shader.SetUniform1i("EntityID", entityID);
-
-
-        s_Data.QuadIndicesPtr = mesh.IndicesPtr;
-        s_Data.QuadIndexCount = mesh.QuadIndexCount;
-        s_Data.VertexBufferBase = mesh.VerticesBase;
-        s_Data.VertexBufferPtr = mesh.VerticesPtr;
-        s_Data.QuadIndices = mesh.IndicesBase;
-    }
-
-    void Renderer::DrawLight(const glm::mat4& transform, const Light& light, Texture2D* texture, int entityID)
-    {
-        s_Data.Shader.SetUniformMat4f("u_MeshTransform", glm::mat4(1.0f));
+        UploadUniformMat4Float("u_MeshTransform", glm::mat4(1.0f));
         s_Data.TextureSlots[25] = texture;
         s_Data.TextureSlots[25]->Bind(25);
+
+       // glm::mat4 t = transform * glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), { 0.0f, 0.0f, 1.0f });
 
         s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[0];
         s_Data.VertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };

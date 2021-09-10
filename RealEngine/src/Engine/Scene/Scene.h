@@ -52,8 +52,16 @@ namespace RealEngine {
 		glm::vec3* m_SceneLightsPositionsBase;
 		glm::vec3* m_SceneLightsColorsBase;
 
+		glm::vec3* m_SceneSpotLightsPositionsBase;
+		glm::vec3* m_SceneSpotLightsDirectionssBase;
+
+
 		std::vector<glm::vec3> m_SceneLightsPositions;
 		std::vector<glm::vec3> m_SceneLightsColors;
+
+		std::vector<glm::vec3> m_SceneSpotLightsPositions;
+		std::vector<glm::vec3> m_SceneSpotLightsDirections;
+		std::vector<float> m_SceneSpotLightsCutOff;
 
 		Texture2D m_LightTexture;
 	};
