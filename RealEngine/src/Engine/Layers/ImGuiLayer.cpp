@@ -15,6 +15,8 @@ namespace RealEngine {
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 
+		io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/helveticaneuecyr/HelveticaNeueCyr-Roman.ttf", 12.0f);
+
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
 

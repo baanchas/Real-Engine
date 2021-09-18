@@ -122,7 +122,7 @@ namespace RealEngine {
 		static void BeginSkyBoxScene(Camera& camera, glm::mat4& transform);
 		static void BeginScene(OrthographicCamera& camera);
 		static void EndScene();
-		static void EndSceneCubeMap();
+		static void EndSkyBoxScene();
 		static void ShutDown();
 
 		static void BindScene(Shader& shader, VertexArray& va, VertexBuffer& vb, IndexBuffer& ib);

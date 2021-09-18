@@ -11,9 +11,9 @@ namespace RealEngine {
 		EditorCamera() = default;
 		EditorCamera(float fov, float aspectRatio, float nearClip, float farClip);
 
-		void OnUpdate(float ts);
-		void OnEvent(Event& e);
-		void OnRender();
+		void OnUpdate(float ts) override;
+		void OnEvent(Event& e) override;
+		void OnRender() override;
 
 		inline float GetDistance() const { return m_Distance; }
 		inline void SetDistance(float distance) { m_Distance = distance; }

@@ -5,6 +5,8 @@
 
 namespace RealEngine {
 
+	static const uint32_t s_MaxFramebufferSize = 8192;
+
 	static bool IsDepthFormat(FrameBufferTextureFormat format)
 	{
 		switch (format)
@@ -186,6 +188,12 @@ namespace RealEngine {
 
 	void FrameBuffer::Resize(const glm::vec2& size)
 	{
+		if (size.x == 0 || size.y == 0 || size.x > s_MaxFramebufferSize || size.y > s_MaxFramebufferSize)
+		{
+			ENGINE_WARNING("Attempted to resize framebuffer to {0}, {1}", size.x, size.y);
+			return;
+		}
+
 		m_FrameBufferSpecification.Width = size.x;
 		m_FrameBufferSpecification.Height = size.y;
 

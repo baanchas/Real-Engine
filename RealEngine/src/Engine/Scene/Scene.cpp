@@ -5,7 +5,7 @@ namespace RealEngine {
 
 	Scene::Scene()
 	{
-		m_LightTexture.LoadFromFileFormatted("res/sprites/components/lightimage.png");
+		m_LightTexture.LoadFromFileFormatted("res/sprites/components/light.png");
 		m_SceneLightsPositionsBase = new glm::vec3[500];
 		m_SceneLightsColorsBase = new glm::vec3[500];
 	}
@@ -51,7 +51,7 @@ namespace RealEngine {
 	void Scene::OnRenderEditor(EditorCamera& camera)
 	{
 		Renderer::BeginSkyBoxScene(camera);
-		Renderer::EndSceneCubeMap();
+		Renderer::EndSkyBoxScene();
 
 		Renderer::BeginScene(camera);
 
@@ -198,8 +198,12 @@ namespace RealEngine {
 				if (camera.Primary)
 				{
 					mainCamera = &camera.Camera;
-					cameraTransform = transform.GetTransform();
+					mainCamera->Move(transform.Position);
+					/*mainCamera->OnUpdate(2);
+					mainCamera->Rotate(transform.Rotation);*/
 					cameraPos = transform.Position;
+					//transform.Rotation = glm::vec3( transform.Rotation.x, -transform.Rotation.y, transform.Rotation.z );
+					cameraTransform = transform.GetTransform();
 					break;
 				}
 			}
@@ -207,6 +211,9 @@ namespace RealEngine {
 
 		if (mainCamera)
 		{
+			Renderer::BeginSkyBoxScene(*mainCamera, cameraTransform);
+			Renderer::EndSkyBoxScene();
+
 			Renderer::BeginScene((*mainCamera), cameraTransform);
 
 			glm::vec3* lightPositions = m_SceneLightsPositionsBase;

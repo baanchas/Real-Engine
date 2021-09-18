@@ -33,22 +33,22 @@ namespace RealEngine{
 		glm::vec3 Position = glm::vec3{ 0.0f, 0.0f, 0.0f };
 		glm::vec3 Rotation = glm::vec3{ 0.0f, 0.0f, 0.0f };
 		glm::vec3 Scale = glm::vec3{ 1.0f, 1.0f, 1.0f };
-		
+		glm::mat4 Transform = glm::mat4(1.0f);
 
 		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
 		TransformComponent(const glm::vec3& position)
 			: Position(position) {};
 
-		glm::mat4 GetTransform() {
+		glm::mat4& GetTransform() {
 			
 			glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
 
-			glm::mat4 transform = glm::translate(glm::mat4(1.0f), Position)
+			Transform = glm::translate(glm::mat4(1.0f), Position)
 			* rotation
 			* glm::scale(glm::mat4(1.0f), Scale);
 
-			return transform;
+			return Transform;
 		}
 
 	};

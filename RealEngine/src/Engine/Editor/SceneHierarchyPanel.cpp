@@ -1,5 +1,8 @@
 #include "repch.h"
 #include "SceneHierarchyPanel.h"
+
+#include <imgui/imgui_internal.h>
+
 #include <glm/gtc/type_ptr.hpp>
 #include "Engine/Uilities/OpenGL/OpenGLFileDialogs.h"
 
@@ -115,18 +118,77 @@ namespace RealEngine {
 					ImGui::CloseCurrentPopup();
 				}
 
-				/*if (ImGui::MenuItem("Textured Mesh Component"))
-				{
-					m_SelectedEntity.AddComponent<TexturedMeshComponent>();
-					ImGui::CloseCurrentPopup();
-				}*/
-
 				ImGui::EndPopup();
 			}
 
 		}
 
 		ImGui::End();
+	}
+	
+	static void DrawVec3Control(const std::string& label, glm::vec3& values, float resetvalue = 0.0f, float columnWidth = 70.0f)
+	{
+		ImGui::PushID(label.c_str());
+
+		ImGui::Columns(2);
+		ImGui::SetColumnWidth(0, columnWidth);
+		ImGui::Text(label.c_str());
+
+		ImGui::NextColumn();
+
+		ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+
+		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y + 3.0f;
+		ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.0f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.8f, 0.0f, 0.0f, 1.0f));
+
+		if (ImGui::Button("X", buttonSize))
+			values.x = resetvalue;
+
+		ImGui::PopStyleColor(3);
+
+		ImGui::SameLine();
+		ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f");
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.6f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.0f, 0.7f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 0.6f, 0.2f, 1.0f));
+
+		if (ImGui::Button("Y", buttonSize))
+			values.y = resetvalue;
+
+		ImGui::PopStyleColor(3);
+
+		ImGui::SameLine();
+		ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f");
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.8f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 0.0f, 0.8f, 1.0f));
+
+
+		if (ImGui::Button("Z", buttonSize))
+			values.z = resetvalue;
+
+		ImGui::PopStyleColor(3);
+
+		ImGui::SameLine();
+		ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f");
+		ImGui::PopItemWidth();
+
+		ImGui::PopStyleVar();
+
+		ImGui::Columns(1);
+
+		ImGui::PopID();
 	}
 
 	template<typename T, typename UIFunction>
@@ -199,13 +261,15 @@ namespace RealEngine {
 			if (open)
 			{
 				auto& transform = entity.GetComponent<TransformComponent>();
-				ImGui::DragFloat3("Position", glm::value_ptr(transform.Position), 0.1f);
+				//ImGui::DragFloat3("Position", glm::value_ptr(transform.Position), 0.1f);
+
+				DrawVec3Control("Position", transform.Position);
 
 				glm::vec3 rotation = glm::degrees(transform.Rotation);
-				ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 0.1f);
+				DrawVec3Control("Rotation", rotation);
 				transform.Rotation = glm::radians(rotation);
 
-				ImGui::DragFloat3("Scale", glm::value_ptr(transform.Scale), 0.1f);
+				DrawVec3Control("Scale", transform.Scale, 1.0f);
 
 				ImGui::TreePop();
 			}
@@ -253,45 +317,6 @@ namespace RealEngine {
 				}
 			});
 		}
-
-		/*if (entity.HasComponent<MeshComponent>())
-		{
-			DrawComponent<MeshComponent>("Mesh", entity, [](auto& component)
-			{
-				auto& filePath = component.ownMesh.FilePath;
-
-				auto& mc = component.ownMesh;
-
-				ImGui::Text(filePath.c_str());
-
-				ImGui::SameLine(ImGui::GetWindowWidth() - 60.0f);
-
-				if (ImGui::Button("Open..."))
-				{
-					std::string filePath = FileDialogs::OpenFile("Mesh (*.fbx)\0*.fbx\0");
-
-					if (!filePath.empty())
-					{
-						Mesh mesh;
-						mesh.m_Material.Albedo = glm::vec3{ 0.8f, 0.8f, 0.8f };
-						mesh.m_Material.Metallic = 1.0f;
-						mesh.m_Material.Roughness = 0.5f;
-						mesh.m_Material.AO = 1.0f;
-						MeshLoader::LoadMeshFromFBX(filePath, mesh);
-
-						mc = mesh;
-					}
-				}
-
-				ImGui::DragFloat3("Albedo", glm::value_ptr(mc.m_Material.Albedo), 0.1f);
-
-				ImGui::DragFloat("Metallnes", &mc.m_Material.Metallic, 0.1f);
-
-				ImGui::DragFloat("Roughness", &mc.m_Material.Roughness, 0.1f);
-
-				ImGui::DragFloat("AO", &mc.m_Material.AO, 0.1f);
-			});
-		}*/
 
 		if (entity.HasComponent<MeshComponent>())
 		{

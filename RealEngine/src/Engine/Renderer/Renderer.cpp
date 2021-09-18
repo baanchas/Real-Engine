@@ -19,12 +19,12 @@ namespace RealEngine {
 
         std::vector<std::string> faces
         {
-            "assets/skyboxes/snow_field/right.png",
-            "assets/skyboxes/snow_field/left.png",
-            "assets/skyboxes/snow_field/top.png",
-            "assets/skyboxes/snow_field/bottom.png",
-            "assets/skyboxes/snow_field/front.png",
-            "assets/skyboxes/snow_field/back.png",
+            "assets/skyboxes/hilly terrain/right.png",
+            "assets/skyboxes/hilly terrain/left.png",
+            "assets/skyboxes/hilly terrain/top.png",
+            "assets/skyboxes/hilly terrain/bottom.png",
+            "assets/skyboxes/hilly terrain/front.png",
+            "assets/skyboxes/hilly terrain/back.png",
         };
 
         s_Data.CubeMap.LoadCubeMapTexture(faces);
@@ -114,7 +114,7 @@ namespace RealEngine {
         ResetMainSceneBuffers();
 	}
 
-    /*void Renderer::BeginSkyBoxScene(Camera& camera, glm::mat4& transform)
+    void Renderer::BeginSkyBoxScene(EditorCamera& camera)
     {
         BindScene(s_Data.SkyboxShader, s_Data.SkyboxVertexArray, s_Data.SkyboxVertexBuffer, s_Data.SkyboxIndexBuffer);
 
@@ -124,16 +124,16 @@ namespace RealEngine {
         glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
         s_Data.SkyboxShader.UploadUniformMat4Float("u_View", view);
         s_Data.SkyboxShader.UploadUniformInt("u_Skybox", s_Data.CubeMap.GetRendererID());
-    }*/
+    }
 
-    void Renderer::BeginSkyBoxScene(EditorCamera& camera)
+    void Renderer::BeginSkyBoxScene(Camera& camera, glm::mat4& transform)
     {
         BindScene(s_Data.SkyboxShader, s_Data.SkyboxVertexArray, s_Data.SkyboxVertexBuffer, s_Data.SkyboxIndexBuffer);
 
         s_Data.CubeMap.Bind();
 
         s_Data.SkyboxShader.UploadUniformMat4Float("u_Projection", camera.GetProjection());
-        glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+        glm::mat4 view = glm::mat4(glm::mat3(transform));
         s_Data.SkyboxShader.UploadUniformMat4Float("u_View", view);
         s_Data.SkyboxShader.UploadUniformInt("u_Skybox", s_Data.CubeMap.GetRendererID());
     }
@@ -151,7 +151,7 @@ namespace RealEngine {
         
     }
 
-    void Renderer::EndSceneCubeMap()
+    void Renderer::EndSkyBoxScene()
     {
         s_Data.SkyboxIndexBuffer.SetData((void*)s_Data.SkyBoxCubeMapVertexIndices, s_Data.SkyBoxCubeMapIndicesCount);
         s_Data.SkyboxVertexBuffer.SetData((void*)s_Data.SkyBoxCubeMapVertexPositions, sizeof(float) * s_Data.SkyBoxCubeMapVerticesCount);
@@ -516,7 +516,7 @@ namespace RealEngine {
 
        // glm::mat4 t = transform * glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), { 0.0f, 0.0f, 1.0f });
 
-        s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[0];
+        s_Data.VertexBufferPtr->Position = transform * (s_Data.VertexPositions[0] * 2.0f);
         s_Data.VertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
         s_Data.VertexBufferPtr->TexCoord = { 0.0f, 0.0f };
         s_Data.VertexBufferPtr->Normal = { 0.0f, 0.0f, 1.0f };
@@ -526,7 +526,7 @@ namespace RealEngine {
         s_Data.VertexBufferPtr->entityID = entityID;
         s_Data.VertexBufferPtr++;
 
-        s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[1];
+        s_Data.VertexBufferPtr->Position = transform * (s_Data.VertexPositions[1] * 2.0f);
         s_Data.VertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
         s_Data.VertexBufferPtr->TexCoord = { 1.0f, 0.0f };
         s_Data.VertexBufferPtr->Normal = { 0.0f, 0.0f, 1.0f };
@@ -536,7 +536,7 @@ namespace RealEngine {
         s_Data.VertexBufferPtr->entityID = entityID;
         s_Data.VertexBufferPtr++;
 
-        s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[2];
+        s_Data.VertexBufferPtr->Position = transform * (s_Data.VertexPositions[2] * 2.0f);
         s_Data.VertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
         s_Data.VertexBufferPtr->TexCoord = { 1.0f, 1.0f };
         s_Data.VertexBufferPtr->Normal = { 0.0f, 0.0f, 1.0f };
@@ -546,7 +546,7 @@ namespace RealEngine {
         s_Data.VertexBufferPtr->entityID = entityID;
         s_Data.VertexBufferPtr++;
 
-        s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[3];
+        s_Data.VertexBufferPtr->Position = transform * (s_Data.VertexPositions[3] * 2.0f);
         s_Data.VertexBufferPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
         s_Data.VertexBufferPtr->TexCoord = { 0.0f, 1.0f };
         s_Data.VertexBufferPtr->Normal = { 0.0f, 0.0f, 1.0f };

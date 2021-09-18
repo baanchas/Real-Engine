@@ -16,8 +16,6 @@ namespace RealEngine {
 
     EditorLayer::EditorLayer()
 	{
-		ENGINE_INFO("Editor Layer is pushed");
-        
         Renderer::Init();
         
         FrameBufferSpecification FrameBufferSpec;
@@ -29,43 +27,13 @@ namespace RealEngine {
 
         m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 
-        //CubeMap.LoadFromFileFormatted("res/sprites/components/lightImage.png");
-        SpriteCheckerBoard.LoadFromFileFormatted("res/sprites/components/lightIMage.png");
-        CubeMap.LoadFromFileFormatted("res/sprites/Checkerboard.png");
-                 
         m_ActiveScene = new Scene();
         m_ActiveScene->SetTitle("Example");
         m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
-        material.Albedo = glm::vec3{ 2.0f, 1.0f, 0.0f };
-        material.Metallic = 1.0f;
-        material.Roughness = 0.5f;
-        material.AO = 1.0f;
-        
-        mesh.m_Material = material;
+        m_IconPlay.LoadFromFileFormatted("res/sprites/Icons/play.png");
+        m_IconStop.LoadFromFileFormatted("res/sprites/Icons/stop.png");
 
-        MeshLoader::OBJ::LoadMesh("assets/models/axe", mesh);
-        //MeshLoader::REM::LoadMesh("assets/models/axe.rem", mesh);
-        model = m_ActiveScene->CreateEntity("Sphere");
-        model.AddComponent<MeshComponent>();
-        auto& meshs = model.GetComponent<MeshComponent>();
-        meshs.ownMesh = mesh;
-
-
-        model3 = m_ActiveScene->CreateEntity("Light");
-        model3.AddComponent<TextureRenderer>();
-        auto& text2 = model3.GetComponent<TextureRenderer>().Texture;
-        text2 = &CubeMap;
-
-        model2 = m_ActiveScene->CreateEntity("Light");
-        model2.AddComponent<PointLight>();
-        auto& tr = model2.GetComponent<TransformComponent>();
-        tr.Position = { 10.0f, 10.0f, 10.0f };
-
-        model4 = m_ActiveScene->CreateEntity("Light");
-        model4.AddComponent<PointLight>();
-        auto& tr4 = model4.GetComponent<TransformComponent>();
-        tr4.Position = { -10.0f, 10.0f, 10.0f };
 	}
 
 	EditorLayer::~EditorLayer()
@@ -78,6 +46,7 @@ namespace RealEngine {
     {
         m_ActiveScene->OnUpdate(ts);
         //std::cout << ts << std::endl;
+      
         m_ActiveScene->OnViewportResize(m_ViewPortSize.x, m_ViewPortSize.y);
 
         if (m_SceneWindowIsFocused)
@@ -225,13 +194,17 @@ namespace RealEngine {
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
-        ImGui::Begin("Scene");
+        ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoCollapse);
         ImGui::PopStyleVar();
 
-        auto viewPortOffset = ImGui::GetCursorPos();
+        auto viewPortMinRegion = ImGui::GetWindowContentRegionMin();
+        auto viewPortMaxRegion = ImGui::GetWindowContentRegionMax();
+        auto viewPortOffset = ImGui::GetWindowPos();
+        m_ViewPortBounds[0] = { viewPortMinRegion.x + viewPortOffset.x, viewPortMinRegion.y + viewPortOffset.y };
+        m_ViewPortBounds[1] = { viewPortMaxRegion.x + viewPortOffset.x, viewPortMaxRegion.y + viewPortOffset.y };
 
         ImVec2 AvailableContentSize = ImGui::GetContentRegionAvail();
-        if (m_ViewPortSize != *((glm::vec2*)&AvailableContentSize))
+        if (m_ViewPortSize != *((glm::vec2*)&AvailableContentSize) && AvailableContentSize.x > 0 && AvailableContentSize.y > 0)
         {
             m_FrameBuffer->Resize(glm::vec2(AvailableContentSize.x, AvailableContentSize.y));
             m_ViewPortSize = { (uint32_t)AvailableContentSize.x, (uint32_t)AvailableContentSize.y };
@@ -240,21 +213,12 @@ namespace RealEngine {
         uint32_t TextureID = m_FrameBuffer->GetColorAttachmentID(0);
         ImGui::Image((void*)TextureID, ImVec2{ m_ViewPortSize.x, m_ViewPortSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
-        auto windowSize = ImGui::GetWindowContentRegionMax();
-        ImVec2 minBound = ImGui::GetWindowPos();
-        minBound.x += viewPortOffset.x;
-        minBound.y += viewPortOffset.y;
-
-        ImVec2 maxBound = { minBound.x + windowSize.x, minBound.y + windowSize.y };
-        m_ViewPortBounds[0] = { minBound.x, minBound.y };
-        m_ViewPortBounds[1] = { maxBound.x, maxBound.y };
-
         auto [mouseX, mouseY] = ImGui::GetMousePos();
 
         mouseX -= m_ViewPortBounds[0].x;
         mouseY -= m_ViewPortBounds[0].y;
         glm::vec2 viewportSize = m_ViewPortBounds[1] - m_ViewPortBounds[0];
-        mouseY = viewportSize.y - mouseY - 22;
+        mouseY = viewportSize.y - mouseY;
         int mX = (int)mouseX;
         int mY = (int)mouseY;
 
@@ -278,7 +242,7 @@ namespace RealEngine {
         }
 
         Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
-        if (selectedEntity && m_GyzmoType != -1 && !Input::IsKeyPressed(KeyCodes::LEFT_ALT))
+        if (selectedEntity && m_GyzmoType != -1 && !Input::IsKeyPressed(KeyCodes::LEFT_ALT) && m_SceneState == SceneMode::EDIT)
         {
             ImGuizmo::SetOrthographic(false);
             ImGuizmo::SetDrawlist();
@@ -316,6 +280,8 @@ namespace RealEngine {
 
         ImGui::End();
 
+        UIToolBar();
+
         m_SceneHierarchyPanel.OnImGuiRender();
     }
 
@@ -327,15 +293,59 @@ namespace RealEngine {
         RenderCommand::Clear();  
         //Renderer::Clear();
         m_FrameBuffer->ClearAttachment(1, -1);
-
         //m_ActiveScene->OnRenderEditor(m_EditorCamera);
-        m_ActiveScene->OnRenderRuntime();
-        
+
+        switch (m_SceneState)
+        {
+        case SceneMode::EDIT:
+        {
+            m_ActiveScene->OnRenderEditor(m_EditorCamera);
+            break;
+        }
+        case SceneMode::PLAY:
+        {
+            m_ActiveScene->OnRenderRuntime();
+            break;
+        }
+        }
+
         OnImGuiRender();
 
         m_FrameBuffer->UnBind();
 
 	}
+
+    void EditorLayer::UIToolBar()
+    {
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+        
+
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2, 0.2, 0.2, 0.5));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.3, 0.3, 0.3, 0.5));
+
+        ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+        Texture2D* icon = m_SceneState == SceneMode::EDIT ? &m_IconPlay : &m_IconStop;
+
+        if (ImGui::ImageButton((ImTextureID)icon->GetRendererID(), ImVec2(30.0f, 30.f)))
+        {
+            if (m_SceneState == SceneMode::PLAY)
+            {
+                OnSceneEdit();
+            }
+            else if (m_SceneState == SceneMode::EDIT)
+            {
+                OnScenePlay();
+            }
+        }
+        ImGui::PopStyleVar(2);
+        ImGui::PopStyleColor(3);
+
+        ImGui::End();
+    }
 
     void EditorLayer::NewScene()
     {
@@ -362,6 +372,28 @@ namespace RealEngine {
         }
     }
 
+    void EditorLayer::OpenScene(std::string& path)
+    {
+        m_ActiveScene = new Scene();
+        m_ActiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
+
+        m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+
+        m_Serializer.SetContext(m_ActiveScene);
+        m_Serializer.Deserialize(path);
+    }
+
+    void EditorLayer::OpenScene(Scene* activeScene, std::string& path)
+    {
+        m_ActiveScene = activeScene;
+        m_ActiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
+
+        m_SceneHierarchyPanel.SetContext(activeScene);
+
+        m_Serializer.SetContext(activeScene);
+        m_Serializer.Deserialize(path);
+    }
+
     void EditorLayer::SaveScene()
     {
         std::string filePath = FileDialogs::SaveFile("Engine Scene (*.rl)\0*.rl\0");
@@ -371,4 +403,15 @@ namespace RealEngine {
             m_Serializer.Serialize(filePath);
         }
     }
+
+    void EditorLayer::OnScenePlay()
+    {
+        m_SceneState = SceneMode::PLAY;
+    }
+
+    void EditorLayer::OnSceneEdit()
+    {
+        m_SceneState = SceneMode::EDIT;
+    }
+
 }

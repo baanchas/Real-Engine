@@ -179,7 +179,7 @@ namespace RealEngine {
 
 				// Camera Stuff
 
-				std::string projectionType = "Projection Type:";
+				std::string projectionType = "Projection Type: ";
 				size_t foundPrType = line.find(projectionType);
 				if (foundPrType != std::string::npos)
 				{
@@ -191,7 +191,7 @@ namespace RealEngine {
 					}
 				}
 
-				std::string OrthographicSize = "Orthographic Size:";
+				std::string OrthographicSize = "Orthographic Size: ";
 				size_t foundOrthSize = line.find(OrthographicSize);
 				if (foundOrthSize != std::string::npos)
 				{
@@ -203,7 +203,7 @@ namespace RealEngine {
 					}
 				}
 
-				std::string OrthographicNear = "Orthographic Near:";
+				std::string OrthographicNear = "Orthographic Near: ";
 				size_t foundOrthNear = line.find(OrthographicNear);
 				if (foundOrthNear != std::string::npos)
 				{
@@ -215,7 +215,7 @@ namespace RealEngine {
 					}
 				}
 
-				std::string OrthographicFar = "Orthographic Far:";
+				std::string OrthographicFar = "Orthographic Far: ";
 				size_t foundOrthFar = line.find(OrthographicFar);
 				if (foundOrthFar != std::string::npos)
 				{
@@ -227,7 +227,7 @@ namespace RealEngine {
 					}
 				}
 
-				std::string PerspectiveFOV = "Perspective FOV:";
+				std::string PerspectiveFOV = "Perspective FOV: ";
 				size_t foundPFOV = line.find(PerspectiveFOV);
 				if (foundPFOV != std::string::npos)
 				{
@@ -239,7 +239,7 @@ namespace RealEngine {
 					}
 				}
 
-				std::string PerspectiveNear = "Perspective Near:";
+				std::string PerspectiveNear = "Perspective Near: ";
 				size_t foundPNear = line.find(PerspectiveNear);
 				if (foundPNear != std::string::npos)
 				{
@@ -251,7 +251,7 @@ namespace RealEngine {
 					}
 				}
 
-				std::string PerspectiveFar = "Perspective Far:";
+				std::string PerspectiveFar = "Perspective Far: ";
 				size_t foundPFar = line.find(PerspectiveFar);
 				if (foundPFar != std::string::npos)
 				{
@@ -263,7 +263,7 @@ namespace RealEngine {
 					}
 				}
 
-				std::string PrimaryCamera = "Primary:";
+				std::string PrimaryCamera = "Primary: ";
 				size_t foundPrimary = line.find(PrimaryCamera);
 				if (foundPrimary != std::string::npos)
 				{
@@ -275,7 +275,7 @@ namespace RealEngine {
 					}
 				}
 
-				std::string isFixedAR = "Is Fixed AR:";
+				std::string isFixedAR = "Is Fixed AR: ";
 				size_t foundIsFixedAr = line.find(isFixedAR);
 				if (foundIsFixedAr != std::string::npos)
 				{

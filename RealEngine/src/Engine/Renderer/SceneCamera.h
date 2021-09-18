@@ -12,7 +12,17 @@ namespace RealEngine {
 
 	public:
 		SceneCamera();
+
 		virtual ~SceneCamera() {};
+
+		void OnUpdate(float ts) override;
+		void OnEvent(Event& event) override;
+
+		void Move(glm::mat4& transform) override;
+		void Move(glm::vec3& position) override;
+		void Rotate(glm::vec3& rotation) override;
+
+		glm::vec3 GetDirection() { return m_Direction; }
 
 		void SetOrthographic(float size, float nearClip, float farClip);
 		void SetPerspective(float fov, float nearClip, float farClip);
@@ -36,12 +46,12 @@ namespace RealEngine {
 
 		void SetProjectionType(ProjectionType type) { m_ProjectionType = type; }
 		ProjectionType GetProjectionType() const { return m_ProjectionType; }
-
+		
 	private:
 		void RecalculateProjection();
 
 	private:
-		ProjectionType m_ProjectionType = ProjectionType::Orthographic;
+		ProjectionType m_ProjectionType = ProjectionType::Perspective;
 
 		float m_OrthographicSize = 10.0f;
 		float m_OrthographicNear = -1.0f;
@@ -52,6 +62,14 @@ namespace RealEngine {
 		float m_PerspectiveFar = 10000.0f;
 
 		float m_AspectRatio = 0.0f;
+
+		float m_Pitch = 0.0f, m_Yaw = -90.0f;
+
+		glm::vec2 m_InitialMousePosition = { 620.0f, 360.0f };
+
+		glm::vec3 m_Direction = { 0.0f, 0.0f, 0.0f };
+
+		bool m_IsInitialized = true;
 
 	};
 
