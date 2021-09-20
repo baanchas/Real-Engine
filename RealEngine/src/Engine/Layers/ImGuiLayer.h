@@ -16,6 +16,7 @@ namespace RealEngine {
 		void OnUpdate(float ts) override;
 		void OnEvent(Event& event) override;
 		void OnRender() override;
+		void SetDarkTheme();
 	private:
 	};
 

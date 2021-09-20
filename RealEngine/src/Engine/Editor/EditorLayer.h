@@ -3,7 +3,6 @@
 #include "Application.h"
 
 #include "Engine/Layers/Layer.h"
-#include "Engine/Editor/SceneHierarchyPanel.h"
 #include "OpenGL/Shader.h"
 #include "OpenGL/VertexArray.h"
 #include "OpenGL/VertexBuffer.h"
@@ -13,8 +12,13 @@
 
 #include "Renderer/Renderer.h"
 #include "Renderer/FrameBuffer.h"
-#include "Renderer/EditorCamera.h"
 #include "Scene/Scene.h"
+
+#include "Renderer/EditorCamera.h"
+
+#include "Engine/Editor/SceneHierarchyPanel.h"
+#include "Engine/Editor/ContentBrowserPanel.h"
+
 //#include "Models/Mesh.h"
 
 namespace RealEngine {
@@ -55,6 +59,7 @@ namespace RealEngine {
 		SceneMode m_SceneState = SceneMode::EDIT;
 
 		SceneHierarchyPanel m_SceneHierarchyPanel = SceneHierarchyPanel(m_ActiveScene);
+		ContentBrowserPanel m_ContentBrowserPanel;
 
 		SceneSerializer m_Serializer = SceneSerializer(m_ActiveScene);
 
@@ -68,6 +73,9 @@ namespace RealEngine {
 
 		Texture2D m_IconPlay;
 		Texture2D m_IconStop;
+
+		Texture2D m_Folder;
+		Texture2D m_File;
 
 		glm::vec2 m_ViewPortSize;
 		glm::vec2 m_ViewPortBounds[2];

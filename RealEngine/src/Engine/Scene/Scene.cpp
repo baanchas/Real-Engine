@@ -317,7 +317,10 @@ namespace RealEngine {
 					auto& transform = m_Registry.get<TransformComponent>(entity);
 					auto& light = m_Registry.get<PointLight>(entity);
 
-					Renderer::DrawLight(transform.GetTransform(), &m_LightTexture, (int)entity);
+					//Texture2D* texture;
+					//m_LightTexture.UnBind();
+					//Renderer::DrawLight(transform.GetTransform(), &m_LightTexture, (int)entity);
+					//m_LightTexture.Bind();
 					m_SceneLightsPositions.push_back(transform.Position);
 					m_SceneLightsColors.push_back({ light.Color.r * light.ColorStrength, light.Color.g * light.ColorStrength, light.Color.b * light.ColorStrength, });
 				}

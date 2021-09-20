@@ -5,10 +5,10 @@
 #include "Uilities/OpenGL/OpenGLFileDialogs.h"
 #include "Math/Math.h"
 #include "Models/Mesh.h"
-#include <spdlog/spdlog.h>
 
 #include "Renderer/RenderCommand.h"
 
+#include <spdlog/spdlog.h>
 #include <ImGuizmo.h>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -31,8 +31,14 @@ namespace RealEngine {
         m_ActiveScene->SetTitle("Example");
         m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
-        m_IconPlay.LoadFromFileFormatted("res/sprites/Icons/play.png");
-        m_IconStop.LoadFromFileFormatted("res/sprites/Icons/stop.png");
+        m_IconPlay.LoadFromFileFormatted("res/Icons/mode/play.png");
+        m_IconStop.LoadFromFileFormatted("res/Icons/mode/stop.png");
+
+        m_Folder.LoadFromFileFormatted("res/Icons/browser/folder.png");
+        m_File.LoadFromFileFormatted("res/Icons/browser/file.png");
+
+        m_ContentBrowserPanel.m_DirectoryIcon = m_Folder;
+        m_ContentBrowserPanel.m_FileIcon = m_File;
 
 	}
 
@@ -282,6 +288,7 @@ namespace RealEngine {
 
         UIToolBar();
 
+        m_ContentBrowserPanel.OnImGuiRender();
         m_SceneHierarchyPanel.OnImGuiRender();
     }
 
@@ -294,6 +301,8 @@ namespace RealEngine {
         //Renderer::Clear();
         m_FrameBuffer->ClearAttachment(1, -1);
         //m_ActiveScene->OnRenderEditor(m_EditorCamera);
+
+        OnImGuiRender();
 
         switch (m_SceneState)
         {
@@ -309,8 +318,7 @@ namespace RealEngine {
         }
         }
 
-        OnImGuiRender();
-
+        //ImGui::ShowDemoWindow();
         m_FrameBuffer->UnBind();
 
 	}
