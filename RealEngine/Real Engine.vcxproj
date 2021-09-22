@@ -97,8 +97,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Engine\Editor\ContentBrowserPanel.cpp" />
+    <ClCompile Include="src\Engine\Editor\LogWindow.cpp" />
     <ClCompile Include="src\Engine\Editor\SceneHierarchyPanel.cpp" />
     <ClCompile Include="src\Engine\Graphics\Platform\OpenGL\TextureCubeMap.cpp" />
+    <ClCompile Include="src\Engine\Log.cpp" />
     <ClCompile Include="src\Engine\Models\Mesh.cpp" />
     <ClCompile Include="src\Engine\Models\MeshLoader.cpp" />
     <ClCompile Include="src\Engine\Renderer\EditorCamera.cpp" />
@@ -142,6 +144,7 @@
   <ItemGroup>
     <ClInclude Include="libs\ImGuizmo\ImGuizmo.h" />
     <ClInclude Include="src\Engine\Editor\ContentBrowserPanel.h" />
+    <ClInclude Include="src\Engine\Editor\LogWindow.h" />
     <ClInclude Include="src\Engine\Editor\SceneHierarchyPanel.h" />
     <ClInclude Include="src\Engine\Graphics\Platform\OpenGL\TextureCubeMap.h" />
     <ClInclude Include="src\Engine\Math\Math.h" />

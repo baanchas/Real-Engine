@@ -280,7 +280,7 @@ namespace RealEngine {
 			DrawComponent<PointLight>("Light", entity, [](auto& component)
 			{
 				ImGui::Text("Color:");
-				ImGui::ColorPicker3("Color", glm::value_ptr(component.Color));
+				ImGui::ColorEdit3("Color", glm::value_ptr(component.Color));
 
 				auto& strengh = component.ColorStrength;
 
@@ -293,7 +293,7 @@ namespace RealEngine {
 		{
 			DrawComponent<SpriteRenderer>("Sprite Renderer", entity, [](auto& component)
 			{
-				ImGui::ColorPicker4("Color", glm::value_ptr(component.Color));
+				ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
 			});
 		}
 

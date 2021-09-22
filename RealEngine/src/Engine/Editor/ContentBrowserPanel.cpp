@@ -2,10 +2,9 @@
 #include "ContentBrowserPanel.h"
 
 
-
 namespace RealEngine {
 
-	const char* g_AssetsDirectory = "assets";
+	extern const std::filesystem::path g_AssetsDirectory = "assets";
 
 	ContentBrowserPanel::ContentBrowserPanel()
 		: m_CurrentDir(g_AssetsDirectory)
@@ -31,7 +30,7 @@ namespace RealEngine {
 		}
 
 		static float padding = 16.0f;
-		static float thumbnailSize = 128.0f;
+		static float thumbnailSize = 90.0f;
 		float cellSize = thumbnailSize + padding;
 
 		float panelWidth = ImGui::GetContentRegionAvail().x;
@@ -51,12 +50,13 @@ namespace RealEngine {
 			Texture2D* icon = directoryEntry.is_directory() ? &m_DirectoryIcon : &m_FileIcon;
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 			ImGui::ImageButton((ImTextureID)icon->GetRendererID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 });
-			/*if (ImGui::BeginDragDropSource())
+
+			if (ImGui::BeginDragDropSource())
 			{
 				const wchar_t* itemPath = relativePath.c_str();
 				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", itemPath, (wcslen(itemPath) + 1) * sizeof(wchar_t));
 				ImGui::EndDragDropSource();
-			}*/
+			}
 
 			ImGui::PopStyleColor();
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))

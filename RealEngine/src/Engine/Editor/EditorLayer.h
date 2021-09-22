@@ -18,6 +18,7 @@
 
 #include "Engine/Editor/SceneHierarchyPanel.h"
 #include "Engine/Editor/ContentBrowserPanel.h"
+#include "Engine/Editor/LogWindow.h"
 
 //#include "Models/Mesh.h"
 
@@ -42,11 +43,11 @@ namespace RealEngine {
 		void OnRender() override;
 
 	private:
-		void UIToolBar();
+		void OnUIToolBarRender();
 		void NewScene();
 		void OpenScene();
 		void OpenScene(std::string& path);
-		void OpenScene(Scene* activeScene, std::string& path);
+		void OpenScene(const std::filesystem::path& path);
 		void SaveScene();
 
 		void OnScenePlay();

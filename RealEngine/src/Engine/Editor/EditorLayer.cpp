@@ -9,10 +9,14 @@
 #include "Renderer/RenderCommand.h"
 
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/ostream_sink.h>
 #include <ImGuizmo.h>
 #include <glm/gtc/type_ptr.hpp>
 
+
 namespace RealEngine {
+
+    extern const std::filesystem::path g_AssetsDirectory;
 
     EditorLayer::EditorLayer()
 	{
@@ -52,7 +56,7 @@ namespace RealEngine {
     {
         m_ActiveScene->OnUpdate(ts);
         //std::cout << ts << std::endl;
-      
+
         m_ActiveScene->OnViewportResize(m_ViewPortSize.x, m_ViewPortSize.y);
 
         if (m_SceneWindowIsFocused)
@@ -219,77 +223,86 @@ namespace RealEngine {
         uint32_t TextureID = m_FrameBuffer->GetColorAttachmentID(0);
         ImGui::Image((void*)TextureID, ImVec2{ m_ViewPortSize.x, m_ViewPortSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
-        auto [mouseX, mouseY] = ImGui::GetMousePos();
-
-        mouseX -= m_ViewPortBounds[0].x;
-        mouseY -= m_ViewPortBounds[0].y;
-        glm::vec2 viewportSize = m_ViewPortBounds[1] - m_ViewPortBounds[0];
-        mouseY = viewportSize.y - mouseY;
-        int mX = (int)mouseX;
-        int mY = (int)mouseY;
-
-        if (mX >= 0 && mY >= 0 && mX < (int)viewportSize.x && mY < (int)viewportSize.y)
+        if (m_SceneState == SceneMode::EDIT)
         {
-            int pixelData = m_FrameBuffer->ReadPixels(1, mX, mY);
-            m_HoveredEntity = Entity{ (entt::entity)pixelData, m_ActiveScene };
-        }
-        else 
-        {
-            m_HoveredEntity = Entity{ entt::null, m_ActiveScene };
-        }
+            auto [mouseX, mouseY] = ImGui::GetMousePos();
 
-        if (ImGui::IsWindowHovered())
-        {
-            m_SceneWindowIsFocused = true;
-        }
-        else
-        {
-            m_SceneWindowIsFocused = false;
-        }
+            mouseX -= m_ViewPortBounds[0].x;
+            mouseY -= m_ViewPortBounds[0].y;
+            glm::vec2 viewportSize = m_ViewPortBounds[1] - m_ViewPortBounds[0];
+            mouseY = viewportSize.y - mouseY;
+            int mX = (int)mouseX;
+            int mY = (int)mouseY;
 
-        Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
-        if (selectedEntity && m_GyzmoType != -1 && !Input::IsKeyPressed(KeyCodes::LEFT_ALT) && m_SceneState == SceneMode::EDIT)
-        {
-            ImGuizmo::SetOrthographic(false);
-            ImGuizmo::SetDrawlist();
-
-            float windowWidth = (float)ImGui::GetWindowWidth();
-            float windowHeight = (float)ImGui::GetWindowHeight();
-            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
-
-            /*Runtime Camera
-            auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
-            auto& cc = cameraEntity.GetComponent<CameraComponent>();
-            const glm::mat4& cameraProjection = cc.Camera.GetProjection();
-            glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());*/
-
-            auto& tc = selectedEntity.GetComponent<TransformComponent>();
-            glm::mat4 transform = tc.GetTransform();
-
-            const glm::mat4& cameraProjection = m_EditorCamera.GetProjection();
-            glm::mat4 cameraView = m_EditorCamera.GetViewMatrix();
-
-            ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
-                (ImGuizmo::OPERATION)m_GyzmoType, ImGuizmo::LOCAL, glm::value_ptr(transform));
-
-            if (ImGuizmo::IsUsing())
+            if (mX >= 0 && mY >= 0 && mX < (int)viewportSize.x && mY < (int)viewportSize.y)
             {
-                glm::vec3 position, rotation, scale;
-                DecomposeTransform(transform, position, rotation, scale);
+                int pixelData = m_FrameBuffer->ReadPixels(1, mX, mY);
+                m_HoveredEntity = Entity{ (entt::entity)pixelData, m_ActiveScene };
+            }
+            else
+            {
+                m_HoveredEntity = Entity{ entt::null, m_ActiveScene };
+            }
 
-                glm::vec3 deltaRotation = rotation - tc.Rotation;
-                tc.Position = position;
-                tc.Rotation = tc.Rotation + deltaRotation;
-                tc.Scale = scale;
+            if (ImGui::IsWindowHovered())
+            {
+                m_SceneWindowIsFocused = true;
+            }
+            else
+            {
+                m_SceneWindowIsFocused = false;
+            }
+
+            if (ImGui::BeginDragDropTarget())
+            {
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+                {
+                    const wchar_t* path = (const wchar_t*)payload->Data;
+
+                    OpenScene(std::filesystem::path(g_AssetsDirectory) / path);
+                }
+
+                ImGui::EndDragDropTarget();
+            }
+
+            Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+            if (selectedEntity && m_GyzmoType != -1 && !Input::IsKeyPressed(KeyCodes::LEFT_ALT))
+            {
+                ImGuizmo::SetOrthographic(false);
+                ImGuizmo::SetDrawlist();
+
+                float windowWidth = (float)ImGui::GetWindowWidth();
+                float windowHeight = (float)ImGui::GetWindowHeight();
+                ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+
+                auto& tc = selectedEntity.GetComponent<TransformComponent>();
+                glm::mat4 transform = tc.GetTransform();
+
+                const glm::mat4& cameraProjection = m_EditorCamera.GetProjection();
+                glm::mat4 cameraView = m_EditorCamera.GetViewMatrix();
+
+                ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
+                    (ImGuizmo::OPERATION)m_GyzmoType, ImGuizmo::LOCAL, glm::value_ptr(transform));
+
+                if (ImGuizmo::IsUsing())
+                {
+                    glm::vec3 position, rotation, scale;
+                    DecomposeTransform(transform, position, rotation, scale);
+
+                    glm::vec3 deltaRotation = rotation - tc.Rotation;
+                    tc.Position = position;
+                    tc.Rotation = tc.Rotation + deltaRotation;
+                    tc.Scale = scale;
+                }
             }
         }
-
         ImGui::End();
 
-        UIToolBar();
+        OnUIToolBarRender();
 
         m_ContentBrowserPanel.OnImGuiRender();
         m_SceneHierarchyPanel.OnImGuiRender();
+        LogWindow::Get().OnImGuiRender();
     }
 
     void EditorLayer::OnRender()
@@ -298,11 +311,8 @@ namespace RealEngine {
         
         RenderCommand::SetClearColor(1.0f, 1.0f, 1.0f, 0.0f);
         RenderCommand::Clear();  
-        //Renderer::Clear();
+        
         m_FrameBuffer->ClearAttachment(1, -1);
-        //m_ActiveScene->OnRenderEditor(m_EditorCamera);
-
-        OnImGuiRender();
 
         switch (m_SceneState)
         {
@@ -318,12 +328,13 @@ namespace RealEngine {
         }
         }
 
+        OnImGuiRender();
         //ImGui::ShowDemoWindow();
         m_FrameBuffer->UnBind();
 
 	}
 
-    void EditorLayer::UIToolBar()
+    void EditorLayer::OnUIToolBarRender()
     {
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
@@ -362,6 +373,8 @@ namespace RealEngine {
 
         m_SceneHierarchyPanel.SetContext(m_ActiveScene);
         m_Serializer.SetContext(m_ActiveScene);
+        
+        ENGINE_INFO("Created new Scene!");
     }
 
     void EditorLayer::OpenScene()
@@ -391,15 +404,17 @@ namespace RealEngine {
         m_Serializer.Deserialize(path);
     }
 
-    void EditorLayer::OpenScene(Scene* activeScene, std::string& path)
+    void EditorLayer::OpenScene(const std::filesystem::path& path)
     {
-        m_ActiveScene = activeScene;
+        m_ActiveScene = new Scene();
         m_ActiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
 
-        m_SceneHierarchyPanel.SetContext(activeScene);
+        m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
-        m_Serializer.SetContext(activeScene);
-        m_Serializer.Deserialize(path);
+        m_Serializer.SetContext(m_ActiveScene);
+        std::string p = path.string();
+
+        m_Serializer.Deserialize(p);
     }
 
     void EditorLayer::SaveScene()

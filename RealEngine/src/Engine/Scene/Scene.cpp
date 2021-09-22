@@ -1,6 +1,8 @@
 #include "repch.h"
 #include "Scene.h"
 
+#include "Engine/Editor/LogWindow.h"
+
 namespace RealEngine {
 
 	Scene::Scene()
@@ -382,6 +384,7 @@ namespace RealEngine {
 	Entity Scene::CreateEntity()
 	{
 		Entity entity = { m_Registry.create(), this };
+		ENGINE_SEND_LOG("[{0}]::New Entity has been created with id {1}", m_Title, entity.Get());
 		ENGINE_INFO("[{0}]::New Entity has been created with id {1}", m_Title, entity.Get());
 		entity.AddComponent<TagComponent>();
 		entity.AddComponent<TransformComponent>();
@@ -391,6 +394,7 @@ namespace RealEngine {
 	Entity Scene::CreateEntity(const std::string& name)
 	{
 		Entity entity = { m_Registry.create(), this };
+		ENGINE_SEND_LOG("[{0}]::New Entity has been created with id {1}", m_Title, entity.Get());
 		ENGINE_INFO("[{0}]::New Entity has been created with id {1}", m_Title, entity.Get());
 		auto& tc = entity.AddComponent<TagComponent>();
 		tc.Tag = name;
@@ -407,6 +411,8 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentAdded<TagComponent>(Entity entity, TagComponent& component)
 	{
+		//LogWindow::Get().AddLog(ENGINE_INFO);
+		ENGINE_SEND_LOG("\t[{0}]::Tag Component added to entity with id {1}", m_Title, entity.Get());
 		ENGINE_TRACE("\t[{0}]::Tag Component added to entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
@@ -414,6 +420,7 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentAdded<TransformComponent>(Entity entity, TransformComponent& component)
 	{
+		ENGINE_SEND_LOG("\t[{0}]::Transform Component added to entity with id {1}", m_Title, entity.Get());
 		ENGINE_TRACE("\t[{0}]::Transform Component added to entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
@@ -421,6 +428,7 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentAdded<SpriteRenderer>(Entity entity, SpriteRenderer& component)
 	{
+		ENGINE_SEND_LOG("\t[{0}]::Sprite Component added to entity with id {1}", m_Title, entity.Get());
 		ENGINE_TRACE("\t[{0}]::Sprite Component added to entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
@@ -428,6 +436,7 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentAdded<TextureRenderer>(Entity entity, TextureRenderer& component)
 	{
+		ENGINE_SEND_LOG("\t[{0}]::Texture Component added to entity with id {1}", m_Title, entity.Get());
 		ENGINE_TRACE("\t[{0}]::Texture Component added to entity with id {1}", m_Title, entity.Get());
 		component.Texture = new Texture2D;
 		return true;
@@ -436,6 +445,7 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentAdded<PointLight>(Entity entity, PointLight& component)
 	{
+		ENGINE_SEND_LOG("\t[{0}]::Light Component added to entity with id {1}", m_Title, entity.Get());
 		ENGINE_TRACE("\t[{0}]::Light Component added to entity with id {1}", m_Title, entity.Get());
 		//m_SceneLightsPositions.push_back(component);
 		return true;
@@ -444,6 +454,7 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& component)
 	{
+		ENGINE_SEND_LOG("t\[{0}]::Native Script Component added to entity with id {1}", m_Title, entity.Get());
 		ENGINE_TRACE("t\[{0}]::Native Script Component added to entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
@@ -452,6 +463,7 @@ namespace RealEngine {
 	bool Scene::OnComponentAdded<CameraComponent>(Entity entity, CameraComponent& component)
 	{
 		component.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
+		ENGINE_SEND_LOG("\t[{0}]::Camera Component added to entity with id {1}", m_Title, entity.Get());
 		ENGINE_TRACE("\t[{0}]::Camera Component added to entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
@@ -459,6 +471,7 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentAdded<MeshComponent>(Entity entity, MeshComponent& component)
 	{
+		ENGINE_SEND_LOG("\t[{0}]::Mesh Component added to entity with id {1}", m_Title, entity.Get());
 		ENGINE_TRACE("\t[{0}]::Mesh Component added to entity with id {1}", m_Title, entity.Get());
 
 		for (int i = 0; i < 5; i++)
@@ -483,6 +496,7 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentDeleted<TagComponent>(Entity entity, TagComponent& component)
 	{
+		ENGINE_SEND_LOG("[{0}]::Tag Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		ENGINE_WARNING("[{0}]::Tag Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
@@ -490,6 +504,7 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentDeleted<TransformComponent>(Entity entity, TransformComponent& component)
 	{
+		ENGINE_SEND_LOG("[{0}]::Transform Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		ENGINE_WARNING("[{0}]::Transform Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
@@ -497,6 +512,7 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentDeleted<SpriteRenderer>(Entity entity, SpriteRenderer& component)
 	{
+		ENGINE_SEND_LOG("[{0}]::Sprite Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		ENGINE_WARNING("[{0}]::Sprite Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
@@ -504,6 +520,7 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentDeleted<TextureRenderer>(Entity entity, TextureRenderer& component)
 	{
+		ENGINE_SEND_LOG("[{0}]::Texture Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		ENGINE_WARNING("[{0}]::Texture Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		//delete component.Texture;
 		return true;
@@ -512,6 +529,7 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentDeleted<PointLight>(Entity entity, PointLight& component)
 	{
+		ENGINE_SEND_LOG("[{0}]::Texture Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		ENGINE_WARNING("[{0}]::Texture Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
@@ -519,6 +537,7 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentDeleted<NativeScriptComponent>(Entity entity, NativeScriptComponent& component)
 	{
+		ENGINE_SEND_LOG("[{0}]::Native Script Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		ENGINE_WARNING("[{0}]::Native Script Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
@@ -526,6 +545,7 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentDeleted<CameraComponent>(Entity entity, CameraComponent& component)
 	{
+		ENGINE_SEND_LOG("[{0}]::Camera Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		ENGINE_WARNING("[{0}]::Camera Component has been deleted from entity with id {1}", m_Title, entity.Get());
 		return true;
 	}
@@ -533,6 +553,7 @@ namespace RealEngine {
 	template<>
 	bool Scene::OnComponentDeleted<MeshComponent>(Entity entity, MeshComponent& component)
 	{
+		ENGINE_SEND_LOG("[{0}]::MeshComponent has been deleted from entity with id {1}", m_Title, entity.Get());
 		ENGINE_WARNING("[{0}]::MeshComponent has been deleted from entity with id {1}", m_Title, entity.Get());
 		delete component.ownMesh.VerticesBase;
 		delete component.ownMesh.IndicesBase;
